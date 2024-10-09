@@ -1,0 +1,35 @@
+kob:
+  # Die URL der Testtreiberschnittelle des Primärsystems
+  psurl: "http://localhost:8080"
+  # Die URL der Mock-Aktensysteme. Standard ist 127.0.0.1, für docker-runs sollte host.docker.internal verwendet werden.
+  asurl: "https://localhost:8443"
+  # Soll die Testtreiberschnittelle des Primärsystems verwendet werden?
+  # Wenn false, dann werden in der WebUI Nachrichten angezeigt, die
+  # beschreiben was der Tester im Primärsystem machen soll.
+  useTestdriverApi: true
+  # Soll der Test headless, also ohne visuelle Überwachung im Browser, durchgeführt werden?
+  useBrowser: true
+  # Die KVNR, mit welcher die KOB durchgeführt werden soll.
+  kvnr: "Z1234567891"
+  # Welcher Typ von EML soll heruntergeladen werden ('XHTML', 'PDF', 'FHIR')
+  emltype: "PDF"
+
+  testsuite:
+    # Die Tags, die für die Ausführung der Testsuite verwendet werden sollen. "@KOB" führt die verpflichtenden KOB-Tests aus.
+    tests: "@KOB"
+
+  ##################################################################################
+  # Detailkonfigurationen
+  ##################################################################################
+  # Soll der Browser gestartet werden? (true/false) Docker-Compose deaktiviert diese Option,
+  # daher sollte diese Eigenschaft immer korrekt sein.
+  startBrowser: true
+  # Die RootCa, die der Tiger-Proxy verwenden soll. Der Standardwert ist "ca.p12;changeit".
+  # Eigene Zertifikate können hinterlegt werden. Als Format sollte PKCS12 verwendet werden,
+  # das Passwort kann nach einem Semikolon angegeben werden. Details können hier gefunden werden:
+  # https://gematik.github.io/app-Tiger/Tiger-User-Manual.html#configuring-pki-identities-in-tiger-proxys-tls-section
+  rootCa: ca.p12;changeit
+  # Polling für die Testtreiber-API.
+  polling:
+    timeoutInSeconds: 120
+    intervalInMilliseconds: 500

@@ -1,0 +1,169 @@
+:doctype: book
+ifndef::env-github[]
+image::doc/Gematik_Logo_Flag_With_Background.png[logo,width=200,height=47,role=right]
+endif::[]
+ifdef::env-github[]
+++++
+<img align="right" width="250" height="47" src="doc/Gematik_Logo_Flag_With_Background.png"/> <br/>
+++++
+endif::[]
+
+= KOB-Testsuite - VORAB VERSION!!
+
+== Overview
+
+The KOB-Testsuite is an important tool for validating interoperability requirements of the gematik for Primärsysteme.
+This document will guide you through the installation and configuration of the suite.
+
+The rest of this document is in German.
+The content will include setup instructions, configuration guidelines, and additional technical details for running the testsuite.
+
+[NOTE]
+====
+The rest of this document is in German.
+The content will include setup instructions, configuration guidelines, and additional technical details for running the testsuite.
+If you have any questions or need further assistance, please reach out to the project maintainers.
+====
+
+[IMPORTANT]
+====
+This version is not the final release of the KOB-Testsuite.
+Input is welcome and appreciated.
+Please reach out to the project maintainers with any feedback or suggestions.
+The release of the final version is expected on the 1st of December 2024.
+====
+
+== Inhaltsverzeichnis
+
+* <<_einführung,Einführung>>
+* <<_setup,Setup>>
+* <<_lokal_maven,Lokal (Maven)>>
+* <<_lokal_docker,Lokal (Docker)>>
+* <<_port_tabelle,Port Tabelle>>
+* <<_konfiguration,Konfiguration>>
+* <<_tls_konfiguration,TLS Konfiguration>>
+
+== Einführung
+
+Vorab-Version der KOB-Testsuite.
+Dies ist die Testsuite, mit welcher die Konformitätsbestätigung der gematik für EPA 3.0 erreicht werden kann.
+
+Momentan sind nur die verpflichtenden Tests implementiert.
+Die optionalen Tests sind vorhanden, aber noch nicht in einem aufgeräumten Zustand.
+In näherer Zukunft werden diese Tests auch in einen voll automatisierbaren Zustand gebracht, sodass automatisierbar Regressionstests durchgeführt werden können.
+
+[IMPORTANT]
+====
+Dies ist eine Vorab-Version der KOB-Testsuite.
+Feedback und Anregungen sind willkommen und werden geschätzt.
+Bitte wenden Sie sich an die Projektpfleger.
+Die Veröffentlichung der endgültigen Version ist für den 1. Dezember 2024 geplant.
+====
+
+[WARNING]
+====
+Für eine ordnungsgemäße Ausführung der KOB-Testsuite dürfen nur bestimmte Dateien angepasst werden.
+Diese sind:
+* `kob.yaml` (Konfiguration der Testsuite) * `dc-testsuite.yml` (Konfiguration des Docker-Containers) * `.env` (Konfiguration des Docker-Containers)
+
+Alle übrigen Dateien dürfen nicht verändert werden!
+====
+
+== Setup
+
+Das grundsätzliche Setup sieht wie folgt aus:
+
+image::/doc/img/setup.png[Setup]
+
+Die Testsuite wird auf einem Tester-PC ausgeführt.
+Auf diesem läuft auch das Primärsystem.
+Der Konnektor ist korrekt konfiguriert und erreichbar.
+Auf diesem Testrechner kann nun die Tiger-Testsuite gestartet, ebenso wie der Tiger-Proxy.
+Die Kommunikation zwischen Primärsystem und der TI muss nun über den Tiger-Proxy geleitet werden.
+Dieser kann die Kommunikation aufzeichnen und analysieren.
+
+Es gibt keine Vorgabe WIE diese Umleitung erfolgen muss, zwei Wege scheinen jedoch sinnvoll:
+
+=== Forward Proxy
+
+Zunächst einmal kann der Tiger-Proxy schlicht als Forward-Proxy für das Primärsystem eingerichtet werden.
+Die Routen sind entsprechend konfiguriert so das der Verkehr hier an die korrekten Aktensysteme weitergeleitet werden.
+
+=== DNS Manipulation
+
+Alternativ kann die DNS-Auflösung beeinflusst werden.
+Am trivialsten gelingt das z.b. mit der hosts.txt.
+Hier werden die Hostnamen der Aktensysteme auf die IP-Adresse des Tiger-Proxy (127.0.0.1) umgeleitet.
+Der Tiger-Proxy kann dann die Anfragen an die korrekten Aktensysteme weiterleiten.
+
+=== Mock-Servers (epa-deployment)
+
+Momentan ist die KOB-Suite für eine Ausführung gegen die Mock-Server aus dem epa-deployment gebaut.
+Die Routen für die Aktensysteme werden entsprechend nicht auf die echten Aktensysteme weiter geleitet, sondern auf die Mock-Server.
+Hier ergibt sich aber eine Port-Kollision: Der Port 443 wird sowohl für die Mock-Server als auch für den Tiger-Proxy des epa-deployment benötigt.
+
+Die Lösung ist hier, einfach das epa-deployment auf einem anderen Port zu starten.
+Hierzu muss dort in der `.env`-Datei der Port für den Tiger-Proxy angepasst werden: `EPA_PORT=8443`. Dieser Port
+findet sich in der `kob.yaml`-Datei unter `kob.asurl` wieder.
+
+== Ausführung
+
+Die KOB-Testsuite kann entweder lokal (per Maven) oder in einem Docker-Container ausgeführt werden.
+
+=== Lokal (Maven)
+
+Die Testsuite kann lokal mit Maven ausgeführt werden.
+Dazu reicht ein einfaches `mvn clean install` im Root-Verzeichnis des Projekts.
+Um nur die Testfälle für die KOB EPA 3.0 auszuführen, kann der Befehl `mvn clean install -Dcucumber.filter.tags="@KOB"` verwendet werden.
+Ohne diesen Filter werden alle Tests ausgeführt.
+
+=== Lokal (Docker)
+
+In dieser Vorab-Version gibt es noch kein offiziell verfügbares Docker-Image, daher muss das Image selber gebaut werden.
+Erst dann kann die Testsuite gestartet werden.
+
+[source,bash]
+----
+docker build --tag 'kob-testsuite' . && docker-compose -f dc-testsuite.yml up
+----
+
+Die Testergebnisse sind dann unter `target/site/serenity/index.html` zu finden.
+
+Die Docker-Compose-Variante startet per Default momentan nur die verpflichtenden KOB-Testfälle.
+
+In der ersten Ausführung werden alle benötigten Artefakte für den Bau frisch aus dem Internet geladen, was eine Zeit dauern kann.
+In den folgenden Ausführungen wird dann nur noch das gebaute Image gestartet, was die Startzeit signifikant verkürzt.
+
+[NOTE]
+====
+Die Docker-Compose-Datei sowie die .env-Datei können angepasst werden, um die Testsuite zu konfigurieren.
+====
+
+== Port Tabelle
+
+|=====================================================
+| Service                      | Port | Protocol
+| Tiger Testsuite (WorkflowUI) | 9010 | http
+| Tiger-Proxy Admin Port       | 9011 | http
+| Tiger-Proxy Proxy Port       | 443  | http / https
+|=====================================================
+
+== Konfiguration
+
+Die relevanten Konfigurationsoptionen sind in `kob.yaml` zu finden.
+Sie sind dort beschrieben und können angepasst werden.
+
+=== TLS Konfiguration
+
+Der Tiger-Proxy verwendet intern das unter `ca.p12` befindliche Zertifikat zum Ausstellen von TLS-Zertifikaten.
+Entsprechend muss dieses Zertifikat im Truststore des Primärsystems eingepflegt werden.
+
+== Geplante Änderungen
+
+Hier eine Übersicht über die wichtigsten Änderungen, die wir planen. Wenn Sie hier Dinge vermissen oder Anregungen haben, melden Sie sich bitte bei uns!
+
+* Adaption der echten Aktensysteme. Die Grundlagen sind gelegt, aber Anpassungen werden notwendig sein.
+* Verwendung von "echten" Zertifikaten, die aus einer RU-CA stammen. (Dies macht das patchen des Truststores überflüssig)
+* Automatisierung der optionalen Tests. Hierfür werden ggf Anpassungen der Testtreiberschnittstelle notwendig sein. Diese Änderungen werden aber NICHT mit den verpflichtenden Tests kollidieren. Sprich: Die jetzt existierende Schnittstelle wird aller Voraussicht nach bis zur KOB 3.0 unverändert bleiben.
+* Deployen des Docker Images
+* Einbau einer Test-REST-API in Tiger-Testsuite, um eine bessere Integration in CI/CD-Pipelines zu ermöglichen.

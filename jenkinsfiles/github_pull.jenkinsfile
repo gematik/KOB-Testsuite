@@ -1,0 +1,7 @@
+@Library('gematik-jenkins-shared-library') _
+pipelineGitHubPull {
+    GITHUB_PROJECT_NAME = 'KOB-Testsuite'
+    GEMATIK_PROJECT_NAME = 'Testtools/ePA/kob-testsuite.git'
+    GITLAB_TARGET_BRANCH = 'main'
+    GITHUB_SOURCE_BRANCH = 'main'
+}

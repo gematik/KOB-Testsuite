@@ -1,0 +1,24 @@
+@startuml
+skinparam component {
+  backgroundColor<<tiger>> orange
+  backgroundColor<<System under test>> lightblue
+}
+
+cloud Tester-PC {
+    [Primärsystem] as PS <<System under test>>
+    component docker {
+        [Tiger Proxy] as TP <<tiger>>
+        [Testsuite] <<tiger>>
+    }
+}
+[Konnektor]
+[Kartenterminal] as ct
+cloud TI
+
+Testsuite -> PS : PS Testdriver API (optional)
+PS -> TP
+TP <-> Konnektor
+TP ..> Testsuite
+Konnektor -> TI
+Konnektor -down-> ct
+@enduml

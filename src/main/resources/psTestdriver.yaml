@@ -1,0 +1,256 @@
+openapi: 3.0.3
+info:
+  title: PS-Testdriver API
+  description: This API is exposed by a Primärsystem (PS, primary system) to allow the automated execution of tests.
+  version: 0.0.1
+tags:
+  - name: Optional
+    description: These are optional operations. They are triggered by the testsuite, but are not required for the test to pass.
+  - name: Mandatory
+    description: Mandatory operations that are required for basic operations in the testsuite.
+  - name: KOB EPA 3.0
+    description: Specific operations for the KOB EPA 3.0 testsuite. These operations and the mandatory operations are required
+      for the KOB EPA 3.0 testsuite.
+servers:
+  - url: 'http'
+paths:
+  /system/reset:
+    post:
+      summary: Resets the Primärsystem. This operation is used to reset the Primärsystem to a clean state. More detail
+        of what needs to be reset can be found in the body. As a fallback the Primärsystem can simply reboot, resetting
+        all state. If more control can be exerted over the state of the application a soft reset can be performed.
+      tags:
+        - Optional
+      operationId: reset-primaersystem
+      requestBody:
+        required: true
+        content:
+          'application/gematik.psTestdriver.v0.0.1+json':
+            schema:
+              $ref: '#/components/schemas/reset-primaersystem'
+      responses:
+        '201':
+          $ref: '#/components/responses/action-created'
+        '400':
+          $ref: '#/components/responses/bad-request'
+        '500':
+          $ref: '#/components/responses/server-error'
+        '501':
+          $ref: '#/components/responses/not-implemented'
+  /patient/insert-egk:
+    post:
+      summary: Insert an EGK into an attached card reader. All implicit operations (read VSD, ensure entitlement on EPA...)
+        are triggered by this operation. IF this operation is implemented and an action is created, the test suite MUST wait
+        for the action to be completed before continuing.
+      tags:
+        - Optional
+      operationId: insert-egk
+      requestBody:
+        required: true
+        content:
+          'application/gematik.psTestdriver.v0.0.1+json':
+            schema:
+              $ref: '#/components/schemas/insert-egk'
+      responses:
+        '200':
+          $ref: '#/components/responses/action-created'
+        '400':
+          $ref: '#/components/responses/bad-request'
+        '500':
+          $ref: '#/components/responses/server-error'
+        '501':
+          $ref: '#/components/responses/not-implemented'
+  /patient/medication/medication-service/eml:
+    post:
+      summary: Retrieves an EML (Elektronischer Medikationsliste) for a patient
+      tags:
+        - KOB EPA 3.0
+      operationId: retrieve-eml
+      requestBody:
+        required: true
+        content:
+          'application/gematik.psTestdriver.v0.0.1+json':
+            schema:
+              $ref: '#/components/schemas/eml-retrieval'
+      responses:
+        '201':
+          $ref: '#/components/responses/action-created'
+        '400':
+          $ref: '#/components/responses/bad-request'
+        '500':
+          $ref: '#/components/responses/server-error'
+  /actions:
+    get:
+      summary: List all active actions
+      tags:
+        - Mandatory
+      operationId: list-active-actions
+      responses:
+        '200':
+          description: A list of active actions
+          content:
+            'application/gematik.psTestdriver.v0.0.1+json':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/action'
+        '500':
+          description: Internal server error
+  /actions/{id}:
+    get:
+      summary: Retrieve an action by its id
+      tags:
+        - Mandatory
+      operationId: retrieve-action
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Action retrieved
+          content:
+            'application/gematik.psTestdriver.v0.0.1+json':
+              schema:
+                $ref: '#/components/schemas/action'
+        '404':
+          description: Action not found
+        '500':
+          description: Internal server error
+  /actions/{id}/screenshot:
+    get:
+      summary: Take a representative screenshot of the current state of the application. This
+        image MUST include the data of the action with the given id, if applicable. (e.g. the retrieved EML)
+      tags:
+        - Mandatory
+        - KOB EPA 3.0
+      operationId: screenshot-action
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            'image/png':
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Action not found
+        '500':
+          description: Internal server error
+        '501':
+          $ref: '#/components/responses/not-implemented'
+components:
+  schemas:
+    action:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the action
+        status:
+          $ref: '#/components/schemas/status'
+        type:
+          type: string
+          enum: [ 'retrieve-eml','reset-primaersystem','insert-egk' ]
+          description: Type of the action
+        requestUrl:
+          type: string
+          description: URL of the initial request
+        error:
+          $ref: '#/components/schemas/error-message'
+    error-message:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Short error message
+        id:
+          type: string
+          format: uuid
+          description: Identifier for the specific error (Can be used to look up the error in a log file)
+        details:
+          type: string
+          description: Detailed error message (Should be useful for the PS-developers)
+      required:
+        - message
+        - id
+    eml-retrieval:
+      type: object
+      properties:
+        patient:
+          $ref: '#/components/schemas/kvnr'
+        emlType:
+          $ref: '#/components/schemas/eml-type'
+    insert-egk:
+      type: object
+      properties:
+        patient:
+          $ref: '#/components/schemas/kvnr'
+    reset-primaersystem:
+      type: object
+      properties:
+        reboot:
+          type: boolean
+          description: Force a reboot of the application.
+        closeAllEpaSessions:
+          type: boolean
+          description: Close all open EPA sessions (VAU and TLS).
+        forgetKvnrs:
+          type: array
+          items:
+            type: string
+            format: kvnr
+          description: Forget all data associated with the given KVNRs.
+    kvnr:
+      type: string
+      pattern: '^[A-Z][0-9]{10}$'
+      description: Krankenversicherungsnummer (KVNR). Dies ist nur die Nummer des Versicherten, nicht die gesamte KVNR.
+      example: Z1234567890
+    eml-type:
+      type: string
+      enum: [ 'xhtml', 'pdf', 'fhir' ]
+      description: In which format EML should be retrieved
+    status:
+      type: string
+      enum: [ 'pending', 'processing', 'successful', 'failed' ]
+  responses:
+    action-created:
+      description: New action created
+      headers:
+        location:
+          description: URL of the created action
+          schema:
+            type: string
+      content:
+        'application/gematik.psTestdriver.v0.0.1+json':
+          schema:
+            $ref: '#/components/schemas/action'
+    bad-request:
+      description: Bad request
+      content:
+        'application/gematik.psTestdriver.v0.0.1+json':
+          schema:
+            $ref: '#/components/schemas/error-message'
+    server-error:
+      description: Internal server error
+      content:
+        'application/gematik.psTestdriver.v0.0.1+json':
+          schema:
+            $ref: '#/components/schemas/error-message'
+    not-implemented:
+      description: The requested operation is not implemented
+      content:
+        'application/gematik.psTestdriver.v0.0.1+json':
+          schema:
+            $ref: '#/components/schemas/error-message'
