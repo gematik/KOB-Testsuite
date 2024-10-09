@@ -1,0 +1,45 @@
+tigerProxy:
+  activateRbelParsingFor:
+    - epa3-vau
+  fileSaveInfo.writeToFile: true
+  proxyPort: 443
+  adminPort: 9011
+  activateForwardAllLogging: false
+  tls:
+    serverRootCa: "${kob.rootCa|ca.p12;changeit}"
+  proxyRoutes:
+    - from: http://ps
+      to: ${kob.psurl}
+    - from: "/"
+      to: ${kob.psurl}
+      hosts: ["ps", "ps:443", "ps:80"]
+    - from: ${kob.psurl}
+      to: ${kob.psurl}
+    # route für den IDP
+    - from: /
+      to: https://213.95.83.120/
+      hosts: ["idp-ref.app.ti-dienste.de", "idp-ref.app.ti-dienste.de:443", "idp-ref.app.ti-dienste.de:80"]
+    # AS 1, IBM
+    - from: /
+      to: ${kob.asurl}
+      hosts: ["epa-as-1.dev.epa4all.de:443", "epa-as-1.dev.epa4all.de:80", "epa-as-1.dev.epa4all.de"]
+    # AS 2, RISE
+    - from: /
+      to: ${kob.asurl}
+      hosts: [ "epa-as-2.dev.epa4all.de", "epa-as-2.dev.epa4all.de:443", "epa-as-2.dev.epa4all.de:80" ]
+    # Fallback route
+    - from: /
+      to: ${kob.asurl}
+
+lib:
+  activateWorkflowUi: "${kob.useBrowser}"
+  startBrowser: ${kob.startBrowser|true}
+  workflowUiPort: 9010
+  trafficVisualization: true
+
+logging:
+  level:
+    de.gematik.test.tiger.proxy: TRACE
+
+additionalConfigurationFiles:
+  - filename: kob.yaml

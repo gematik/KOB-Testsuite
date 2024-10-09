@@ -1,0 +1,22 @@
+version: "3.8"
+
+name: dc-testsuite-kob
+services:
+  kob-testsuite:
+    image: kob-testsuite
+    container_name: kob-testsuite
+    environment:
+      - KOB_STARTBROWSER=false
+      - KOB_PSURL=http://host.docker.internal:8080
+      - KOB_ASURL=https://host.docker.internal:8443
+    ports:
+      - "9010:9010"
+      - "9011:9011"
+      - "443:443"
+    volumes:
+      - ./:/app
+    command: 'mvn verify -Dcucumber.filter.tags="@KOB"'
+
+volumes:
+  kob-testsuite-maven:
+    name: kob-testsuite-maven
