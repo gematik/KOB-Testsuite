@@ -13,12 +13,12 @@ Funktion: Test ePA login
     Und TGR find last request to path ".*" with "$.body.decrypted.path.basicPath" matching "/epa/authz/v1/getNonce"
     # outer request
     Und TGR current request with attribute "$.method" matches "POST"
-    Und TGR current request with attribute "$.header.[~'accept']" matches "application/octet-stream"
+    Und TGR current request with attribute "$.header.[~'accept']" matches ".*application/octet-stream.*"
     Und TGR current request with attribute "$.header.[~'content-type']" matches "application/octet-stream"
     Und TGR current request with attribute "$.header.['VAU-nonPU-Tracing']" matches ".* .*"
     # inner request
     Und TGR current request with attribute "$.body.decrypted.method" matches "GET"
-    Und TGR current request with attribute "$.body.decrypted.header.[~'accept']" matches "application/json"
+    Und TGR current request with attribute "$.body.decrypted.header.[~'accept']" matches ".*application/json.*"
     Und TGR current request with attribute "$.body.decrypted.header.['x-useragent']" matches ".*"
     # outer response
     Und TGR current response with attribute "$.header.[~'content-type']" matches "application/octet-stream"
@@ -37,7 +37,7 @@ Funktion: Test ePA login
     Und TGR find last request to path ".*" with "$.body.decrypted.path.basicPath" matching "/epa/authz/v1/send_authorization_request_sc"
     # outer request
     Und TGR current request with attribute "$.method" matches "POST"
-    Und TGR current request with attribute "$.header.[~'accept']" matches "application/octet-stream"
+    Und TGR current request with attribute "$.header.[~'accept']" matches ".*application/octet-stream.*"
     Und TGR current request with attribute "$.header.[~'content-type']" matches "application/octet-stream"
     Und TGR current request with attribute "$.header.['VAU-nonPU-Tracing']" matches ".* .*"
     # inner request
@@ -49,12 +49,13 @@ Funktion: Test ePA login
     # inner response
     Und TGR current response with attribute "$.body.decrypted.responseCode" matches "302"
     Und TGR current response with attribute "$.body.decrypted.reasonPhrase" matches "Found"
-    Und TGR current response with attribute "$.body.decrypted.header.[~'location']" matches "https://idp-ref.app.ti-dienste.de.*"
+    Und TGR current response with attribute "$.body.decrypted.header.[~'location']" matches "https://idp-ref.zentral.idp.splitdns.ti-dienste.de.*"
     Und TGR current response with attribute "$.body.decrypted.header.[~'location'].redirect_uri" matches ".*"
     Und TGR current response with attribute "$.body.decrypted.header.[~'location'].state" matches ".*"
     Und TGR current response with attribute "$.body.decrypted.header.[~'location'].nonce" matches ".*"
     Und TGR current response with attribute "$.body.decrypted.header.[~'location'].code_challenge" matches ".*"
     Und TGR current response with attribute "$.body.decrypted.header.[~'location'].code_challenge_method.value" matches "S256"
+    # TODO: check matching scopes
     Und TGR current response with attribute "$.body.decrypted.header.[~'location'].scope.value" matches "gem-auth openid"
     Und TGR current response with attribute "$.body.decrypted.header.[~'location'].response_type.value" matches "code"
 
@@ -62,7 +63,7 @@ Funktion: Test ePA login
     Und TGR find last request to path ".*" with "$.body.decrypted.path.basicPath" matching "/epa/authz/v1/send_authcode_sc"
     # outer request
     Und TGR current request with attribute "$.method" matches "POST"
-    Und TGR current request with attribute "$.header.[~'accept']" matches "application/octet-stream"
+    Und TGR current request with attribute "$.header.[~'accept']" matches ".*application/octet-stream.*"
     Und TGR current request with attribute "$.header.[~'content-type']" matches "application/octet-stream"
     Und TGR current request with attribute "$.header.['VAU-nonPU-Tracing']" matches ".* .*"
     # inner request
@@ -108,7 +109,8 @@ Funktion: Test ePA login
     """
       {
       "nonce" : "${json-unit.ignore}",
-      "iat" : "[\\d]*"
+      "iat" : "[\\d]*",
+      "exp" : "[\\d]*"
       }
     """
     Und TGR current request contains node "$.body.decrypted.body.clientAttest.content.signature"

@@ -29,6 +29,7 @@ Funktion: Test information operations by PS
     ### get consent decisions
     # request
     Und TGR find last request to path "/information/api/v1/ehr/consentdecisions" with "$.method" matching "GET"
+    Und TGR current request with attribute "$.header.[~'accept']" matches ".*application/json.*"
     Und TGR current request with attribute "$.header.['x-insurantid']" matches ".*"
     Und TGR current request with attribute "$.header.['x-useragent']" matches ".*"
 
@@ -36,10 +37,12 @@ Funktion: Test information operations by PS
     Und TGR current response with attribute "$.responseCode" matches "200"
     Und TGR current response at "$.body" matches as JSON:
     """
-      [
-        {"functionId":"medication","decision":"${json-unit.ignore}"},
-        {"functionId":"erp-submission","decision":"${json-unit.ignore}"}
-      ]
+      {
+        "data": [
+                  {"functionId":"medication","decision":"${json-unit.ignore}"},
+                  {"functionId":"erp-submission","decision":"${json-unit.ignore}"}
+                ]
+      }
     """
 
     Und TGR current response with attribute "$.body.0.decision" matches "(permit|deny)"

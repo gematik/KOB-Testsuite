@@ -1,16 +1,16 @@
 kob:
-  # Die URL der Testtreiberschnittelle des Primärsystems
+  # Die URL der Testtreiberschnittstelle des Primärsystems
   psurl: "http://localhost:8080"
   # Die URL der Mock-Aktensysteme. Standard ist 127.0.0.1, für docker-runs sollte host.docker.internal verwendet werden.
   asurl: "https://localhost:8443"
-  # Soll die Testtreiberschnittelle des Primärsystems verwendet werden?
+  # Soll die Testtreiberschnittstelle des Primärsystems verwendet werden?
   # Wenn false, dann werden in der WebUI Nachrichten angezeigt, die
-  # beschreiben was der Tester im Primärsystem machen soll.
-  useTestdriverApi: true
+  # beschreiben, was der Tester im Primärsystem machen soll.
+  useTestdriverApi: false
   # Soll der Test headless, also ohne visuelle Überwachung im Browser, durchgeführt werden?
   useBrowser: true
   # Die KVNR, mit welcher die KOB durchgeführt werden soll.
-  kvnr: "Z1234567891"
+  kvnr: "Z123456783"
   # Welcher Typ von EML soll heruntergeladen werden ('XHTML', 'PDF', 'FHIR')
   emltype: "PDF"
 

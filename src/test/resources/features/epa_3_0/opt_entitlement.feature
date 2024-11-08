@@ -24,12 +24,12 @@ Funktion: Test set entitlements by PS
     Und TGR find last request to path ".*" with "$.body.decrypted.path.basicPath" matching "/epa/basic/api/v1/ps/entitlements"
         # outer request
     Und TGR current request with attribute "$.method" matches "POST"
-    Und TGR current request with attribute "$.header.[~'accept']" matches "application/octet-stream"
+    Und TGR current request with attribute "$.header.[~'accept']" matches ".*application/octet-stream.*"
     Und TGR current request with attribute "$.header.[~'content-type']" matches "application/octet-stream"
     Und TGR current request with attribute "$.header.['VAU-nonPU-Tracing']" matches ".* .*"
     # inner request
     Und TGR current request with attribute "$.body.decrypted.method" matches "POST"
-    Und TGR current request with attribute "$.body.decrypted.header.[~'accept']" matches "application/json"
+    Und TGR current request with attribute "$.body.decrypted.header.[~'accept']" matches ".*application/json.*"
     Und TGR current request with attribute "$.body.decrypted.header.['x-useragent']" matches ".*"
     Und TGR current request with attribute "$.body.decrypted.header.['x-insurantid']" matches ".*"
     Und TGR current request at "$.body.decrypted.body" matches as JSON:
@@ -39,6 +39,7 @@ Funktion: Test set entitlements by PS
       }
     """
 
+    Und TGR current request with attribute "$.body.decrypted.body.jwt.content.header.alg" matches "(ES256|PS256)"
     Und TGR current request at "$.body.decrypted.body.jwt.content.header" matches as JSON:
     """
     {

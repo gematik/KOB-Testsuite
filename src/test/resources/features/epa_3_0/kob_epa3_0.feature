@@ -26,7 +26,7 @@ Funktion: KOB Testsuite for EPA 3.0
     # Nun prüfen wir die Struktur der Anfrage
     Und TGR die Fehlermeldung wird gesetzt auf: "Der äußere Request des EML Downloads ist nicht korrekt"
     Und TGR prüfe aktueller Request stimmt im Knoten "$.method" überein mit "POST"
-    Und TGR prüfe aktueller Request stimmt im Knoten "$.header.[~'accept']" überein mit "application/octet-stream"
+    Und TGR prüfe aktueller Request stimmt im Knoten "$.header.[~'accept']" überein mit ".*application/octet-stream.*"
     Und TGR prüfe aktueller Request stimmt im Knoten "$.header.[~'content-type']" überein mit "application/octet-stream"
     # In nicht-PU Umgebungen muss der Client (das Primärsystem) die verwendeten Schlüssel (K2_c2s_app_data und K2_s2c_app_data)
     # Base64 kodiert im Header "VAU-nonPU-Tracing" übertragen. Diese Schlüssel dürfen NICHT in der PU übertragen werden.
@@ -45,5 +45,5 @@ Funktion: KOB Testsuite for EPA 3.0
     # Als letztes prüfen wir die Struktur der inneren Antwort (der VAU-verschlüsselte HTTP-Response)
     Und TGR die Fehlermeldung wird gesetzt auf: "Die innere Response des EML Downloads ist nicht korrekt"
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.header.[~'content-type']" überein mit "application/.*"
-
+    Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.responseCode" überein mit "200"
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.body" überein mit ".*"

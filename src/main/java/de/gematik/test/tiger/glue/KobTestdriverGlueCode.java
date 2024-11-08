@@ -17,6 +17,7 @@
 package de.gematik.test.tiger.glue;
 
 import static org.awaitility.Awaitility.await;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.gematik.test.psTestdriver.dto.*;
 import de.gematik.test.tiger.common.config.TigerGlobalConfiguration;
@@ -51,7 +52,7 @@ public class KobTestdriverGlueCode {
   private static final String TESTDRIVER_CONTENT_TYPE =
       "application/gematik.psTestdriver.v0.1.0+json";
   private final TigerTypedConfigurationKey<String> kobApiUrl =
-      new TigerTypedConfigurationKey<>("kob.psUrl", String.class);
+      new TigerTypedConfigurationKey<>("kob.Psurl", String.class);
   private final TigerTypedConfigurationKey<Boolean> useTestdriver =
       new TigerTypedConfigurationKey<>("kob.useTestdriverApi", Boolean.class, Boolean.TRUE);
   private final TigerTypedConfigurationKey<Integer> pollingTimeoutInSeconds =
@@ -107,6 +108,7 @@ public class KobTestdriverGlueCode {
   public void kobSaveScreenshotOfLastActionTo(String filename) throws IOException {
     if (lastActionExecuted == null || !useTestdriver.getValueOrDefault()) {
       log.info("No action executed yet or testdriver is disabled. Skipping screenshot.");
+      return;
     }
 
     final HttpResponse<byte[]> response =
