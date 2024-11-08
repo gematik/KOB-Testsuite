@@ -16,24 +16,26 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.gematik</groupId>
     <artifactId>kob-testsuite</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.6.0</version>
     <description>KOB Testsuite fuer PS Hersteller</description>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version.maven-surefire-plugin>3.3.0</version.maven-surefire-plugin>
-        <version.tiger>3.4.2</version.tiger>
-        <version.maven-failsafe-plugin>3.3.0</version.maven-failsafe-plugin>
+        <version.maven-surefire-plugin>3.5.1</version.maven-surefire-plugin>
+        <version.tiger>3.4.4</version.tiger>
+        <version.maven-failsafe-plugin>3.5.1</version.maven-failsafe-plugin>
         <spring.boot.version>3.0.13</spring.boot.version>
         <jackson.version>2.17.1</jackson.version>
+        <jacoco.version>0.8.12</jacoco.version>
+        <spring.framework.version>6.1.14</spring.framework.version>
     </properties>
 
     <dependencyManagement>
@@ -41,7 +43,7 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.5.6</version>
+                <version>1.5.12</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -52,29 +54,11 @@
             <artifactId>tiger-test-lib</artifactId>
             <version>${version.tiger}</version>
         </dependency>
-        <!-- needed for support of junit5  driver classes -->
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-suite</artifactId>
-            <version>1.10.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-junit-platform-engine</artifactId>
-            <version>7.18.0</version>
-            <scope>test</scope>
-        </dependency>
         <!-- Dependencies for API code generation -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>3.3.2</version>
-        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.17.2</version>
+            <version>2.18.1</version>
         </dependency>
         <dependency>
             <groupId>javax.annotation</groupId>
@@ -105,7 +89,54 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.version}</version>
+                    <configuration>
+                        <dataFile>${project.build.directory}/jacoco.exec</dataFile>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>jacoco-initialize</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>jacoco-site</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${version.maven-surefire-plugin}</version>
+                    <configuration>
+                        <argLine>@{argLine} -Dfile.encoding=UTF-8</argLine>
+                        <properties>
+                            <property>
+                                <name>listener</name>
+                                <value>org.sonar.java.jacoco.JUnitListener</value>
+                            </property>
+                        </properties>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+            </plugin>
             <plugin>
                 <groupId>de.gematik.test</groupId>
                 <artifactId>tiger-maven-plugin</artifactId>
@@ -150,11 +181,10 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.0.1</version>
+                <version>7.9.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -180,7 +210,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>3.4.2</version>
                 <executions>
                     <execution>
                         <id>empty-javadoc-jar</id>
@@ -195,6 +225,63 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.7.1</version>
+                <configuration>
+                    <appendAssemblyId>true</appendAssemblyId>
+                    <descriptors>
+                        <descriptor>src/main/assembly/zip-test-report.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>zip-test-report</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- This profile is meant to create a feature bundle zip archive for upload to Titus.
+             The zip will contain all feature files and the pom.xml
+
+             To run it issue: mvn -P pack-bundle-zip
+             ZIP file will be located in the target folder
+        -->
+        <profile>
+            <id>pack-bundle-zip</id>
+            <build>
+                <defaultGoal>clean initialize</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <version>3.7.1</version>
+                        <executions>
+                            <execution>
+                                <configuration>
+                                    <appendAssemblyId>true</appendAssemblyId>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/zip-feature-bundle.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <id>zip-feature-bundle</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

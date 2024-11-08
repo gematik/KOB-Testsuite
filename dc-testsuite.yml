@@ -1,19 +1,19 @@
-version: "3.8"
 
 name: dc-testsuite-kob
 services:
   kob-testsuite:
-    image: kob-testsuite
+    image: gematik1/kob-testsuite:0.6.0
     container_name: kob-testsuite
     environment:
       - KOB_STARTBROWSER=false
-      - KOB_PSURL=http://host.docker.internal:8080
-      - KOB_ASURL=https://host.docker.internal:8443
+      - KOB_PSURL=http://host.docker.internal:8080  # URL to connect PS with test driver interface if available
+      - KOB_ASURL=https://host.docker.internal:8443 # ULR to connect ePA mock services to run tests, e.g. vau handshake test
     ports:
       - "9010:9010"
       - "9011:9011"
       - "443:443"
     volumes:
+      - kob-testsuite-maven:/.m2
       - ./:/app
     command: 'mvn verify -Dcucumber.filter.tags="@KOB"'
 

@@ -7,6 +7,10 @@ tigerProxy:
   activateForwardAllLogging: false
   tls:
     serverRootCa: "${kob.rootCa|ca.p12;changeit}"
+  # proxy configuration
+  #forwardToProxy:
+    #hostname: 10.11.98.80
+    #port: 8080
   proxyRoutes:
     - from: http://ps
       to: ${kob.psurl}
@@ -17,29 +21,27 @@ tigerProxy:
       to: ${kob.psurl}
     # route für den IDP
     - from: /
-      to: https://213.95.83.120/
-      hosts: ["idp-ref.app.ti-dienste.de", "idp-ref.app.ti-dienste.de:443", "idp-ref.app.ti-dienste.de:80"]
-    # AS 1, IBM
+      to: https://10.31.196.4:443/
+      hosts: ["idp-ref.zentral.idp.splitdns.ti-dienste.de:443", "idp-ref.zentral.idp.splitdns.ti-dienste.de"]
+    # AS 1, IBM - "10.30.19.70/135"
     - from: /
-      to: ${kob.asurl}
-      hosts: ["epa-as-1.dev.epa4all.de:443", "epa-as-1.dev.epa4all.de:80", "epa-as-1.dev.epa4all.de"]
-    # AS 2, RISE
+      to: https://10.30.19.70:443/
+      hosts: [ "epa-as-1.dev.epa4all.de:443", "epa-as-1.dev.epa4all.de"]
+    # AS 2, RISE - "10.30.19.43"
     - from: /
-      to: ${kob.asurl}
-      hosts: [ "epa-as-2.dev.epa4all.de", "epa-as-2.dev.epa4all.de:443", "epa-as-2.dev.epa4all.de:80" ]
-    # Fallback route
-    - from: /
-      to: ${kob.asurl}
+      to: https://10.30.19.43:443/
+      hosts: [ "epa-as-2.dev.epa4all.de:443", "epa-as-2.dev.epa4all.de"]
+    # Fallback route to mock service e.g. to test VAU handshake
+    #- from: /
+    #  to: ${kob.asurl}
 
 lib:
   activateWorkflowUi: "${kob.useBrowser}"
   startBrowser: ${kob.startBrowser|true}
   workflowUiPort: 9010
   trafficVisualization: true
-
-logging:
-  level:
-    de.gematik.test.tiger.proxy: TRACE
+  runTestsOnStart: true
 
 additionalConfigurationFiles:
   - filename: kob.yaml
+

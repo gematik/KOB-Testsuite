@@ -1,5 +1,8 @@
 # language: de
 @OPTIONAL @EPA_3_0
+# can only be run against gematik VAU Mock Service,
+# as the necessary crypto key information is contained in the VAU handshake responses
+@Mock
 Funktion: Test ePA VAU handshake
 
   Szenario: VAU handshake
@@ -13,6 +16,7 @@ Funktion: Test ePA VAU handshake
     Und TGR wait for message with node "$.path" matching "/VAU"
     Und TGR find last request to path "/VAU"
     Und TGR current request with attribute "$.method" matches "POST"
+    Und TGR current request with attribute "$.header.[~'accept']" matches ".*application/cbor.*"
     Und TGR current request with attribute "$.header.[~'content-type']" matches "application/cbor"
     Und TGR current request with attribute "$.body.MessageType" matches "M1"
     Und TGR current request with attribute "$.body.ECDH_PK.crv" matches "P-256"
@@ -76,8 +80,8 @@ Funktion: Test ePA VAU handshake
           "y" : "${json-unit.ignore}"
         },
         "Kyber768_PK" : "${json-unit.ignore}",
-        "iat" : "${json-unit.ignore}",
-        "exp" : "${json-unit.ignore}",
+        "iat" : "[\\d]*",
+        "exp" : "[\\d]*",
         "comment" : "VAU Server Keys"
       }
     """
@@ -85,6 +89,7 @@ Funktion: Test ePA VAU handshake
     # Message 3
     Dann TGR find next request to path "${vauCid}" containing node "$.body.MessageType"
     Und TGR current request with attribute "$.method" matches "POST"
+    Und TGR current request with attribute "$.header.[~'accept']" matches ".*application/cbor.*"
     Und TGR current request with attribute "$.header.[~'content-type']" matches "application/cbor"
     Und TGR current request with attribute "$.body.MessageType" matches "M3"
     Und the current request at node "$.body.AEAD_ct" is a CBOR byte string

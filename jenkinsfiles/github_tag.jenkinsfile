@@ -1,4 +1,0 @@
-@Library('gematik-jenkins-shared-library') _
-pipelineGitHubTag {
-    GITHUB_PROJECT_NAME = 'KOB-Testsuite'
-}
