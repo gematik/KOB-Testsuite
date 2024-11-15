@@ -2,7 +2,7 @@
 name: dc-testsuite-kob
 services:
   kob-testsuite:
-    image: gematik1/kob-testsuite:0.6.0
+    image: gematik1/kob-testsuite:0.6.2
     container_name: kob-testsuite
     environment:
       - KOB_STARTBROWSER=false

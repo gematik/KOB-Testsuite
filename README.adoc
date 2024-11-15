@@ -10,52 +10,58 @@ endif::[]
 
 = KOB-Testsuite - VORAB VERSION!!
 
-== Overview
-
-The KOB-Testsuite is an important tool for validating interoperability requirements of the gematik for Primärsysteme.
-This document will guide you through the installation and configuration of the suite.
-
-The rest of this document is in German.
-The content will include setup instructions, configuration guidelines, and additional technical details for running the testsuite.
-
-[NOTE]
-====
-The rest of this document is in German.
-The content will include setup instructions, configuration guidelines, and additional technical details for running the testsuite.
-If you have any questions or need further assistance, please reach out to the project maintainers.
-====
-
-[IMPORTANT]
-====
-This version is not the final release of the KOB-Testsuite.
-Input is welcome and appreciated.
-Please reach out to the project maintainers with any feedback or suggestions.
-The release of the final version is expected on the 1st of December 2024.
-====
-
 == Inhaltsverzeichnis
 
 * <<_einführung,Einführung>>
 * <<_setup,Setup>>
-* <<_lokal_maven,Lokal (Maven)>>
-* <<_lokal_docker,Lokal (Docker)>>
-* <<_port_tabelle,Port Tabelle>>
+* <<_testvorbedingungen,Testvorbedingungen>>
 * <<_konfiguration,Konfiguration>>
-* <<_tls_konfiguration,TLS Konfiguration>>
+* <<_routing,Routing>>
+* <<_testausführung,Testausführung>>
+* <<_port_tabelle,Port Tabelle>>
+* <<_prüfnachweis_für_die_kob,Prüfnachweis für die KOB>>
 
 == Einführung
 
 Vorab-Version der KOB-Testsuite.
 Dies ist die Testsuite, mit welcher die Konformitätsbestätigung der gematik für EPA 3.0 erreicht werden kann.
 
-Es ist der verpflichtende KOB-Test sowie optionale Tests vorhanden.
-In näherer Zukunft werden diese Tests mittels Testtreiber Schnittstelle auch in einen voll automatisierbaren Zustand gebracht, sodass automatisierbar Regressionstests durchgeführt werden können.
+Es sind der verpflichtende KOB-Test sowie optionale Tests vorhanden.
+In näherer Zukunft werden diese Tests mittels Testtreiber-Schnittstelle auch in einen voll automatisierbaren Zustand gebracht, sodass automatisierbar Regressionstests durchgeführt werden können.
 
 [IMPORTANT]
 ====
 Dies ist eine Vorab-Version der KOB-Testsuite.
 Die Veröffentlichung der endgültigen Version ist für den 1. Dezember 2024 geplant.
+Für die Ausführung der KOB-Testsuite ist es wichtig, dass nicht die PS-Testsuite und auch keine Mock Services aus dem epa-deployment parallel auf dem gleichen Rechner verwendet werden (u.a. wegen Port Konflikte).
 ====
+
+== Setup
+
+Die grundsätzlichen technischen Voraussetzungen sehen wie folgt aus:
+
+image::/doc/img/setup.png[Setup]
+
+* Die Testsuite wird auf einem Tester-PC ausgeführt.
+* Auf diesem läuft auch das Primärsystem.
+* Der Konnektor ist korrekt konfiguriert und erreichbar.
+* Auf diesem Testrechner kann nun die Tiger-Testsuite gestartet werden, ebenso wie der Tiger-Proxy.
+* Die Kommunikation zwischen Primärsystem und der TI muss nun über den Tiger-Proxy geleitet werden.
+* Dieser kann die Kommunikation aufzeichnen und analysieren.
+* Die Testsuite kann Artefakte von Maven Central aus dem Internet beziehen.
+
+== Testvorbedingungen
+
+Die grundsätzlichen fachlichen Voraussetzungen sehen wie folgt aus:
+
+* Die Aktenkonten bei beiden Aktensystemen sind in der RU-DEV eingerichtet worden.
+* E-Rezepte für die Aktenkonten wurden eingestellt.
+  (z.B. können AVS Hersteller hierfür das Gematik Tool vom Medical Team ERPIONE nutzen)
+* Die Aktenlokalisierung der Aktenkonten kann bei beiden Aktensystemen erfolgreich durchgeführt werden.
+* Für die genutzte LEI (SMCB) kann eine Befugnis (Entitlement) für die Aktenkonten bei den beiden Aktensystemen eingestellt werden.
+* In Nicht-PU-Umgebungen muss der Client (das Primärsystem) die verwendeten Schlüssel (K2_c2s_app_data und K2_s2c_app_data) Base64 kodiert im Header "VAU-nonPU-Tracing" übertragen. Dies ist nur für die Testumgebungen (z.B. KOB-Testfall) vorgesehen und *MUSS* für die produktive Umgebung (PU) zwingend wieder entfernt und dürfen dort *NICHT* übertragen werden. (siehe A_24477)
+
+== Konfiguration
 
 [WARNING]
 ====
@@ -68,29 +74,38 @@ Diese sind:
 Alle übrigen Dateien dürfen nicht verändert werden!
 ====
 
-== Setup
+Die folgenden, relevanten Konfigurationen der KOB-Testsuite müssen wie folgt in `kob.yaml` vorgenommen werden:
 
-Das grundsätzliche Setup sieht wie folgt aus:
+* `kvnr` - die für die KOB verwendete KVNR
+* `emltype` - das für die KOB verwendete EML-Format
+* `as` - das für die KOB verwendete Aktensystem (nur für die Dokumentation beim Testdurchlauf)
+* `useTestdriverApi` - ob die Testtreiber-API bei der KOB verwendet werden soll
 
-image::/doc/img/setup.png[Setup]
+=== TLS Konfiguration
 
-Die Testsuite wird auf einem Tester-PC ausgeführt.
-Auf diesem läuft auch das Primärsystem.
-Der Konnektor ist korrekt konfiguriert und erreichbar.
-Auf diesem Testrechner kann nun die Tiger-Testsuite gestartet, ebenso wie der Tiger-Proxy.
-Die Kommunikation zwischen Primärsystem und der TI muss nun über den Tiger-Proxy geleitet werden.
-Dieser kann die Kommunikation aufzeichnen und analysieren.
+Der Tiger-Proxy verwendet intern das unter `ca.p12` befindliche Zertifikat zum Ausstellen von TLS-Zertifikaten.
+Entsprechend muss dieses Zertifikat im Truststore des Primärsystems eingepflegt werden.
+
+== Routing
+
+Es muss das Routing der Nachrichten über Tiger-Proxy der KOB-Testsuite erfolgen, um eine Auswertung dieser zu ermöglichen. Der Tiger-Proxy leitet die Anfragen an die korrekten Aktensysteme weiter. Wichtig ist hierbei auch, dass in dem äußeren HTTP-Request auch der HTTP-Header "Host" für die Anfrage an das entsprechende Aktensystem gesetzt ist, damit Tiger-Proxy die Anfrage entsprechend nach dem Mitschnitt weiterleiten kann.
+
+Beispiel für den HTTP-Header, damit Tiger-Proxy korrekt routen kann.
+[source,httprequest]
+----
+Host: epa-as-1.dev.epa4all.de
+----
 
 Es gibt keine Vorgabe WIE diese Umleitung erfolgen muss, zwei Wege scheinen jedoch sinnvoll:
 
-=== Forward Proxy
+=== Forward Proxy (Variante 1)
 
 Zunächst einmal kann der Tiger-Proxy schlicht als Forward-Proxy für das Primärsystem eingerichtet werden.
-Die Routen sind entsprechend konfiguriert, so das der Verkehr hier an die korrekten Aktensysteme weitergeleitet werden.
+Die Routen sind entsprechend konfiguriert, so dass der Verkehr hier an die korrekten Aktensysteme weitergeleitet wird.
 
-=== DNS Manipulation
+=== DNS Manipulation (Variante 2)
 
-Alternativ kann die DNS-Auflösung beeinflusst werden, z.B. über das Editieren der Host Einträge im Testsystem selbst (e.g. /etc/hosts)
+Alternativ kann die DNS-Auflösung beeinflusst werden, z.B. über das Editieren der Host-Einträge im Testsystem selbst (e.g. /etc/hosts). Hier werden die Hostnamen der Aktensysteme auf die IP-Adresse des Testrechners, wo der Tiger-Proxy mit dem Port 443 läuft, umgeleitet.
 
 Beispiel, wenn das Primärsystem auf dem gleichen Rechner läuft, wie die Testsuite mit dem Tiger-Proxy.
 
@@ -98,27 +113,26 @@ Beispiel, wenn das Primärsystem auf dem gleichen Rechner läuft, wie die Testsu
 ----
 127.0.0.1    epa-as-1.dev.epa4all.de
 127.0.0.1    epa-as-2.dev.epa4all.de
-127.0.0.1    idp-ref.zentral.idp.splitdns.ti-dienste.de
 ----
 
-Hier werden die Hostnamen der Aktensysteme (und ggf. auch des zentralen IDP) auf die IP-Adresse des Testrechners, wo der Tiger-Proxy mit dem Port 443 läuft, umgeleitet.
-Der Tiger-Proxy kann dann die Anfragen an die korrekten Aktensysteme weiterleiten. Wichtig ist hier bei auch, dass in dem äußeren HTTP-Request auch der HTTP header "Host" für die Anfrage an das entsprechende Aktensystem gesetzt ist, damit Tiger-Proxy die Anfrage entsprechend nach dem Mitschnitt weiterleiten kann.
+[IMPORTANT]
+====
+Diese Einträge sollten nach der Durchführung der KOB-Testsuite wieder entfernt werden, da es ansonsten zu einem unbeabsichtigten Fehlverhalten führt, wenn die KOB-Testsuite nicht mehr aktiv läuft und somit die Nachrichten nicht mehr an die Aktensysteme weitergeleitet werden.
+====
 
-Beispiel für den HTTP Header, damit Tiger-Proxy korrekt routen kann.
-[source,httprequest]
-----
-Host: epa-as-1.dev.epa4all.de
-----
+== Testausführung
 
-== Ausführung
-
-Die KOB-Testsuite kann entweder lokal (per Maven) oder in einem Docker-Container ausgeführt werden.
+Die KOB-Testsuite kann entweder lokal per Maven oder in einem Docker-Container ausgeführt werden.
 
 === Lokal (Maven)
 
-Die Testsuite kann lokal mit Maven ausgeführt werden.
-Dazu reicht ein einfaches Kommando `mvn clean install` im Root-Verzeichnis des Projekts.
-Um nur die Testfälle für die KOB EPA 3.0 auszuführen, kann der Befehl `mvn clean install -Dcucumber.filter.tags="@KOB"` verwendet werden.
+Für die lokale Ausführung werden folgende Software-Versionen empfohlen:
+
+* Maven Version >= 3.9
+* JAVA Version 21
+
+Ist dies gegeben, reicht ein einfaches Kommando `mvn clean install` im Root-Verzeichnis des Projekts.
+Um nur die Testfälle für die KOB EPA 3.0 auszuführen, kann der Befehl `mvn clean verify -Dcucumber.filter.tags="@KOB"` verwendet werden.
 Ohne diesen Filter werden alle Tests ausgeführt.
 
 === Lokal (Docker)
@@ -131,12 +145,26 @@ Diese Variante startet per Default momentan nur die verpflichtenden KOB-Testfäl
 docker compose -f dc-testsuite.yml up
 ----
 
-Die Testergebnisse sind dann unter `target/site/serenity/index.html` zu finden.
+=== WorkflowUI
 
-[NOTE]
-====
-Die Docker-Compose-Datei sowie die .env-Datei können angepasst werden, um die Testsuite zu konfigurieren.
-====
+Die Durchführung der Testsuite geschieht über die von der KOB-Testsuite bereitgestellte Webseite der WorkflowUI.
+Hierzu wird die folgende Adresse im Browser aufgerufen, wenn sich die Testsuite auf dem lokalen Rechner gestartet wurde: https://localhost:9010.
+Beim Starten über Maven versucht die Testsuite diese Seite automatisch im Default-Browser zu öffnen.
+Beim Starten als Docker Container wird der entsprechende Link im Log ausgegeben, sobald die Seite aufrufbar ist.
+
+[source,bash]
+----
+========================================================================================================================
+  ____ _____  _    ____ _____ ___ _   _  ____  __        _____  ____  _  _______ _     _____        __  _   _ ___
+ / ___|_   _|/ \  |  _ \_   _|_ _| \ | |/ ___| \ \      / / _ \|  _ \| |/ /  ___| |   / _ \ \      / / | | | |_ _|
+ \___ \ | | / _ \ | |_) || |  | ||  \| | |  _   \ \ /\ / / | | | |_) | ' /| |_  | |  | | | \ \ /\ / /  | | | || |
+  ___) || |/ ___ \|  _ < | |  | || |\  | |_| |   \ V  V /| |_| |  _ <| . \|  _| | |__| |_| |\ V  V /   | |_| || |   _ _ _
+ |____/ |_/_/   \_\_| \_\|_| |___|_| \_|\____|    \_/\_/  \___/|_| \_\_|\_\_|   |_____\___/  \_/\_/     \___/|___| (_|_|_)
+
+========================================================================================================================
+09:21:12.065 [main ] INFO  d.g.t.t.l.TigerDirector - Waiting for workflow Ui to fetch status...
+09:21:12.065 [main ] INFO  d.g.t.t.l.TigerDirector - Workflow UI http://localhost:9010
+----
 
 == Port Tabelle
 
@@ -147,20 +175,33 @@ Die Docker-Compose-Datei sowie die .env-Datei können angepasst werden, um die T
 | Tiger-Proxy Proxy Port       | 443  | http / https
 |=====================================================
 
-== Konfiguration
+== Prüfnachweis für die KOB
 
-Die relevanten Konfigurationsoptionen sind in `kob.yaml` zu finden.
-Sie sind dort beschrieben und können angepasst werden.
+Für die Beantragung des KOB Zertifikates bei der gematik benötigen Sie als Prüfnachweis den Testreport (zip file) und pro konfiguriertem Aktensystem je ein Screenshot (Bilddatei) von Ihrer GUI des PS auf der die angezeigte eML ersichtlich wird. Den Screenshot Datei(en) erstellen Sie bitte lokal bei Ihnen am System.
 
-=== TLS Konfiguration
+=== Testreport
 
-Der Tiger-Proxy verwendet intern das unter `ca.p12` befindliche Zertifikat zum Ausstellen von TLS-Zertifikaten.
-Entsprechend muss dieses Zertifikat im Truststore des Primärsystems eingepflegt werden.
+Die Testergebnisse selbst sind unter `target/site/serenity/index.html` zu finden und können somit im Browser verifiziert werden.
+Der Testreport wird automatisch nach der Ausführung im `target/kob-testsuite.*-test-report.zip` abgelegt.
+Um diese Datei aus dem Docker Container in das lokale System zu kopieren, kann folgender Befehl genutzt werden:
+
+[source,bash]
+----
+docker cp kob-testsuite:/app/target/kob-testsuite.*-test-report.zip .
+----
+
+=== Upload bei TITUS
+
+Loggen Sie sich in Ihren Account auf dem Titus Bestätigungsportal (https://titus.gematik.solutions) ein und laden Sie die entsprechenden Prüfnachweise im Bestätigungsantrag hoch. Für das Hochladen nutzen sie den Dialog "Nachweise für das Bestätigungsverfahren", wo sowohl der Testreport als ZIP Datei als auch den/die Screenshot Datei(en), welche die eML in ihrem Primärsystem darstellen, ausgewählt werden können. Im Anschluss starten Sie den Bestätigungsnachweis über TITUS.
+
+image::/doc/img/upload_dialog_titus.png[Upload Dialog in TITUS]
+
+Fragen zum Titus-Bestätigungsportal und zur Durchführung des KOB Verfahrens können Sie über unseren Servicedesk einstellen: https://service.gematik.de/servicedesk/customer/portal/26/group/36
 
 == Geplante Änderungen
 
 Hier eine Übersicht über die wichtigsten Änderungen, die wir planen. Wenn Sie hier Dinge vermissen oder Anregungen haben, melden Sie sich bitte bei uns!
 
-* Verwendung von "echten" Zertifikaten, die aus einer RU-CA stammen. (Dies macht das patchen des Truststores überflüssig)
-* Automatisierung der optionalen Tests. Hierfür werden ggf Anpassungen der Testtreiberschnittstelle notwendig sein. Diese Änderungen werden aber NICHT mit den verpflichtenden Tests kollidieren. Sprich: Die jetzt existierende Schnittstelle wird aller Voraussicht nach bis zur KOB 3.0 unverändert bleiben.
-* Einbau einer Test-REST-API in Tiger-Testsuite, um eine bessere Integration in CI/CD-Pipelines zu ermöglichen.
+* Verwendung von "echten" Zertifikaten, die aus einer RU-CA stammen. (Dies macht das Patchen des Truststores überflüssig)
+* Automatisierung der optionalen Tests. Hierfür werden ggf. Anpassungen der Testtreiberschnittstelle notwendig sein. Diese Änderungen werden aber NICHT mit den verpflichtenden Tests kollidieren. Sprich: Die jetzt existierende Schnittstelle wird aller Voraussicht nach bis zur KOB 3.0 unverändert bleiben.
+* Einbau einer Test-REST-API in die Tiger-Testsuite, um eine bessere Integration in CI/CD-Pipelines zu ermöglichen.
