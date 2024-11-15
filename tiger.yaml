@@ -7,10 +7,11 @@ tigerProxy:
   activateForwardAllLogging: false
   tls:
     serverRootCa: "${kob.rootCa|ca.p12;changeit}"
+    masterSecretsFile: target/tlsSecrets.txt
   # proxy configuration
   #forwardToProxy:
-    #hostname: 10.11.98.80
-    #port: 8080
+  #  hostname: 10.11.98.80
+  #  port: 8080
   proxyRoutes:
     - from: http://ps
       to: ${kob.psurl}
@@ -32,8 +33,8 @@ tigerProxy:
       to: https://10.30.19.43:443/
       hosts: [ "epa-as-2.dev.epa4all.de:443", "epa-as-2.dev.epa4all.de"]
     # Fallback route to mock service e.g. to test VAU handshake
-    #- from: /
-    #  to: ${kob.asurl}
+    - from: /
+      to: https://10.30.19.70:443/
 
 lib:
   activateWorkflowUi: "${kob.useBrowser}"

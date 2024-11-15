@@ -13,6 +13,8 @@ kob:
   kvnr: "Z123456783"
   # Welcher Typ von EML soll heruntergeladen werden ('XHTML', 'PDF', 'FHIR')
   emltype: "PDF"
+  # Mit welchem Aktensystem ist die KOB durchzuführen? ('IBM', 'RISE')
+  as: "IBM"
 
   testsuite:
     # Die Tags, die für die Ausführung der Testsuite verwendet werden sollen. "@KOB" führt die verpflichtenden KOB-Tests aus.

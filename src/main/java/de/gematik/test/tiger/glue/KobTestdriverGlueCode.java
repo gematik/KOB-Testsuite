@@ -16,6 +16,7 @@
 
 package de.gematik.test.tiger.glue;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,7 +44,6 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.apache.commons.io.FileUtils;
 
 @Slf4j
@@ -62,7 +62,7 @@ public class KobTestdriverGlueCode {
   private final Supplier<RuntimeException> missingKobApiUrl =
       () -> new RuntimeException("Missing configuration: " + kobApiUrl.getKey().downsampleKey());
   @Nullable private Action lastActionExecuted = null;
-  private ObjectMapper objectMapper = new ObjectMapper();
+  private final ObjectMapper objectMapper = new ObjectMapper();
   private HttpClient httpClient;
 
   @Before
@@ -88,8 +88,8 @@ public class KobTestdriverGlueCode {
         "Setzen sie das Primärsystem zurück. Insbesondere müssen Sie alle offenen EPA-Sitzungen schließen.");
   }
 
-  @When("KOB downloade die EML für die KVNR {tigerResolvedString} im Format {tigerResolvedString}")
-  public void kobDownloadEmlForKvnrAs(String kvnr, String emlTypeString) {
+  @When("KOB lade die EML für die KVNR {tigerResolvedString} im Format {tigerResolvedString} von dem Aktensystem {tigerResolvedString} herunter")
+  public void kobDownloadEmlForKvnrAs(String kvnr, String emlTypeString, String aktenSystem) {
     EmlType emlType = EmlType.fromValue(emlTypeString.toLowerCase());
     executeTestdriverAction(
         () ->
@@ -100,17 +100,20 @@ public class KobTestdriverGlueCode {
             + kvnr
             + " die EML-Datei als "
             + emlTypeString
+            + " von dem Aktensystem "
+            + aktenSystem
             + " herunter.");
   }
 
-  @SneakyThrows
   @When("KOB speichere einen Screenshot der letzten Aktion in der Datei {tigerResolvedString}")
-  public void kobSaveScreenshotOfLastActionTo(String filename) throws IOException {
-    if (lastActionExecuted == null || !useTestdriver.getValueOrDefault()) {
-      log.info("No action executed yet or testdriver is disabled. Skipping screenshot.");
-      return;
-    }
+  public void kobSaveScreenshotOfLastActionTo(String filename) {
+    executeTestdriverAction(
+        () -> saveScreenshotOfLastActionTo(filename),
+        "Speichern Sie einen Screenshot der letzten Aktion in der Datei " + filename);
+  }
 
+  @SneakyThrows
+  private void saveScreenshotOfLastActionTo(String filename) {
     final HttpResponse<byte[]> response =
         httpClient.send(
             HttpRequest.newBuilder(
@@ -129,9 +132,7 @@ public class KobTestdriverGlueCode {
       throw new AssertionError("Failed to retrieve screenshot: " + new String(response.body()));
     }
 
-    val screenshotData = response.body();
-
-    FileUtils.writeByteArrayToFile(new File(filename), screenshotData);
+    FileUtils.writeByteArrayToFile(new File(filename), response.body());
 
     log.info("Successfully saved screenshot of last action to {}", filename);
   }
@@ -157,36 +158,38 @@ public class KobTestdriverGlueCode {
         .until(() -> isCompleted(retrieveActionStatus(action.getId()).getStatus()));
 
     lastActionExecuted = action;
+
+    assertThat(retrieveActionStatus(action.getId()).getStatus())
+      .isEqualTo(Status.SUCCESSFUL);
   }
 
   private Action postObject(Object body, String actionUrl, String method) {
     try {
       final Builder builder = HttpRequest.newBuilder(URI.create(actionUrl));
       if (body != null) {
-        builder.method(method, BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
-          .header("content-type", TESTDRIVER_CONTENT_TYPE);
+        builder
+            .method(method, BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
+            .header("content-type", TESTDRIVER_CONTENT_TYPE);
       } else {
         builder.method(method, BodyPublishers.noBody());
       }
       final HttpResponse<String> response =
           httpClient.send(
-              builder
-                  .header("accept", TESTDRIVER_CONTENT_TYPE)
-                  .build(),
-              BodyHandlers.ofString());
+              builder.header("accept", TESTDRIVER_CONTENT_TYPE).build(), BodyHandlers.ofString());
       final String stringBody = response.body();
       log.info("got response: HTTP {} with '{}'", response.statusCode(), stringBody);
       return objectMapper.readValue(stringBody, Action.class);
-    } catch (IOException | InterruptedException e) {
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to send request", e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       throw new RuntimeException("Failed to send request", e);
     }
   }
 
   private Action retrieveActionStatus(UUID id) {
     return postObject(
-        null,
-        kobApiUrl.getValue().orElseThrow(missingKobApiUrl) + "/actions/" + id,
-      "GET");
+        null, kobApiUrl.getValue().orElseThrow(missingKobApiUrl) + "/actions/" + id, "GET");
   }
 
   private boolean isCompleted(Status status) {
