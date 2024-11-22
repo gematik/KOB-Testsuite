@@ -76,9 +76,9 @@ Alle übrigen Dateien dürfen nicht verändert werden!
 
 Die folgenden, relevanten Konfigurationen der KOB-Testsuite müssen wie folgt in `kob.yaml` vorgenommen werden:
 
-* `kvnr` - die für die KOB verwendete KVNR
+* `kvnrIbm` - die für die KOB gegen das IBM Aktensystem verwendete KVNR
+* `kvnrRise` - die für die KOB gegen das RISE Aktensystem verwendete KVNR
 * `emltype` - das für die KOB verwendete EML-Format
-* `as` - das für die KOB verwendete Aktensystem (nur für die Dokumentation beim Testdurchlauf)
 * `useTestdriverApi` - ob die Testtreiber-API bei der KOB verwendet werden soll
 
 === TLS Konfiguration
@@ -132,7 +132,23 @@ Für die lokale Ausführung werden folgende Software-Versionen empfohlen:
 * JAVA Version 21
 
 Ist dies gegeben, reicht ein einfaches Kommando `mvn clean install` im Root-Verzeichnis des Projekts.
-Um nur die Testfälle für die KOB EPA 3.0 auszuführen, kann der Befehl `mvn clean verify -Dcucumber.filter.tags="@KOB"` verwendet werden.
+Um nur die Testfälle für die KOB EPA 3.0 auszuführen, können die folgenden Befehle verwendet werden:
+
+* `mvn clean verify -Dcucumber.filter.tags="@KOB"` für den Test gegen beide Aktensysteme
+* `mvn clean verify -Dcucumber.filter.tags="@KOB and @IBM"` für den Test gegen das IBM Aktensystem
+* `mvn clean verify -Dcucumber.filter.tags="@KOB and @RISE"` für den Test gegen das RISE Aktensystem
+
+Um optionale Testfälle auszuführen, können die folgenden Befehle verwendet werden:
+
+* `mvn clean verify -Dcucumber.filter.tags="@login"`
+Aufbau einer User-Session bei einem der beiden Aktensysteme
+* `mvn clean verify -Dcucumber.filter.tags="@information-record-status"`
+Aktenkontolokalisierung bei einem der beiden Aktensysteme
+* `mvn clean verify -Dcucumber.filter.tags="@information-consent-decisions"`
+Abfrage der Zustimmung für ein Aktenkonto bei einem der beiden Aktensysteme
+* `mvn clean verify -Dcucumber.filter.tags="@entitlement"`
+Einstellen einer Befugnis für ein Aktenkonto bei einem der beiden Aktensysteme
+
 Ohne diesen Filter werden alle Tests ausgeführt.
 
 === Lokal (Docker)
@@ -166,6 +182,10 @@ Beim Starten als Docker Container wird der entsprechende Link im Log ausgegeben,
 09:21:12.065 [main ] INFO  d.g.t.t.l.TigerDirector - Workflow UI http://localhost:9010
 ----
 
+Nachdem der Testfall gestartet wurde, wartet die Testdurchführung auf eine Benutzerinteraktion, um mit der Prüfung der mitgeschnittenen Nachrichten vorzufahren. D.h. das in diesem Moment die eML vom Aktensystem abgerufen wurden muss, *bevor* man die Testdurchführung fortführt.
+
+image::/doc/img/continue_dialog_testsuite.png[Continue Dialog in Testsuite]
+
 == Port Tabelle
 
 |=====================================================
@@ -182,12 +202,12 @@ Für die Beantragung des KOB Zertifikates bei der gematik benötigen Sie als Pr�
 === Testreport
 
 Die Testergebnisse selbst sind unter `target/site/serenity/index.html` zu finden und können somit im Browser verifiziert werden.
-Der Testreport wird automatisch nach der Ausführung im `target/kob-testsuite.*-test-report.zip` abgelegt.
-Um diese Datei aus dem Docker Container in das lokale System zu kopieren, kann folgender Befehl genutzt werden:
+Der Testreport wird automatisch nach der Ausführung im `target/kob-testsuite.*-test-report.zip` abgelegt, wenn die Ausführung über den Quit Button in der WorkflowUI beendet wird.
+Um diese Datei aus dem Docker Container in das lokale System zu kopieren, muss der Platzhalter <KOB_RELEASE_VERSION> mit der entsprechenden Release-Versionsnummer ersetzt werden. Dann kann folgender Befehl genutzt werden:
 
 [source,bash]
 ----
-docker cp kob-testsuite:/app/target/kob-testsuite.*-test-report.zip .
+docker cp kob-testsuite:/app/target/kob-testsuite-<KOB_RELEASE_VERSION>-test-report.zip .
 ----
 
 === Upload bei TITUS

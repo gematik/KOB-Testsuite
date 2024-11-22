@@ -1,5 +1,5 @@
 # language: de
-@KOB @MANDATORY @EPA_3_0
+@KOB @EPA_3_0
 Funktion: KOB Testsuite for EPA 3.0
 
   # Testfall: EML Download.
@@ -7,13 +7,14 @@ Funktion: KOB Testsuite for EPA 3.0
   # Das Format des Downloads kann frei gewählt werde (siehe kob.yaml)
   # Der Download wird entweder über die Testtreiber-API oder manuell über die UI getriggert (siehe kob.yaml)
   # Der Screenshot wird in TITUS separat hochgeladen und händisch von der gematik überprüft. Er soll die Anzeige des EML in der UI demonstrieren
-  Szenario: Download EML
+  @Optional
+  Szenariogrundriss: Download EML <as>
     # Bereite Testumgebung vor
     Gegeben sei TGR lösche aufgezeichnete Nachrichten
     Und TGR lösche die benutzerdefinierte Fehlermeldung
 
     # Wir triggern den Download der eML in dem konfigurierten Format
-    Wenn KOB lade die EML für die KVNR "${kob.kvnr}" im Format "${kob.emlType}" von dem Aktensystem "${kob.as}" herunter
+    Wenn KOB lade die EML für die KVNR "<kvnr>" im Format "<emlType>" von dem Aktensystem "<as>" herunter
 
     # Zunächst überprüfen wir, ob grundsätzlich Verkehr gefunden werden kann und er den Mindestanforderungen entspricht
     Dann TGR die Fehlermeldung wird gesetzt auf: "Es konnte kein Verkehr gefunden werden! Bitte überprüfen Sie, ob der Verkehr tatsächlich über Tiger geroutet wird."
@@ -31,10 +32,11 @@ Funktion: KOB Testsuite for EPA 3.0
     # Nun prüfen wir die Struktur der Anfrage
     Dann TGR prüfe aktueller Request stimmt im Knoten "$.method" überein mit "POST"
     Und TGR prüfe aktueller Request stimmt im Knoten "$.header.[~'content-type']" überein mit "application/octet-stream"
+    Und TGR prüfe aktueller Request stimmt im Knoten "$.header.[~'host']" überein mit "<fqdn>.*"
 
     # Und nun die Struktur der inneren Anfrage (der VAU-verschlüsselte HTTP-Request)
     Und TGR prüfe aktueller Request stimmt im Knoten "$.body.decrypted.method" überein mit "GET"
-    Und TGR prüfe aktueller Request stimmt im Knoten "$.body.decrypted.header.['x-insurantid']" überein mit "${kob.kvnr}"
+    Und TGR prüfe aktueller Request stimmt im Knoten "$.body.decrypted.header.['x-insurantid']" überein mit "<kvnr>"
     Und TGR prüfe aktueller Request stimmt im Knoten "$.body.decrypted.header.['x-useragent']" überein mit "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
 
     # Nun prüfen wir die Antwort des Downloads. Damit stellen wir sicher, dass der Server die Anfrage korrekt verstanden hat
@@ -45,3 +47,14 @@ Funktion: KOB Testsuite for EPA 3.0
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.responseCode" überein mit "200"
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.header.[~'content-type']" überein mit "(application\/fhir\+json|application\/pdf|text\/html)"
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.body" überein mit ".*"
+
+    @IBM
+    Beispiele:
+      | kvnr | emlType | as | fqdn |
+      | ${kob.kvnrIbm} | ${kob.emlType} | IBM | epa-as-1.dev.epa4all.de |
+
+    @RISE
+    Beispiele:
+      | kvnr | emlType | as | fqdn |
+      | ${kob.kvnrRise} | ${kob.emlType} | RISE | epa-as-2.dev.epa4all.de |
+

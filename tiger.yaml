@@ -7,6 +7,9 @@ tigerProxy:
   activateForwardAllLogging: false
   tls:
     serverRootCa: "${kob.rootCa|ca.p12;changeit}"
+    serverIdentities:
+      - "src/test/resources/epa-as-1.dev.epa4all.de_NIST_X509.p12;00"
+      - "src/test/resources/epa-as-2.dev.epa4all.de_NIST_X509.p12;00"
     masterSecretsFile: target/tlsSecrets.txt
   # proxy configuration
   #forwardToProxy:
@@ -23,18 +26,18 @@ tigerProxy:
     # route für den IDP
     - from: /
       to: https://10.31.196.4:443/
-      hosts: ["idp-ref.zentral.idp.splitdns.ti-dienste.de:443", "idp-ref.zentral.idp.splitdns.ti-dienste.de"]
+      hosts: ["idp-ref.zentral.idp.splitdns.ti-dienste.de"]
     # AS 1, IBM - "10.30.19.70/135"
     - from: /
       to: https://10.30.19.70:443/
-      hosts: [ "epa-as-1.dev.epa4all.de:443", "epa-as-1.dev.epa4all.de"]
+      hosts: ["epa-as-1.dev.epa4all.de"]
     # AS 2, RISE - "10.30.19.43"
     - from: /
       to: https://10.30.19.43:443/
-      hosts: [ "epa-as-2.dev.epa4all.de:443", "epa-as-2.dev.epa4all.de"]
+      hosts: ["epa-as-2.dev.epa4all.de"]
     # Fallback route to mock service e.g. to test VAU handshake
     - from: /
-      to: https://10.30.19.70:443/
+      to: ${kob.asurl}
 
 lib:
   activateWorkflowUi: "${kob.useBrowser}"

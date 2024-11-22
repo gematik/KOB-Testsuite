@@ -14,7 +14,7 @@
 #
 # Docker Rules from https://wiki.gematik.de/display/DEV/Docker+Rules
 
-FROM maven:3-eclipse-temurin-21-alpine
+FROM maven:3-eclipse-temurin-17-alpine
 
 ARG COMMIT_HASH
 ARG VERSION
@@ -26,8 +26,16 @@ LABEL de.gematik.git-repo-name="https://gitlab.prod.ccs.gematik.solutions/git/Te
 LABEL de.gematik.commit-sha=$COMMIT_HASH
 LABEL de.gematik.version=$VERSION
 
+# Default USERID and GROUPID
+ARG USERID=10000
+ARG GROUPID=10000
+
 RUN mkdir -p /.m2/repository && chown -R "$USERID":"$GROUPID" /.m2/repository
 
+# Run as User (not root)
+USER $USERID:$GROUPID
+
+# Default Working directory
 WORKDIR /app
 
 COPY src /app/src
