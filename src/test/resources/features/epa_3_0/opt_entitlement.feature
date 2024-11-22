@@ -1,28 +1,18 @@
 # language: de
-@OPTIONAL @EPA_3_0
+@OPTIONAL @EPA_3_0 @entitlement
 Funktion: Test set entitlements by PS
 
   Szenario: Set entitlements by ps
     Gegeben sei TGR lösche aufgezeichnete Nachrichten
     Und TGR lösche die benutzerdefinierte Fehlermeldung
-    Und KOB setze alle EPA sessions des Primärsystems zurück
-    Und KOB stecke EGK mit der KVNR "${kob.kvnr}"
 
+    Wenn TGR show banner "Testfall: Befugnisvergabe durch ein Primärsystem"
     # For customers who trigger the post request for a new entitlement manually via UI
     Dann TGR pause test run execution with message "Bitte initiiere die Befugnisvergabe durch ein Primärsystem!"
 
-    # For gematik who triggers set entitlement by ps via an API call
-#    Und TGR send POST request to "http://ps/services/epa/testdriver/api/v1/entitlements" with contentType "application/json" Und multiline body:
-#    """
-#          {
-#          "telematikId": "5-SMC-B-Testkarte-883110000117894",
-#          "kvnr": "X110435031"
-#          }
-#         """
-
     ### set entitlements
     Und TGR find last request to path ".*" with "$.body.decrypted.path.basicPath" matching "/epa/basic/api/v1/ps/entitlements"
-        # outer request
+    # outer request
     Und TGR current request with attribute "$.method" matches "POST"
     Und TGR current request with attribute "$.header.[~'accept']" matches ".*application/octet-stream.*"
     Und TGR current request with attribute "$.header.[~'content-type']" matches "application/octet-stream"
@@ -42,11 +32,11 @@ Funktion: Test set entitlements by PS
     Und TGR current request with attribute "$.body.decrypted.body.jwt.content.header.alg" matches "(ES256|PS256)"
     Und TGR current request at "$.body.decrypted.body.jwt.content.header" matches as JSON:
     """
-    {
-      "typ" : "${json-unit.ignore}",
-      "x5c" : "${json-unit.ignore}",
-      "alg" : "${json-unit.ignore}"
-    }
+      {
+        "typ" : "${json-unit.ignore}",
+        "x5c" : "${json-unit.ignore}",
+        "alg" : "${json-unit.ignore}"
+      }
     """
 
     Und TGR current request at "$.body.decrypted.body.jwt.content.body" matches as JSON:
@@ -56,13 +46,13 @@ Funktion: Test set entitlements by PS
         "exp" : "[\\d]*",
         "auditEvidence" : "${json-unit.ignore}"
       }
-      """
+    """
 
     Und TGR current request contains node "$.body.decrypted.body.jwt.content.signature"
     # Und TGR current request with attribute "$.body.decrypted.body.jwt.content.signature" matches "true"
 
 
-   # outer response
+    # outer response
     Und TGR current response with attribute "$.header.[~'content-type']" matches "application/octet-stream"
     Und TGR current response with attribute "$.responseCode" matches "200"
 

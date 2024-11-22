@@ -6,8 +6,10 @@ Funktion: Test information operations by PS
   Szenario: Get record status by ps
     Gegeben sei TGR lösche aufgezeichnete Nachrichten
     Und TGR lösche die benutzerdefinierte Fehlermeldung
-    Und KOB setze alle EPA sessions des Primärsystems zurück
-    Und KOB stecke EGK mit der KVNR "${kob.kvnr}"
+
+    Wenn TGR show banner "Testfall: Frage den Status eines existierenden Aktenkontos beim Aktensystem mit dem Primärsystem ab"
+    # For customers who trigger the record status request manually via UI
+    Dann TGR pause test run execution with message "Bitte initiiere eine Abfrage des Status eines existierenden Aktenkontos beim Aktensystem durch ein Primärsystem!"
 
     ### get record status
     # request
@@ -20,7 +22,8 @@ Funktion: Test information operations by PS
 
   @information-consent-decisions
   Szenario: Get consent decisions by ps
-    Gegeben sei TGR clear recorded messages
+    Gegeben sei TGR lösche aufgezeichnete Nachrichten
+    Und TGR lösche die benutzerdefinierte Fehlermeldung
 
     Wenn TGR show banner "Testfall: Frage den Status von Widersprüchen eines existierenden Aktenkontos beim Aktensystem mit dem Primärsystem ab"
     # For customers who trigger the record status request manually via UI
@@ -45,5 +48,5 @@ Funktion: Test information operations by PS
       }
     """
 
-    Und TGR current response with attribute "$.body.0.decision" matches "(permit|deny)"
-    Und TGR current response with attribute "$.body.1.decision" matches "(permit|deny)"
+    Und TGR current response with attribute "$.body.data.0.decision" matches "(permit|deny)"
+    Und TGR current response with attribute "$.body.data.1.decision" matches "(permit|deny)"

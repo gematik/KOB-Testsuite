@@ -1,5 +1,16 @@
 # Release Notes KOB Testsuite
 
+## Release 0.6.3
+
+* Added TLS-RU-certificates for AS-servers
+* Added message for screenshot creation
+* IP-Selection for epa-as-1.dev now works correctly
+* Refactor KOB testcase
+  * run KOB testcase at least against one health record system (IBM and/or RISE)
+  * Necessary to define one KVNR for each health record system (kob.yml)
+* Refactor optional testcases
+  * modified to match at least on e health record system 
+
 ## Release 0.6.2
 
 * Refactor testcase

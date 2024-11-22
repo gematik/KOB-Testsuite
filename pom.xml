@@ -22,15 +22,15 @@
 
     <groupId>de.gematik</groupId>
     <artifactId>kob-testsuite</artifactId>
-    <version>0.6.2</version>
+    <version>0.6.3</version>
     <description>KOB Testsuite fuer PS Hersteller</description>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.maven-surefire-plugin>3.5.2</version.maven-surefire-plugin>
-        <version.tiger>3.4.4</version.tiger>
+        <version.tiger>3.4.5</version.tiger>
         <version.maven-failsafe-plugin>3.5.2</version.maven-failsafe-plugin>
         <spring.boot.version>3.0.13</spring.boot.version>
         <jackson.version>2.17.1</jackson.version>
@@ -84,7 +84,7 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
-            <version>1.18.34</version>
+            <version>1.18.36</version>
         </dependency>
     </dependencies>
 
