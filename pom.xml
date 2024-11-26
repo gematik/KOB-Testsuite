@@ -22,7 +22,8 @@
 
     <groupId>de.gematik</groupId>
     <artifactId>kob-testsuite</artifactId>
-    <version>0.6.3</version>
+    <version>0.6.4</version>
+    <packaging>jar</packaging>
     <description>KOB Testsuite fuer PS Hersteller</description>
 
     <properties>
@@ -30,12 +31,9 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.maven-surefire-plugin>3.5.2</version.maven-surefire-plugin>
-        <version.tiger>3.4.5</version.tiger>
         <version.maven-failsafe-plugin>3.5.2</version.maven-failsafe-plugin>
-        <spring.boot.version>3.0.13</spring.boot.version>
-        <jackson.version>2.17.1</jackson.version>
+        <version.tiger>3.4.5</version.tiger>
         <jacoco.version>0.8.12</jacoco.version>
-        <spring.framework.version>6.1.14</spring.framework.version>
     </properties>
 
     <dependencyManagement>
@@ -185,7 +183,7 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.9.0</version>
+                <version>7.10.0</version>
                 <executions>
                     <execution>
                         <goals>

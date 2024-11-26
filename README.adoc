@@ -120,6 +120,25 @@ Beispiel, wenn das Primärsystem auf dem gleichen Rechner läuft, wie die Testsu
 Diese Einträge sollten nach der Durchführung der KOB-Testsuite wieder entfernt werden, da es ansonsten zu einem unbeabsichtigten Fehlverhalten führt, wenn die KOB-Testsuite nicht mehr aktiv läuft und somit die Nachrichten nicht mehr an die Aktensysteme weitergeleitet werden.
 ====
 
+=== Proxy Konfiguration für Maven (Docker)
+
+Da der KOB-Testsuite Container während der Ausführung Maven-Artefakte bezieht, muss das Internet für den Container erreichbar sein. Sollte das Internet nur über einen Proxy-Server erreichbar sein, müssen die Einstellungen in der [./settings.xml](./settings.xml) für die Ausführung des PS-Testsuite Containers angepasst werden. Bitte beachten Sie, dass der Parameter `<active>true</active>` gesetzt werden muss, um die Einstellungen zu aktivieren und das Docker-Volume `kob-testsuite-maven` gelöscht werden muss, um die Änderungen zu übernehmen.
+
+Dazu müssen die folgenden Einträge angepasst werden:
+
+```xml
+  <proxy>
+    <id>optional</id>
+    <active>true</active>
+    <protocol>https</protocol>
+    <host>proxy.example.com</host>
+    <port>8080</port>
+    <username>user</username>
+    <password>password</password>
+    <nonProxyHosts>localhost|127.0.0.1</nonProxyHosts>
+  </proxy>
+```
+
 == Testausführung
 
 Die KOB-Testsuite kann entweder lokal per Maven oder in einem Docker-Container ausgeführt werden.
@@ -129,24 +148,24 @@ Die KOB-Testsuite kann entweder lokal per Maven oder in einem Docker-Container a
 Für die lokale Ausführung werden folgende Software-Versionen empfohlen:
 
 * Maven Version >= 3.9
-* JAVA Version 21
+* JAVA Version >= 17
 
 Ist dies gegeben, reicht ein einfaches Kommando `mvn clean install` im Root-Verzeichnis des Projekts.
 Um nur die Testfälle für die KOB EPA 3.0 auszuführen, können die folgenden Befehle verwendet werden:
 
-* `mvn clean verify -Dcucumber.filter.tags="@KOB"` für den Test gegen beide Aktensysteme
-* `mvn clean verify -Dcucumber.filter.tags="@KOB and @IBM"` für den Test gegen das IBM Aktensystem
-* `mvn clean verify -Dcucumber.filter.tags="@KOB and @RISE"` für den Test gegen das RISE Aktensystem
+* `mvn clean verify -Dcucumber.filter.tags=@KOB` für den Test gegen beide Aktensysteme
+* `mvn clean verify -Dcucumber.filter.tags=@IBM` für den Test gegen das IBM Aktensystem
+* `mvn clean verify -Dcucumber.filter.tags=@RISE` für den Test gegen das RISE Aktensystem
 
 Um optionale Testfälle auszuführen, können die folgenden Befehle verwendet werden:
 
-* `mvn clean verify -Dcucumber.filter.tags="@login"`
+* `mvn clean verify -Dcucumber.filter.tags=@login`
 Aufbau einer User-Session bei einem der beiden Aktensysteme
-* `mvn clean verify -Dcucumber.filter.tags="@information-record-status"`
+* `mvn clean verify -Dcucumber.filter.tags=@information-record-status`
 Aktenkontolokalisierung bei einem der beiden Aktensysteme
-* `mvn clean verify -Dcucumber.filter.tags="@information-consent-decisions"`
+* `mvn clean verify -Dcucumber.filter.tags=@information-consent-decisions`
 Abfrage der Zustimmung für ein Aktenkonto bei einem der beiden Aktensysteme
-* `mvn clean verify -Dcucumber.filter.tags="@entitlement"`
+* `mvn clean verify -Dcucumber.filter.tags=@entitlement`
 Einstellen einer Befugnis für ein Aktenkonto bei einem der beiden Aktensysteme
 
 Ohne diesen Filter werden alle Tests ausgeführt.
@@ -154,7 +173,8 @@ Ohne diesen Filter werden alle Tests ausgeführt.
 === Lokal (Docker)
 
 Die Testsuite kann mit einem Docker-Compose gestartet werden.
-Diese Variante startet per Default momentan nur die verpflichtenden KOB-Testfälle. Siehe dc-testsuite.yml.
+Diese Variante startet per Default momentan nur die verpflichtenden KOB-Testfälle. Siehe `.env` Datei.
+Hier können dann auch die optionalen Testfälle, wenn gewünscht, konfiguriert werden.
 
 [source,bash]
 ----
@@ -164,7 +184,7 @@ docker compose -f dc-testsuite.yml up
 === WorkflowUI
 
 Die Durchführung der Testsuite geschieht über die von der KOB-Testsuite bereitgestellte Webseite der WorkflowUI.
-Hierzu wird die folgende Adresse im Browser aufgerufen, wenn sich die Testsuite auf dem lokalen Rechner gestartet wurde: https://localhost:9010.
+Hierzu wird die folgende Adresse im Browser aufgerufen, wenn sich die Testsuite auf dem lokalen Rechner gestartet wurde: http://localhost:9010.
 Beim Starten über Maven versucht die Testsuite diese Seite automatisch im Default-Browser zu öffnen.
 Beim Starten als Docker Container wird der entsprechende Link im Log ausgegeben, sobald die Seite aufrufbar ist.
 

@@ -14,7 +14,8 @@
 #
 # Docker Rules from https://wiki.gematik.de/display/DEV/Docker+Rules
 
-FROM maven:3-eclipse-temurin-17-alpine
+# used java 21 image due to different m2 respository location
+FROM maven:3-eclipse-temurin-21-alpine
 
 ARG COMMIT_HASH
 ARG VERSION
@@ -30,7 +31,8 @@ LABEL de.gematik.version=$VERSION
 ARG USERID=10000
 ARG GROUPID=10000
 
-RUN mkdir -p /.m2/repository && chown -R "$USERID":"$GROUPID" /.m2/repository
+RUN mkdir -p /.m2/repository
+RUN chown -R $USERID:$GROUPID /.m2/repository
 
 # Run as User (not root)
 USER $USERID:$GROUPID
@@ -38,7 +40,13 @@ USER $USERID:$GROUPID
 # Default Working directory
 WORKDIR /app
 
-COPY src /app/src
-COPY pom.xml /app/pom.xml
+# Defining default Healthcheck e.g. when run without docker-compose or without healthcheck definition in it
+HEALTHCHECK --interval=15s --timeout=10s --start-period=15s \
+   CMD ["wget", "--quiet", "--tries=1", "--output-document", "-", "http://localhost:8080/actuator/health"]
 
-RUN mvn pre-integration-test
+# Copy the resource to the destination folder and assign permissions
+COPY --chown=$USERID:$GROUPID src /app/src
+COPY --chown=$USERID:$GROUPID pom.xml /app/pom.xml
+
+# Command to be executed.
+ENTRYPOINT ["mvn", "clean", "verify"]
