@@ -1,5 +1,16 @@
 # Release Notes KOB Testsuite
 
+## Release 0.6.4
+
+* Bugfix for IP-Selector
+* Selected test for docker container is configured via `.env` file
+* Fixed docker execution issues
+  * missing user rights inside docker container (throwing exception)
+    - different user than root is used due to security reasons
+  * added settings.xml to optional configure a proxy server for maven inside the container
+    & thus added new section in ReadMe
+* Fixed error message when checking availability of health record system IPs
+
 ## Release 0.6.3
 
 * Added TLS-RU-certificates for AS-servers
@@ -9,7 +20,7 @@
   * run KOB testcase at least against one health record system (IBM and/or RISE)
   * Necessary to define one KVNR for each health record system (kob.yml)
 * Refactor optional testcases
-  * modified to match at least on e health record system 
+  * modified to match at least one health record system 
 
 ## Release 0.6.2
 

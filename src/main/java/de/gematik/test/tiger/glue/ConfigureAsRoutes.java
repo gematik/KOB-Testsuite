@@ -20,6 +20,7 @@ import de.gematik.test.tiger.common.data.config.tigerproxy.ForwardProxyInfo;
 import de.gematik.test.tiger.lib.TigerDirector;
 import de.gematik.test.tiger.proxy.TigerProxy;
 import de.gematik.test.tiger.testenvmgr.util.InsecureTrustAllManager;
+import de.gematik.test.tiger.testenvmgr.util.TigerTestEnvException;
 import de.gematik.test.tiger.util.NoProxyUtils;
 import io.cucumber.java.BeforeAll;
 import java.io.IOException;
@@ -28,6 +29,10 @@ import java.net.Proxy.Type;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.security.GeneralSecurityException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.List;
@@ -54,12 +59,13 @@ public class ConfigureAsRoutes {
 
   private static void selectOnlineIpForRouteWithHost(
       String hostPartialHit, List<String> potentialIpAdresses) {
+    log.info("Selecting target for host {} from list", hostPartialHit, potentialIpAdresses);
     tigerProxy.getRoutes().stream()
         .filter(route -> route.getHosts().stream().anyMatch(host -> host.contains(hostPartialHit)))
         .findFirst()
         .ifPresentOrElse(
             route -> {
-              log.info("Selecting online IP for route {}", route);
+              log.info("Selecting online IP for route {}", route.createShortDescription());
               route.setTo("https://" + findFirstOnlineHost(potentialIpAdresses));
             },
             () ->
@@ -76,38 +82,38 @@ public class ConfigureAsRoutes {
 
   private static boolean isReachable(String destination) {
     try {
-      HttpClient.Builder clientBuilder =
-          HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10));
-
+      log.info("\ttrying to reach {}...", destination);
+      HttpURLConnection connection =
+          (HttpURLConnection) new URL("https://" + destination).openConnection();
       if (forwardProxyInfo != null) {
         final InetAddress targetHost = InetAddress.getByName(forwardProxyInfo.getHostname());
         if (NoProxyUtils.shouldUseProxyForHost(targetHost, forwardProxyInfo.getNoProxyHosts())) {
-          clientBuilder.proxy(
-              ProxySelector.of(new InetSocketAddress(targetHost, forwardProxyInfo.getPort())));
+          final InetSocketAddress inetSocketAddress =
+              new InetSocketAddress(targetHost, forwardProxyInfo.getPort());
+          connection =
+              (HttpURLConnection)
+                  new URL("https://" + destination).openConnection(new Proxy(Type.HTTP, inetSocketAddress));
         }
       }
-      SSLParameters sslParameters = new SSLParameters();
-      sslParameters.setEndpointIdentificationAlgorithm(null);
-      clientBuilder.sslParameters(sslParameters);
-      clientBuilder.sslContext(insecureSSLContext());
-
-      HttpClient client = clientBuilder.build();
-      HttpRequest request =
-          HttpRequest.newBuilder()
-              .uri(URI.create("https://" + destination))
-              .method("HEAD", HttpRequest.BodyPublishers.noBody())
-              .timeout(Duration.ofSeconds(5))
-              .build();
-
-      client.send(request, HttpResponse.BodyHandlers.discarding());
-      //client.close(); JAVA 21 only
+      connection.setConnectTimeout(5000);
+      connection.setReadTimeout(5000);
+      connection.setInstanceFollowRedirects(false);
+      connection.setRequestMethod("HEAD");
+      disableTlsVerificationFor(connection);
+      connection.connect();
+      log.info("\tsuccesfully reached {}", destination);
       return true;
     } catch (IOException e) {
-      log.atInfo().addArgument(e.getMessage()).log("Error checking host: {}");
+      log.atInfo().log("Error checking host {}: {}", destination, e.getMessage());
       return false;
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      return false;
+    }
+  }
+
+  private static void disableTlsVerificationFor(HttpURLConnection urlConnection) {
+    if (urlConnection instanceof HttpsURLConnection httpsURLConnection) {
+      SSLContext context = insecureSSLContext();
+      httpsURLConnection.setSSLSocketFactory(context.getSocketFactory());
+      httpsURLConnection.setHostnameVerifier((hostname, sslSession) -> true);
     }
   }
 
