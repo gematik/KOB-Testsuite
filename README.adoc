@@ -83,8 +83,15 @@ Die folgenden, relevanten Konfigurationen der KOB-Testsuite müssen wie folgt in
 
 === TLS Konfiguration
 
-Der Tiger-Proxy verwendet intern das unter `ca.p12` befindliche Zertifikat zum Ausstellen von TLS-Zertifikaten.
-Entsprechend muss dieses Zertifikat im Truststore des Primärsystems eingepflegt werden.
+Der Tiger-Proxy unterstützt TLSv1.2 und gibt Server Zertifikate zurück, welche den Zertifikaten der Aktensysteme in der RU-DEV entsprechen. Siehe folgende Dateien:
+
+* `epa-as-1.dev.epa4all.de_NIST_X509.p12`
+* `epa-as-2.dev.epa4all.de_NIST_X509.p12`
+
+Zusätzlich wurde die unterstützen CipherSuiten wie folgt eingeschränkt (GS-A_4384-*):
+
+* `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`
+* `TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384`
 
 == Routing
 
@@ -238,10 +245,58 @@ image::/doc/img/upload_dialog_titus.png[Upload Dialog in TITUS]
 
 Fragen zum Titus-Bestätigungsportal und zur Durchführung des KOB Verfahrens können Sie über unseren Servicedesk einstellen: https://service.gematik.de/servicedesk/customer/portal/26/group/36
 
+== Troubleshooting / FAQs
+
+=== Starten der Testsuite (Docker)
+
+==== java.nio.file.AccessDeniedException: /.m2/repository/org
+
+Der Zugriff auf das Docker Volume schlägt fehl.
+
+*Variante 1*
+
+Das Volume mit der gleichen Bezeichnung schon existiert und wurde von einer  anderen, möglicherweise älteren, Version der KOB-Testsuite erstellt wurde.
+Man muss das Volume einmal löschen und bei Start der neuen Testsuite wird es wieder angelegt.
+
+[source]
+----
+$> docker compose -f dc-testsuite.yml rm
+$> docker volume rm -f kob-testsuite-maven
+$> docker compose -f dc-testsuite.yml up
+----
+
+*Variante 2 (Linux)*
+
+Bitte prüfen Sie vor dem Start der Testsuite, ob Sie das `.docker` Verzeichnis löschen können und starten sie die Testsuite im Anschluss noch einmal.
+
+*Variante 3 (ohne Docker Volume)*
+
+Eine weitere Möglichkeit ist auf die Nutzung des Docker Volume zu verzichten. Der Nachteil hierbei ist, dass die Maven Artefakte bei jedem Start der Testsuite erneut heruntergeladen werden müssen, was mehr Zeit in Anspruch nimmt. Hierzu wird die Zeile `- kob-testsuite-maven:/.m2` wie folgt mit einem Hash (#) auskommentiert.
+
+[source]
+----
+    volumes:
+      - ./tiger.yaml:/app/tiger.yaml
+      - ./kob.yaml:/app/kob.yaml
+      #- kob-testsuite-maven:/.m2
+      # has to be 'copied' AFTER the volume is mounted
+      - ./settings.xml:/.m2/settings.xml
+----
+
+=== Ausführen der Tests / fehlschlagende Tests
+
+Im Falle eines fehlgeschlagenen Testlaufs und dem Schreiben eines Support-Tickets im gematik Service Desk ist es sinnvoll, die *.tgr-Datei mit den aufgezeichneten Nachrichten anzuhängen. Damit ist es möglich, die Traces in eine lokale Tiger-Anwendung zu importieren, um die Kommunikation und deren Meldungsdetails anzuzeigen.
+
+Dazu müssen Sie den folgenden Befehl ausführen, um die *.tgr aus dem ps-testsuite Container in das lokale Verzeichnis zu kopieren.
+
+[source]
+----
+docker cp ps-testsuite:/app/tiger-proxy.tgr .
+----
+
 == Geplante Änderungen
 
 Hier eine Übersicht über die wichtigsten Änderungen, die wir planen. Wenn Sie hier Dinge vermissen oder Anregungen haben, melden Sie sich bitte bei uns!
 
-* Verwendung von "echten" Zertifikaten, die aus einer RU-CA stammen. (Dies macht das Patchen des Truststores überflüssig)
 * Automatisierung der optionalen Tests. Hierfür werden ggf. Anpassungen der Testtreiberschnittstelle notwendig sein. Diese Änderungen werden aber NICHT mit den verpflichtenden Tests kollidieren. Sprich: Die jetzt existierende Schnittstelle wird aller Voraussicht nach bis zur KOB 3.0 unverändert bleiben.
 * Einbau einer Test-REST-API in die Tiger-Testsuite, um eine bessere Integration in CI/CD-Pipelines zu ermöglichen.

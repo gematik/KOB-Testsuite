@@ -52,7 +52,7 @@ Funktion: Test ePA login
     Und TGR current response with attribute "$.body.decrypted.reasonPhrase" matches "Found"
     # INFO: the internet address is also okay here, because the backend systems in Ru-DEV still sends this back to PS
     # that is not an issue of the PS, so we accept both until backends systems sends only the TI address
-    Und TGR current response with attribute "$.body.decrypted.header.[~'location']" matches "(https://idp-ref.app.ti-dienste.de.*|https://idp-ref.app.ti-dienste.de.*)"
+    Und TGR current response with attribute "$.body.decrypted.header.[~'location']" matches "(https://idp-ref.app.ti-dienste.de.*|https://idp-ref.zentral.idp.splitdns.ti-dienste.de.*)"
     Und TGR current response with attribute "$.body.decrypted.header.[~'location'].redirect_uri" matches ".*"
     Und TGR current response with attribute "$.body.decrypted.header.[~'location'].state" matches ".*"
     Und TGR current response with attribute "$.body.decrypted.header.[~'location'].nonce" matches ".*"
