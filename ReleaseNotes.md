@@ -1,5 +1,15 @@
 # Release Notes KOB Testsuite
 
+## Release 0.6.5
+
+* Server-TLS-Suites now conforming to specified values
+  * TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+  * TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+* Fix Login testcase with IDP endpoint url - currently accept internet and TI endpoint 
+* Added FAQ section in ReadMe
+  * How to get TGR file for service desk tickets from docker container
+  * How to get rid of `/.m2/repository/org` issue when starting the docker container
+
 ## Release 0.6.4
 
 * Bugfix for IP-Selector
