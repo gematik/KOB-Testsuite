@@ -8,7 +8,7 @@ ifdef::env-github[]
 ++++
 endif::[]
 
-= KOB-Testsuite - VORAB VERSION!!
+= KOB-Testsuite
 
 == Inhaltsverzeichnis
 
@@ -23,7 +23,6 @@ endif::[]
 
 == Einführung
 
-Vorab-Version der KOB-Testsuite.
 Dies ist die Testsuite, mit welcher die Konformitätsbestätigung der gematik für EPA 3.0 erreicht werden kann.
 
 Es sind der verpflichtende KOB-Test sowie optionale Tests vorhanden.
@@ -31,8 +30,6 @@ In näherer Zukunft werden diese Tests mittels Testtreiber-Schnittstelle auch in
 
 [IMPORTANT]
 ====
-Dies ist eine Vorab-Version der KOB-Testsuite.
-Die Veröffentlichung der endgültigen Version ist für den 1. Dezember 2024 geplant.
 Für die Ausführung der KOB-Testsuite ist es wichtig, dass nicht die PS-Testsuite und auch keine Mock Services aus dem epa-deployment parallel auf dem gleichen Rechner verwendet werden (u.a. wegen Port Konflikte).
 ====
 
