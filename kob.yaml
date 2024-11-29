@@ -25,11 +25,6 @@ kob:
   # Soll der Browser gestartet werden? (true/false) Docker-Compose deaktiviert diese Option,
   # daher sollte diese Eigenschaft immer korrekt sein.
   startBrowser: true
-  # Die RootCa, die der Tiger-Proxy verwenden soll. Der Standardwert ist "ca.p12;changeit".
-  # Eigene Zertifikate können hinterlegt werden. Als Format sollte PKCS12 verwendet werden,
-  # das Passwort kann nach einem Semikolon angegeben werden. Details können hier gefunden werden:
-  # https://gematik.github.io/app-Tiger/Tiger-User-Manual.html#configuring-pki-identities-in-tiger-proxys-tls-section
-  rootCa: ca.p12;changeit
   # Polling für die Testtreiber-API.
   polling:
     timeoutInSeconds: 120

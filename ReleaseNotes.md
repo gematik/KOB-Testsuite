@@ -1,5 +1,11 @@
 # Release Notes KOB Testsuite
 
+## Release 1.0.0
+
+* Initial version to get KOB certification 
+* New static identity (server cert) for localhost fqdn
+* Issue accessing the test report with docker fixed
+
 ## Release 0.6.5
 
 * Server-TLS-Suites now conforming to specified values
