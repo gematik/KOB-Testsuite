@@ -9,6 +9,8 @@ tigerProxy:
     serverIdentities:
       - "src/test/resources/epa-as-1.dev.epa4all.de_NIST_X509.p12;00"
       - "src/test/resources/epa-as-2.dev.epa4all.de_NIST_X509.p12;00"
+      - "src/test/resources/idp-ref.zentral.idp.splitdns.ti-dienste.de_NIST_X509.p12;00"
+      - "src/test/resources/localhostIdentity.p12;00"
     serverSslSuites:
       - "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
       - "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384"
@@ -25,6 +27,10 @@ tigerProxy:
       hosts: ["ps", "ps:443", "ps:80"]
     - from: ${kob.psurl}
       to: ${kob.psurl}
+    # route für den IDP
+    - from: /
+      to: https://10.31.196.4:443/
+      hosts: ["idp-ref.zentral.idp.splitdns.ti-dienste.de"]
     # AS 1, IBM - "10.30.19.70/135"
     - from: /
       to: https://10.30.19.70:443/
