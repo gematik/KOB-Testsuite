@@ -2,6 +2,9 @@
 @OPTIONAL @EPA_3_0 @entitlement
 Funktion: Test set entitlements by PS
 
+  Grundlage:
+    Gegeben sei KOB finde Aktensystem
+
   Szenario: Set entitlements by ps
     Gegeben sei TGR lösche aufgezeichnete Nachrichten
     Und TGR lösche die benutzerdefinierte Fehlermeldung

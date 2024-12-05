@@ -2,6 +2,9 @@
 @OPTIONAL @EPA_3_0 @login
 Funktion: Test ePA login
 
+  Grundlage:
+    Gegeben sei KOB finde Aktensystem
+
   Szenario: Create a user session
     Gegeben sei TGR lösche aufgezeichnete Nachrichten
     Und TGR lösche die benutzerdefinierte Fehlermeldung

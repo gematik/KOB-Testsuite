@@ -2,7 +2,7 @@
 name: dc-testsuite-kob
 services:
   kob-testsuite:
-    image: gematik1/kob-testsuite:1.0.0
+    image: gematik1/kob-testsuite:1.0.1
     container_name: kob-testsuite
     environment:
       - MAVEN_OPTS=-Dcucumber.filter.tags=${TESTSUITE_TESTS}
@@ -14,10 +14,14 @@ services:
       - "9011:9011"
       - "443:443"
     volumes:
-      - ./:/app
-      - kob-testsuite-maven:/.m2
-      # has to be 'copied' AFTER the volume is mounted
-      - ./settings.xml:/.m2/settings.xml
+      - ./tiger.yaml:/app/tiger.yaml:ro
+      - ./kob.yaml:/app/kob.yaml:ro
+      - ./settings.xml:/.m2/settings.xml:ro
+      - ./run.sh:/app/run.sh:ro
+      - kob-testsuite-maven:/.m2/repository:rw
+      - kob-testsuite-report:/app/report:rw
 volumes:
   kob-testsuite-maven:
     name: kob-testsuite-maven
+  kob-testsuite-report:
+    name: kob-testsuite-report

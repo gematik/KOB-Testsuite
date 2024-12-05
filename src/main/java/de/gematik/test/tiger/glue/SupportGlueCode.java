@@ -21,9 +21,15 @@ import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import de.gematik.rbellogger.data.facet.RbelCborFacet;
 import de.gematik.test.tiger.lib.rbel.RbelMessageValidator;
+import io.cucumber.java.de.Gegebensei;
 import io.cucumber.java.en.When;
 
 public class SupportGlueCode {
+
+  @Gegebensei("KOB finde Aktensystem")
+  public void kobFindAktenSystem() {
+    ConfigureAsRoutes.configureRoutes();
+  }
 
   @When("the current request at node {string} is a CBOR byte string")
   public void the_current_request_at_node_has_a_cbor_byte_string(String rbelPath) {

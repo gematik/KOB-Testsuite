@@ -2,6 +2,9 @@
 @KOB @EPA_3_0
 Funktion: KOB Testsuite for EPA 3.0
 
+  Grundlage:
+    Gegeben sei KOB finde Aktensystem
+
   # Testfall: EML Download.
   # Aktenlokalisierung, VAU Handshake, User Session, Entitlement auf der Akte und das Einstellen von E-Rezepten sind nicht im Scope dieses Tests.
   # Das Format des Downloads kann frei gewählt werde (siehe kob.yaml)
