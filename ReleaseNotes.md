@@ -1,5 +1,14 @@
 # Release Notes KOB Testsuite
 
+## Release 1.0.1
+
+* Added corrected NO-PROXY flag for AS-Selector
+* Added preparation test step to check if health record systems are reachable (now visible in Workflow UI)
+* Rework docker container handling (issues with access rights)
+  * Remove access from docker container to host system. Thus, the report has to be copied from container to host system manually (please see Readme)
+  * Test report will be moved to extra docker volume `kob-testsuite-report` after finishing the testsuite
+  * Copy report zip file from container to host system (please see Readme)
+
 ## Release 1.0.0
 
 * Initial version to get KOB certification 

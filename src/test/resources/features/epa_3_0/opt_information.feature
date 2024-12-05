@@ -2,6 +2,9 @@
 @OPTIONAL @EPA_3_0
 Funktion: Test information operations by PS
 
+  Grundlage:
+    Gegeben sei KOB finde Aktensystem
+
   @information-record-status
   Szenario: Get record status by ps
     Gegeben sei TGR lösche aufgezeichnete Nachrichten

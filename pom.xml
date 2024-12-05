@@ -22,7 +22,7 @@
 
     <groupId>de.gematik</groupId>
     <artifactId>kob-testsuite</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
     <description>KOB Testsuite fuer PS Hersteller</description>
 
@@ -87,6 +87,7 @@
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
         <pluginManagement>
             <plugins>
                 <plugin>

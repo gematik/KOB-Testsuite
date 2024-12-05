@@ -227,7 +227,19 @@ Für die Beantragung des KOB Zertifikates bei der gematik benötigen Sie als Pr�
 
 Die Testergebnisse selbst sind unter `target/site/serenity/index.html` zu finden und können somit im Browser verifiziert werden.
 Der Testreport wird automatisch nach der Ausführung im `target/kob-testsuite.*-test-report.zip` abgelegt, wenn die Ausführung über den Quit Button in der WorkflowUI beendet wird.
-Auch bei der Ausführung als Docker Container wird die Datei direkt in diesem Verzeichnis des Repositories abgelegt.
+
+=== Testreport aus Docker Container
+
+Um diese Datei aus dem Docker Container in das lokale System zu kopieren, kann folgender Befehl genutzt werden:
+
+[source,bash]
+----
+docker cp kob-testsuite:/app/report/kob-testsuite-test-report.zip .
+----
+
+Eine weitere Möglichkeit ist, die Report ZIP Datei über die Anwendung DockerDesktop herunterzuladen.
+
+image::/doc/img/docker_desktop_volumes.png[Download Test Report ZIP über Docker Desktop]
 
 === Upload bei TITUS
 

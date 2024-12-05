@@ -25,6 +25,7 @@ import de.gematik.test.tiger.common.config.TigerGlobalConfiguration;
 import de.gematik.test.tiger.common.config.TigerTypedConfigurationKey;
 import de.gematik.test.tiger.lib.TigerDirector;
 import io.cucumber.java.Before;
+import io.cucumber.java.de.Gegebensei;
 import io.cucumber.java.de.Und;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.When;
@@ -45,6 +46,7 @@ import javax.annotation.Nullable;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.junit.platform.engine.TestExecutionResult;
 
 @Slf4j
 public class KobTestdriverGlueCode {
@@ -160,7 +162,7 @@ public class KobTestdriverGlueCode {
     lastActionExecuted = action;
 
     assertThat(retrieveActionStatus(action.getId()).getStatus())
-      .isEqualTo(Status.SUCCESSFUL);
+      .isEqualTo(TestExecutionResult.Status.SUCCESSFUL);
   }
 
   private Action postObject(Object body, String actionUrl, String method) {
