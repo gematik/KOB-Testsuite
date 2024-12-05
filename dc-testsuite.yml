@@ -18,6 +18,7 @@ services:
       - ./kob.yaml:/app/kob.yaml:ro
       - ./settings.xml:/.m2/settings.xml:ro
       - ./run.sh:/app/run.sh:ro
+      - ./pom.xml:/app/pom.xml:ro
       - kob-testsuite-maven:/.m2/repository:rw
       - kob-testsuite-report:/app/report:rw
 volumes:
