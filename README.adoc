@@ -104,8 +104,14 @@ Es gibt keine Vorgabe WIE diese Umleitung erfolgen muss, zwei Wege scheinen jedo
 
 === Forward Proxy (Variante 1)
 
-Zunächst einmal kann der Tiger-Proxy schlicht als Forward-Proxy für das Primärsystem eingerichtet werden.
-Die Routen sind entsprechend konfiguriert, so dass der Verkehr hier an die korrekten Aktensysteme weitergeleitet wird.
+In dieser Konfiguration kann die KOB-Testsuite als Forward-Proxy für das Primärsystem eingerichtet werden.
+Die Routen sind entsprechend konfiguriert, damit der Verkehr hier an die korrekten Aktensysteme weitergeleitet wird.
+
+Hierbei sind folgende Punkte zu beachten:
+
+* Primärsystem seitig wird die KOB-Testsuite als Proxy konfiguriert (e.g. `localhost:443`). Hiermit werden die Requests über die KOB-Testsuite an die Aktensysteme gesendet. Ein Request an `https://epa-as-1.dev.epa4all.de/foobar`, via KOB-Testsuite mit `localhost:443` entspricht somit `curl -x localhost:443 epa-as-1.dev.epa4all.de/foobar`)
+* Dabei ist darauf zu achten, dass der HTTP Header im (äußeren) HTTP Request dennoch den FQDN des Aktensystems enthält (e.g `Host: epa-as-1.dev.epa4all.de`), damit das Routing an das gewünschte Aktensystem erfolgen kann.
+* Eine zusätzliche Manipulation der DNS Auflösung (Variante 2) in der `hosts` Datei ist nicht notwendig.
 
 === DNS Manipulation (Variante 2)
 
@@ -123,6 +129,38 @@ Beispiel, wenn das Primärsystem auf dem gleichen Rechner läuft, wie die Testsu
 ====
 Diese Einträge sollten nach der Durchführung der KOB-Testsuite wieder entfernt werden, da es ansonsten zu einem unbeabsichtigten Fehlverhalten führt, wenn die KOB-Testsuite nicht mehr aktiv läuft und somit die Nachrichten nicht mehr an die Aktensysteme weitergeleitet werden.
 ====
+
+=== Proxy für die Erreichbarkeit der Aktensysteme
+
+Sollten sich die Aktensysteme in der RU-DEV Umgebung nicht direkt erreichen lassen, sondern nur über einen (Forward) Proxy (z.B. in einem unternehmensinternen VPN), dann müssen in der Datei `tiger.yml` folgende Zeilen entsprechen aktiviert und angepasst werden:
+
+[source,yaml]
+----
+  # proxy configuration
+  forwardToProxy:
+    hostname: <PROXY_IP_OR_FQDN>
+    port: <PROXY_PORT>
+----
+
+=== Konfiguration von Git
+
+Bei dem Checkout für eine lokale Kopie von dem Repository ist darauf zu achten, dass die Dateien nicht verändert werden durch ein Checkout selbst. Hierzu ist zu prüfen, dass folgenden Git Einstellungen (`.gitconfig`) für den Checkout des Repos genutzt werden:
+
+[source]
+----
+[core]
+  autocrlf = false
+----
+
+Dies kann mit folgenden Befehlen erreicht werden, je nachdem auf welcher Ebene die Einstellung getroffen werden soll:
+
+[source, shell]
+----
+git config --system core.autocrlf false   # per-system solution
+git config --global core.autocrlf false   # per-user solution
+git config --local core.autocrlf false    # per-project solution
+----
+
 
 === Proxy Konfiguration für Maven (Docker)
 
@@ -146,6 +184,20 @@ Dazu müssen die folgenden Einträge angepasst werden:
 == Testausführung
 
 Die KOB-Testsuite kann entweder lokal per Maven oder in einem Docker-Container ausgeführt werden.
+Per Default starten momentan nur die verpflichtenden KOB-Testfälle. Ohne diesen Filter werden alle Tests ausgeführt.
+Siehe `.env` Datei.
+Hier können dann auch die optionalen Testfälle, wenn gewünscht, konfiguriert werden.
+
+* `@KOB` - für den Test gegen beide Aktensysteme (Default)
+* `@IBM` - für den Test gegen das IBM Aktensystem
+* `@RISE` - für den Test gegen das RISE Aktensystem
+
+Optionale Testfälle:
+
+* `@login` - Aufbau einer User-Session bei einem der beiden Aktensysteme
+* `@information-record-status` - Aktenkontolokalisierung bei einem der beiden Aktensysteme
+* `@information-consent-decisions` - Abfrage der Zustimmung für ein Aktenkonto bei einem der beiden Aktensysteme
+* `@entitlement` - Einstellen einer Befugnis für ein Aktenkonto bei einem der beiden Aktensysteme
 
 === Lokal (Maven)
 
@@ -154,31 +206,11 @@ Für die lokale Ausführung werden folgende Software-Versionen empfohlen:
 * Maven Version >= 3.9
 * JAVA Version >= 17
 
-Ist dies gegeben, reicht ein einfaches Kommando `mvn clean install` im Root-Verzeichnis des Projekts.
-Um nur die Testfälle für die KOB EPA 3.0 auszuführen, können die folgenden Befehle verwendet werden:
-
-* `mvn clean verify -Dcucumber.filter.tags=@KOB` für den Test gegen beide Aktensysteme
-* `mvn clean verify -Dcucumber.filter.tags=@IBM` für den Test gegen das IBM Aktensystem
-* `mvn clean verify -Dcucumber.filter.tags=@RISE` für den Test gegen das RISE Aktensystem
-
-Um optionale Testfälle auszuführen, können die folgenden Befehle verwendet werden:
-
-* `mvn clean verify -Dcucumber.filter.tags=@login`
-Aufbau einer User-Session bei einem der beiden Aktensysteme
-* `mvn clean verify -Dcucumber.filter.tags=@information-record-status`
-Aktenkontolokalisierung bei einem der beiden Aktensysteme
-* `mvn clean verify -Dcucumber.filter.tags=@information-consent-decisions`
-Abfrage der Zustimmung für ein Aktenkonto bei einem der beiden Aktensysteme
-* `mvn clean verify -Dcucumber.filter.tags=@entitlement`
-Einstellen einer Befugnis für ein Aktenkonto bei einem der beiden Aktensysteme
-
-Ohne diesen Filter werden alle Tests ausgeführt.
+Ist dies gegeben, reicht ein einfaches Kommando `mvn clean verify` im Root-Verzeichnis des Projekts.
 
 === Lokal (Docker)
 
 Die Testsuite kann mit einem Docker-Compose gestartet werden.
-Diese Variante startet per Default momentan nur die verpflichtenden KOB-Testfälle. Siehe `.env` Datei.
-Hier können dann auch die optionalen Testfälle, wenn gewünscht, konfiguriert werden.
 
 [source,bash]
 ----

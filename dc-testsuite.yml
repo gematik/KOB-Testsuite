@@ -2,7 +2,7 @@
 name: dc-testsuite-kob
 services:
   kob-testsuite:
-    image: gematik1/kob-testsuite:1.0.1
+    image: gematik1/kob-testsuite:1.0.2
     container_name: kob-testsuite
     environment:
       - MAVEN_OPTS=-Dcucumber.filter.tags=${TESTSUITE_TESTS}
@@ -16,9 +16,7 @@ services:
     volumes:
       - ./tiger.yaml:/app/tiger.yaml:ro
       - ./kob.yaml:/app/kob.yaml:ro
-      - ./settings.xml:/.m2/settings.xml:ro
-      - ./run.sh:/app/run.sh:ro
-      - ./pom.xml:/app/pom.xml:ro
+      - ./settings.xml:/root/.m2/settings.xml:ro
       - kob-testsuite-maven:/.m2/repository:rw
       - kob-testsuite-report:/app/report:rw
 volumes:

@@ -25,7 +25,6 @@ import de.gematik.test.tiger.common.config.TigerGlobalConfiguration;
 import de.gematik.test.tiger.common.config.TigerTypedConfigurationKey;
 import de.gematik.test.tiger.lib.TigerDirector;
 import io.cucumber.java.Before;
-import io.cucumber.java.de.Gegebensei;
 import io.cucumber.java.de.Und;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.When;
@@ -45,6 +44,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.apache.commons.io.FileUtils;
 import org.junit.platform.engine.TestExecutionResult;
 
@@ -151,7 +151,7 @@ public class KobTestdriverGlueCode {
   private void executeActionAndWaitForCompletion(Object body, String url) {
     final String actionUrl = kobApiUrl.getValue().orElseThrow(missingKobApiUrl) + url;
     log.info("Executing action: POST {}", actionUrl);
-    final var action = postObject(body, actionUrl, "POST");
+    val action = postObject(body, actionUrl, "POST");
 
     await()
         .given()

@@ -48,4 +48,4 @@ RUN ./downloadDeps.sh
 RUN rm -f ./downloadDeps.sh
 
 # Command to be executed.
-ENTRYPOINT ["bash", "-c", "/app/run.sh"]
+ENTRYPOINT ["bash", "-c", "rm -rf /app/report/* ; mvn clean verify || true ; mv -v /app/target/*report.zip /app/report/"]
