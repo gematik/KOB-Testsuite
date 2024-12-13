@@ -1,5 +1,5 @@
 # language: de
-@OPTIONAL @EPA_3_0
+@Optional @EPA_3_0
 Funktion: Test information operations by PS
 
   Grundlage:

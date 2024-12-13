@@ -22,7 +22,7 @@
 
     <groupId>de.gematik</groupId>
     <artifactId>kob-testsuite</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
     <description>KOB Testsuite fuer PS Hersteller</description>
 
@@ -32,7 +32,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.maven-surefire-plugin>3.5.2</version.maven-surefire-plugin>
         <version.maven-failsafe-plugin>3.5.2</version.maven-failsafe-plugin>
-        <version.tiger>3.4.5</version.tiger>
+        <version.tiger>3.4.6</version.tiger>
         <jacoco.version>0.8.12</jacoco.version>
     </properties>
 
@@ -162,6 +162,27 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <useDefaultValues>true</useDefaultValues>
+                            <!-- Ignore missing .env file e.g. docker image build step -->
+                            <quiet>true</quiet>
+                            <files>
+                                <file>${project.basedir}/.env</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${version.maven-failsafe-plugin}</version>
@@ -171,6 +192,9 @@
                         else maven will try to kill and destroy the tiger spring boot apps
                      -->
                     <forkedProcessExitTimeoutInSeconds>18000</forkedProcessExitTimeoutInSeconds>
+                    <systemPropertyVariables>
+                        <cucumber.filter.tags>${TESTSUITE_TESTS}</cucumber.filter.tags>
+                    </systemPropertyVariables>
                 </configuration>
                 <executions>
                     <execution>

@@ -1,5 +1,17 @@
 # Release Notes KOB Testsuite
 
+## Release 1.0.2
+
+* Upgrade to Tiger 3.4.6
+* Test execution with maven uses .env configuration to filter tests and starts with `mvn clean verify`  
+* Bugs
+  * Allow content-type text/html with specified charset in backend response for eML as XHTML (GH-21)
+  * Remove run.sh script due to issues during git checkout and modified line endings (GH-20)
+  * Corrected custom error messages
+  * Corrected OPTIONAL/Optional spelling, leading to a failed report upload if failing the non-KOB-testcases
+  * Settings.xml is mapped to maven folder .m2 of the root user
+* Extended descriptions in Readme for Forward Proxy and GIT configuration (HowTo)
+
 ## Release 1.0.1
 
 * Added corrected NO-PROXY flag for AS-Selector

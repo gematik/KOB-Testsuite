@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: PS-Testdriver API
   description: This API is exposed by a Primärsystem (PS, primary system) to allow the automated execution of tests.
-  version: 0.0.1
+  version: 0.1.0
 tags:
   - name: Optional
     description: These are optional operations. They are triggered by the testsuite, but are not required for the test to pass.
@@ -25,7 +25,7 @@ paths:
       requestBody:
         required: true
         content:
-          'application/gematik.psTestdriver.v0.0.1+json':
+          'application/gematik.psTestdriver.v0.1.0+json':
             schema:
               $ref: '#/components/schemas/reset-primaersystem'
       responses:
@@ -48,7 +48,7 @@ paths:
       requestBody:
         required: true
         content:
-          'application/gematik.psTestdriver.v0.0.1+json':
+          'application/gematik.psTestdriver.v0.1.0+json':
             schema:
               $ref: '#/components/schemas/insert-egk'
       responses:
@@ -69,7 +69,7 @@ paths:
       requestBody:
         required: true
         content:
-          'application/gematik.psTestdriver.v0.0.1+json':
+          'application/gematik.psTestdriver.v0.1.0+json':
             schema:
               $ref: '#/components/schemas/eml-retrieval'
       responses:
@@ -89,7 +89,7 @@ paths:
         '200':
           description: A list of active actions
           content:
-            'application/gematik.psTestdriver.v0.0.1+json':
+            'application/gematik.psTestdriver.v0.1.0+json':
               schema:
                 type: array
                 items:
@@ -113,7 +113,7 @@ paths:
         '200':
           description: Action retrieved
           content:
-            'application/gematik.psTestdriver.v0.0.1+json':
+            'application/gematik.psTestdriver.v0.1.0+json':
               schema:
                 $ref: '#/components/schemas/action'
         '404':
@@ -233,24 +233,24 @@ components:
           schema:
             type: string
       content:
-        'application/gematik.psTestdriver.v0.0.1+json':
+        'application/gematik.psTestdriver.v0.1.0+json':
           schema:
             $ref: '#/components/schemas/action'
     bad-request:
       description: Bad request
       content:
-        'application/gematik.psTestdriver.v0.0.1+json':
+        'application/gematik.psTestdriver.v0.1.0+json':
           schema:
             $ref: '#/components/schemas/error-message'
     server-error:
       description: Internal server error
       content:
-        'application/gematik.psTestdriver.v0.0.1+json':
+        'application/gematik.psTestdriver.v0.1.0+json':
           schema:
             $ref: '#/components/schemas/error-message'
     not-implemented:
       description: The requested operation is not implemented
       content:
-        'application/gematik.psTestdriver.v0.0.1+json':
+        'application/gematik.psTestdriver.v0.1.0+json':
           schema:
             $ref: '#/components/schemas/error-message'

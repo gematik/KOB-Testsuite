@@ -15,9 +15,16 @@ kob:
   # Welcher Typ von EML soll heruntergeladen werden ('XHTML', 'PDF', 'FHIR')
   emltype: "PDF"
 
-  testsuite:
-    # Die Tags, die für die Ausführung der Testsuite verwendet werden sollen. "@KOB" führt die verpflichtenden KOB-Tests aus.
-    tests: "@KOB"
+  asSelection:
+    - targetHost: 'epa-as-1.dev'
+      ips:
+        - "10.30.19.70"
+        - "10.30.18.134"
+        - "10.30.18.135"
+        - "10.30.18.136"
+        - "10.30.18.199"
+        - "10.30.18.200"
+        - "10.30.18.201"
 
   ##################################################################################
   # Detailkonfigurationen

@@ -1,5 +1,5 @@
 # language: de
-@OPTIONAL @EPA_3_0 @login
+@Optional @EPA_3_0 @login
 Funktion: Test ePA login
 
   Grundlage:

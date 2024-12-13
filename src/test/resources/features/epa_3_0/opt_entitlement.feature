@@ -1,5 +1,5 @@
 # language: de
-@OPTIONAL @EPA_3_0 @entitlement
+@Optional @EPA_3_0 @entitlement
 Funktion: Test set entitlements by PS
 
   Grundlage:
