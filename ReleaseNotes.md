@@ -1,5 +1,14 @@
 # Release Notes KOB Testsuite
 
+## Release 1.0.3
+
+* Updated 
+  * added check for HTTP Header `x-useragent` in outer HTTP request (not VAU encrypted part) within KOB and optional testcase
+  * added regex check for HTTP Header `x-useragent` in inner HTTP request within optional testcases
+  * checking HTTP header field name `x-useragent`, `x-insurantid` & `VAU-nonPU-Tracing` is now case-insensitive (as in standard RFC-9110 Section-5.1 )
+* Bugs
+  * Fixed missing correction in testcase for IBM and RISE resp.
+
 ## Release 1.0.2
 
 * Upgrade to Tiger 3.4.6

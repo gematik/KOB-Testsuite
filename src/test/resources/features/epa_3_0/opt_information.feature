@@ -17,8 +17,8 @@ Funktion: Test information operations by PS
     ### get record status
     # request
     Und TGR find last request to path "/information/api/v1/ehr" with "$.method" matching "GET"
-    Und TGR current request with attribute "$.header.['x-insurantid']" matches ".*"
-    Und TGR current request with attribute "$.header.['x-useragent']" matches ".*"
+    Und TGR current request with attribute "$.header.[~'x-insurantid']" matches ".*"
+    Und TGR current request with attribute "$.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
 
     # response
     Und TGR current response with attribute "$.responseCode" matches "204"
@@ -36,8 +36,8 @@ Funktion: Test information operations by PS
     # request
     Und TGR find last request to path "/information/api/v1/ehr/consentdecisions" with "$.method" matching "GET"
     Und TGR current request with attribute "$.header.[~'accept']" matches ".*application/json.*"
-    Und TGR current request with attribute "$.header.['x-insurantid']" matches ".*"
-    Und TGR current request with attribute "$.header.['x-useragent']" matches ".*"
+    Und TGR current request with attribute "$.header.[~'x-insurantid']" matches ".*"
+    Und TGR current request with attribute "$.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
 
     # response
     Und TGR current response with attribute "$.responseCode" matches "200"

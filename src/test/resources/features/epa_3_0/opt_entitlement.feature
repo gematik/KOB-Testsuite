@@ -19,12 +19,13 @@ Funktion: Test set entitlements by PS
     Und TGR current request with attribute "$.method" matches "POST"
     Und TGR current request with attribute "$.header.[~'accept']" matches ".*application/octet-stream.*"
     Und TGR current request with attribute "$.header.[~'content-type']" matches "application/octet-stream"
-    Und TGR current request with attribute "$.header.['VAU-nonPU-Tracing']" matches ".* .*"
+    Und TGR current request with attribute "$.header.[~'VAU-nonPU-Tracing']" matches ".* .*"
+    Und TGR current request with attribute "$.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
     # inner request
     Und TGR current request with attribute "$.body.decrypted.method" matches "POST"
     Und TGR current request with attribute "$.body.decrypted.header.[~'accept']" matches ".*application/json.*"
-    Und TGR current request with attribute "$.body.decrypted.header.['x-useragent']" matches ".*"
-    Und TGR current request with attribute "$.body.decrypted.header.['x-insurantid']" matches ".*"
+    Und TGR current request with attribute "$.body.decrypted.header.[~'x-insurantid']" matches ".*"
+    Und TGR current request with attribute "$.body.decrypted.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
     Und TGR current request at "$.body.decrypted.body" matches as JSON:
     """
       {
