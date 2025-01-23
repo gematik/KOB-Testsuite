@@ -35,17 +35,20 @@ LABEL de.gematik.vendor="gematik GmbH" \
       de.gematik.commit-sha=$COMMIT_HASH \
       de.gematik.version=$VERSION
 
-
 COPY . /app
-COPY downloadDeps.sh /app
-
-RUN mkdir -p /app/report
-
-# Default Working directory
 WORKDIR /app
 
+RUN mkdir /app/report
+
+RUN /usr/sbin/adduser -D kobtest
+RUN chown -R kobtest /app
+
+USER kobtest
+
+COPY downloadDeps.sh /app
 RUN ./downloadDeps.sh
-RUN rm -f ./downloadDeps.sh
+RUN rm -f /app/downloadDeps.sh
 
 # Command to be executed.
 ENTRYPOINT ["bash", "-c", "rm -rf /app/report/* ; mvn clean verify || true ; mv -v /app/target/*report.zip /app/report/"]
+
