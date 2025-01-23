@@ -1,5 +1,14 @@
 # Release Notes KOB Testsuite
 
+## Release 1.0.4
+
+* Upgrade to Tiger 3.6.0
+  * see [release notes](https://github.com/gematik/app-Tiger/blob/master/ReleaseNotes.md) for details
+  * Bugs
+    * During a TLS-Handshake the Tiger-Proxy no longer signals HTTP/2-support in the ALPN
+* Docker container now uses the user “kobtest” (non-root)
+* Updated PS test driver openAPI
+
 ## Release 1.0.3
 
 * Updated 

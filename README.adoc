@@ -279,7 +279,10 @@ Loggen Sie sich in Ihren Account auf dem Titus Bestätigungsportal (https://titu
 
 image::/doc/img/upload_dialog_titus.png[Upload Dialog in TITUS]
 
-Fragen zum Titus-Bestätigungsportal und zur Durchführung des KOB Verfahrens können Sie über unseren Servicedesk einstellen: https://service.gematik.de/servicedesk/customer/portal/26/group/36
+Weitere Hinweise zur Handlungsanweisung für die Konformitätsbewertung (KOB) können im Service Desk nachgelesen werden:
+ https://service.gematik.de/servicedesk/customer/kb/view/459882847
+
+Fragen zum Titus-Bestätigungsportal und zur Durchführung des KOB Verfahrens können Sie ebenfalls über unseren Service Desk einstellen: https://service.gematik.de/servicedesk/customer/portal/26/group/36
 
 == Troubleshooting / FAQs
 

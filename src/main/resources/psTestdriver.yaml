@@ -14,6 +14,21 @@ tags:
 servers:
   - url: 'http'
 paths:
+  /system/start:
+    post:
+      summary: Start the Primärsystem
+      tags:
+        - Optional
+      operationId: start-primaersystem
+      responses:
+        '201':
+          $ref: '#/components/responses/action-created'
+        '400':
+          $ref: '#/components/responses/bad-request'
+        '500':
+          $ref: '#/components/responses/server-error'
+        '501':
+          $ref: '#/components/responses/not-implemented'
   /system/reset:
     post:
       summary: Resets the Primärsystem. This operation is used to reset the Primärsystem to a clean state. More detail
@@ -120,6 +135,25 @@ paths:
           description: Action not found
         '500':
           description: Internal server error
+    delete:
+      summary: Delete an action by its id
+      tags:
+        - Mandatory
+      operationId: delete-action
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Action deleted
+        '404':
+          description: Action not found
+        '500':
+          description: Internal server error
   /actions/{id}/screenshot:
     get:
       summary: Take a representative screenshot of the current state of the application. This
@@ -162,11 +196,15 @@ components:
           $ref: '#/components/schemas/status'
         type:
           type: string
-          enum: [ 'retrieve-eml','reset-primaersystem','insert-egk' ]
+          enum: [ 'retrieve-eml','start-primaersystem','insert-egk' ]
           description: Type of the action
         requestUrl:
           type: string
           description: URL of the initial request
+        retrieveEmlData:
+          type: object
+          additionalProperties: true
+          description: Additional data relevant to an 'retrieve-eml' action
         error:
           $ref: '#/components/schemas/error-message'
     error-message:
@@ -178,10 +216,10 @@ components:
         id:
           type: string
           format: uuid
-          description: Identifier for the specific error (Can be used to look up the error in a log file)
+          description: Identifier for the specific error (Could be used to look up the error in a log file)
         details:
           type: string
-          description: Detailed error message (Should be useful for the PS-developers)
+          description: Detailed error message
       required:
         - message
         - id
@@ -214,9 +252,8 @@ components:
           description: Forget all data associated with the given KVNRs.
     kvnr:
       type: string
-      pattern: '^[A-Z][0-9]{10}$'
-      description: Krankenversicherungsnummer (KVNR). Dies ist nur die Nummer des Versicherten, nicht die gesamte KVNR.
-      example: Z1234567890
+      pattern: '^[A-Z][0-9]{19-30}$'
+      description: Krankenversicherungsnummer (KVNR)
     eml-type:
       type: string
       enum: [ 'xhtml', 'pdf', 'fhir' ]

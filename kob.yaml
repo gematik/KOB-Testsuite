@@ -1,6 +1,6 @@
 kob:
   # Die URL der Testtreiberschnittstelle des Primärsystems
-  psurl: "http://localhost:8080"
+  psurl: "http://ps-sim:8080"
   # Die URL der Mock-Aktensysteme. Standard ist 127.0.0.1, für docker-runs sollte host.docker.internal verwendet werden.
   asurl: "https://localhost:8443"
   # Soll die Testtreiberschnittstelle des Primärsystems verwendet werden?

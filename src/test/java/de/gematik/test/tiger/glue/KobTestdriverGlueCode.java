@@ -16,6 +16,7 @@
 
 package de.gematik.test.tiger.glue;
 
+import static de.gematik.test.psTestdriver.dto.Status.SUCCESSFUL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -162,7 +163,7 @@ public class KobTestdriverGlueCode {
     lastActionExecuted = action;
 
     assertThat(retrieveActionStatus(action.getId()).getStatus())
-      .isEqualTo(TestExecutionResult.Status.SUCCESSFUL);
+      .isEqualTo(SUCCESSFUL);
   }
 
   private Action postObject(Object body, String actionUrl, String method) {
@@ -195,6 +196,6 @@ public class KobTestdriverGlueCode {
   }
 
   private boolean isCompleted(Status status) {
-    return status == Status.FAILED || status == Status.SUCCESSFUL;
+    return status == Status.FAILED || status == SUCCESSFUL;
   }
 }
