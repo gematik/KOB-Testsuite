@@ -22,7 +22,7 @@
 
     <groupId>de.gematik</groupId>
     <artifactId>kob-testsuite</artifactId>
-    <version>1.0.4</version>
+    <version>0.1.0</version>
     <packaging>jar</packaging>
     <description>KOB Testsuite fuer PS Hersteller</description>
 
@@ -83,6 +83,11 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
             <version>1.18.36</version>
+        </dependency>
+        <dependency>
+            <groupId>de.gematik.test</groupId>
+            <artifactId>tiger-zion</artifactId>
+            <version>${version.tiger}</version>
         </dependency>
     </dependencies>
 

@@ -1,0 +1,27 @@
+servers:
+  zionserver2:
+    type: zion
+    zionConfiguration:
+      serverPort: 8080
+      mockResponses:
+        create:
+          requestCriterions:
+            - message.method == 'POST'
+            - message.path == '/Task/$create'
+          response:
+            statusCode: 201
+            bodyFile: createResponse.xml
+        activate:
+          request:
+            path: "/Task/{id}/$activate"
+            method: "POST"
+          response:
+            statusCode: 200
+            bodyFile: activateResponse.xml
+        abort:
+          request:
+            path: "/Task/{id}/$abort"
+            method: "POST"
+          response:
+            statusCode: 204
+  

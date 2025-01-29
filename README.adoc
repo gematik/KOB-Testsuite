@@ -8,30 +8,20 @@ ifdef::env-github[]
 ++++
 endif::[]
 
-= KOB-Testsuite
+= KOB-Testsuite für DiGA
 
 == Inhaltsverzeichnis
 
 * <<_einführung,Einführung>>
 * <<_setup,Setup>>
-* <<_testvorbedingungen,Testvorbedingungen>>
 * <<_konfiguration,Konfiguration>>
 * <<_routing,Routing>>
 * <<_testausführung,Testausführung>>
 * <<_port_tabelle,Port Tabelle>>
-* <<_prüfnachweis_für_die_kob,Prüfnachweis für die KOB>>
 
 == Einführung
 
-Dies ist die Testsuite, mit welcher die Konformitätsbestätigung der gematik für EPA 3.0 erreicht werden kann.
-
-Es sind der verpflichtende KOB-Test sowie optionale Tests vorhanden.
-In näherer Zukunft werden diese Tests mittels Testtreiber-Schnittstelle auch in einen voll automatisierbaren Zustand gebracht, sodass automatisierbar Regressionstests durchgeführt werden können.
-
-[IMPORTANT]
-====
-Für die Ausführung der KOB-Testsuite ist es wichtig, dass nicht die PS-Testsuite und auch keine Mock Services aus dem epa-deployment parallel auf dem gleichen Rechner verwendet werden (u.a. wegen Port Konflikte).
-====
+Dies ist eine prerelease Fassung der KOB-Testsuite, die die Konformitätsbestätigung der gematik für DiGA ermöglicht. Es handelt sich hierbei nicht um die finale Version, mit der eine tatsächliche Bestätigung ausgestellt werden kann!
 
 == Setup
 
@@ -47,57 +37,27 @@ image::/doc/img/setup.png[Setup]
 * Dieser kann die Kommunikation aufzeichnen und analysieren.
 * Die Testsuite kann Artefakte von Maven Central aus dem Internet beziehen.
 
-== Testvorbedingungen
-
-Die grundsätzlichen fachlichen Voraussetzungen sehen wie folgt aus:
-
-* Die Aktenkonten bei beiden Aktensystemen sind in der RU-DEV eingerichtet worden.
-* E-Rezepte für die Aktenkonten wurden eingestellt.
-  (z.B. können AVS Hersteller hierfür das Gematik Tool vom Medical Team ERPIONE nutzen)
-* Die Aktenlokalisierung der Aktenkonten kann bei beiden Aktensystemen erfolgreich durchgeführt werden.
-* Für die genutzte LEI (SMCB) kann eine Befugnis (Entitlement) für die Aktenkonten bei den beiden Aktensystemen eingestellt werden.
-* In Nicht-PU-Umgebungen muss der Client (das Primärsystem) die verwendeten Schlüssel (K2_c2s_app_data und K2_s2c_app_data) Base64 kodiert im Header "VAU-nonPU-Tracing" übertragen. Dies ist nur für die Testumgebungen (z.B. KOB-Testfall) vorgesehen und *MUSS* für die produktive Umgebung (PU) zwingend wieder entfernt und dürfen dort *NICHT* übertragen werden. (siehe A_24477)
-
 == Konfiguration
-
-[WARNING]
-====
-Für eine ordnungsgemäße Ausführung der KOB-Testsuite dürfen nur bestimmte Dateien angepasst werden.
-Diese sind:
-* `kob.yaml` (Konfiguration der Testsuite)
-* `dc-testsuite.yml` (Konfiguration des Docker-Containers)
-* `.env` (Konfiguration des Docker-Containers)
-
-Alle übrigen Dateien dürfen nicht verändert werden!
-====
-
-Die folgenden, relevanten Konfigurationen der KOB-Testsuite müssen wie folgt in `kob.yaml` vorgenommen werden:
-
-* `kvnrIbm` - die für die KOB gegen das IBM Aktensystem verwendete KVNR
-* `kvnrRise` - die für die KOB gegen das RISE Aktensystem verwendete KVNR
-* `emltype` - das für die KOB verwendete EML-Format
-* `useTestdriverApi` - ob die Testtreiber-API bei der KOB verwendet werden soll
 
 === TLS Konfiguration
 
-Der Tiger-Proxy unterstützt TLSv1.2 und gibt Server Zertifikate zurück, welche den Zertifikaten der Aktensysteme in der RU-DEV entsprechen. Siehe folgende Dateien:
+Der Tiger-Proxy unterstützt TLSv1.2 und gibt Server Zertifikate zurück, welche den Zertifikaten des Fachdienstes in der RU entspricht. Siehe folgende Datei:
 
-* `epa-as-1.dev.epa4all.de_NIST_X509.p12`
-* `epa-as-2.dev.epa4all.de_NIST_X509.p12`
+* `erp-ref.app.ti-dienste.de_NIST_X509.p12`
 
-Zusätzlich wurde die unterstützen CipherSuiten wie folgt eingeschränkt (GS-A_4384-*):
+Zusätzlich wurde die unterstützen CipherSuiten wie folgt eingeschränkt:
 
 * `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`
 * `TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384`
 
 == Routing
 
-Es muss das Routing der Nachrichten über Tiger-Proxy der KOB-Testsuite erfolgen, um eine Auswertung dieser zu ermöglichen. Der Tiger-Proxy leitet die Anfragen an die korrekten Aktensysteme weiter. Wichtig ist hierbei auch, dass in dem äußeren HTTP-Request auch der HTTP-Header "Host" für die Anfrage an das entsprechende Aktensystem gesetzt ist, damit Tiger-Proxy die Anfrage entsprechend nach dem Mitschnitt weiterleiten kann.
+Es muss das Routing der Nachrichten über Tiger-Proxy der KOB-Testsuite erfolgen, um eine Auswertung dieser zu ermöglichen. Der Tiger-Proxy leitet die Anfragen an einen internen DiGA-Mockserver. Wichtig ist hierbei auch, dass in dem äußeren HTTP-Request auch der HTTP-Header "Host" für die Anfrage an den entsprechenden Fachdienst gesetzt ist, damit Tiger-Proxy die Anfrage entsprechend nach dem Mitschnitt weiterleiten kann.
 
 Beispiel für den HTTP-Header, damit Tiger-Proxy korrekt routen kann.
 [source,httprequest]
 ----
-Host: epa-as-1.dev.epa4all.de
+Host: erp-ref.zentral.erp.splitdns.ti-dienste.de
 ----
 
 Es gibt keine Vorgabe WIE diese Umleitung erfolgen muss, zwei Wege scheinen jedoch sinnvoll:
@@ -105,42 +65,30 @@ Es gibt keine Vorgabe WIE diese Umleitung erfolgen muss, zwei Wege scheinen jedo
 === Forward Proxy (Variante 1)
 
 In dieser Konfiguration kann die KOB-Testsuite als Forward-Proxy für das Primärsystem eingerichtet werden.
-Die Routen sind entsprechend konfiguriert, damit der Verkehr hier an die korrekten Aktensysteme weitergeleitet wird.
+Die Routen sind entsprechend konfiguriert, damit der Verkehr hier an den DiGA-Mockserver weitergeleitet wird.
 
 Hierbei sind folgende Punkte zu beachten:
 
-* Primärsystem seitig wird die KOB-Testsuite als Proxy konfiguriert (e.g. `localhost:443`). Hiermit werden die Requests über die KOB-Testsuite an die Aktensysteme gesendet. Ein Request an `https://epa-as-1.dev.epa4all.de/foobar`, via KOB-Testsuite mit `localhost:443` entspricht somit `curl -x localhost:443 epa-as-1.dev.epa4all.de/foobar`)
-* Dabei ist darauf zu achten, dass der HTTP Header im (äußeren) HTTP Request dennoch den FQDN des Aktensystems enthält (e.g `Host: epa-as-1.dev.epa4all.de`), damit das Routing an das gewünschte Aktensystem erfolgen kann.
+* Primärsystem seitig wird die KOB-Testsuite als Proxy konfiguriert (e.g. `localhost:443`). Hiermit werden die Requests über die KOB-Testsuite an den DiGA-Mockserver gesendet. Ein Request an `https://erp-ref.zentral.erp.splitdns.ti-dienste.de/foobar`, via KOB-Testsuite mit `localhost:443` entspricht somit `curl -x localhost:443 erp-ref.zentral.erp.splitdns.ti-dienste.de/foobar`)
+* Dabei ist darauf zu achten, dass der HTTP Header im (äußeren) HTTP Request dennoch den FQDN des Fachdienstes enthält (e.g `Host: erp-ref.zentral.erp.splitdns.ti-dienste.de`).
 * Eine zusätzliche Manipulation der DNS Auflösung (Variante 2) in der `hosts` Datei ist nicht notwendig.
 
 === DNS Manipulation (Variante 2)
 
-Alternativ kann die DNS-Auflösung beeinflusst werden, z.B. über das Editieren der Host-Einträge im Testsystem selbst (e.g. /etc/hosts). Hier werden die Hostnamen der Aktensysteme auf die IP-Adresse des Testrechners, wo der Tiger-Proxy mit dem Port 443 läuft, umgeleitet.
+Alternativ kann die DNS-Auflösung beeinflusst werden, z.B. über das Editieren der Host-Einträge im Testsystem selbst (e.g. /etc/hosts). Hier werden die Hostnamen des Fachdienstes auf die IP-Adresse des Testrechners, wo der Tiger-Proxy mit dem Port 443 läuft, umgeleitet.
 
-Beispiel, wenn das Primärsystem auf dem gleichen Rechner läuft, wie die Testsuite mit dem Tiger-Proxy.
+Beispiel, wenn das Primärsystem auf dem gleichen Rechner läuft, wie die Testsuite mit dem Tiger-Proxy:
 
 [source,shell]
 ----
-127.0.0.1    epa-as-1.dev.epa4all.de
-127.0.0.1    epa-as-2.dev.epa4all.de
+127.0.0.1    erp-ref.zentral.erp.splitdns.ti-dienste.de
+127.0.0.1    erp-ref.app.ti-dienste.de
 ----
 
 [IMPORTANT]
 ====
-Diese Einträge sollten nach der Durchführung der KOB-Testsuite wieder entfernt werden, da es ansonsten zu einem unbeabsichtigten Fehlverhalten führt, wenn die KOB-Testsuite nicht mehr aktiv läuft und somit die Nachrichten nicht mehr an die Aktensysteme weitergeleitet werden.
+Diese Einträge sollten nach der Durchführung der KOB-Testsuite wieder entfernt werden, da es ansonsten zu einem unbeabsichtigten Fehlverhalten führt, wenn die KOB-Testsuite nicht mehr aktiv läuft und somit die Nachrichten nicht mehr an den DiGA-Mockserver weitergeleitet werden.
 ====
-
-=== Proxy für die Erreichbarkeit der Aktensysteme
-
-Sollten sich die Aktensysteme in der RU-DEV Umgebung nicht direkt erreichen lassen, sondern nur über einen (Forward) Proxy (z.B. in einem unternehmensinternen VPN), dann müssen in der Datei `tiger.yml` folgende Zeilen entsprechen aktiviert und angepasst werden:
-
-[source,yaml]
-----
-  # proxy configuration
-  forwardToProxy:
-    hostname: <PROXY_IP_OR_FQDN>
-    port: <PROXY_PORT>
-----
 
 === Konfiguration von Git
 
@@ -183,30 +131,8 @@ Dazu müssen die folgenden Einträge angepasst werden:
 
 == Testausführung
 
-Die KOB-Testsuite kann entweder lokal per Maven oder in einem Docker-Container ausgeführt werden.
-Per Default starten momentan nur die verpflichtenden KOB-Testfälle. Ohne diesen Filter werden alle Tests ausgeführt.
-Siehe `.env` Datei.
-Hier können dann auch die optionalen Testfälle, wenn gewünscht, konfiguriert werden.
-
-* `@KOB` - für den Test gegen beide Aktensysteme (Default)
-* `@IBM` - für den Test gegen das IBM Aktensystem
-* `@RISE` - für den Test gegen das RISE Aktensystem
-
-Optionale Testfälle:
-
-* `@login` - Aufbau einer User-Session bei einem der beiden Aktensysteme
-* `@information-record-status` - Aktenkontolokalisierung bei einem der beiden Aktensysteme
-* `@information-consent-decisions` - Abfrage der Zustimmung für ein Aktenkonto bei einem der beiden Aktensysteme
-* `@entitlement` - Einstellen einer Befugnis für ein Aktenkonto bei einem der beiden Aktensysteme
-
-=== Lokal (Maven)
-
-Für die lokale Ausführung werden folgende Software-Versionen empfohlen:
-
-* Maven Version >= 3.9
-* JAVA Version >= 17
-
-Ist dies gegeben, reicht ein einfaches Kommando `mvn clean verify` im Root-Verzeichnis des Projekts.
+Die KOB-Testsuite für DiGA kann nur in einem Docker-Container ausgeführt werden.
+Per Default starten momentan die verpflichtenden KOB-Testfälle.
 
 === Lokal (Docker)
 
@@ -214,14 +140,13 @@ Die Testsuite kann mit einem Docker-Compose gestartet werden.
 
 [source,bash]
 ----
-docker compose -f dc-testsuite.yml up
+docker compose -f dc-testsuite.yml up --abort-on-container-exit
 ----
 
 === WorkflowUI
 
 Die Durchführung der Testsuite geschieht über die von der KOB-Testsuite bereitgestellte Webseite der WorkflowUI.
 Hierzu wird die folgende Adresse im Browser aufgerufen, wenn sich die Testsuite auf dem lokalen Rechner gestartet wurde: http://localhost:9010.
-Beim Starten über Maven versucht die Testsuite diese Seite automatisch im Default-Browser zu öffnen.
 Beim Starten als Docker Container wird der entsprechende Link im Log ausgegeben, sobald die Seite aufrufbar ist.
 
 [source,bash]
@@ -238,7 +163,7 @@ Beim Starten als Docker Container wird der entsprechende Link im Log ausgegeben,
 09:21:12.065 [main ] INFO  d.g.t.t.l.TigerDirector - Workflow UI http://localhost:9010
 ----
 
-Nachdem der Testfall gestartet wurde, wartet die Testdurchführung auf eine Benutzerinteraktion, um mit der Prüfung der mitgeschnittenen Nachrichten vorzufahren. D.h. das in diesem Moment die eML vom Aktensystem abgerufen wurden muss, *bevor* man die Testdurchführung fortführt.
+Nachdem der Testfall gestartet wurde, wartet die Testdurchführung auf eine Benutzerinteraktion, um mit der Prüfung der mitgeschnittenen Nachrichten vorzufahren. D.h. das in diesem Moment die DiGA Verordnung erstellt werden muss, *bevor* man die Testdurchführung fortführt. Für die anderen Testfälle wird ebenfalls in der UI jeweils darauf gewartet, dass die entsprechenden UseCases vom Primärsystem ausgeführt wurden.
 
 image::/doc/img/continue_dialog_testsuite.png[Continue Dialog in Testsuite]
 
@@ -251,14 +176,9 @@ image::/doc/img/continue_dialog_testsuite.png[Continue Dialog in Testsuite]
 | Tiger-Proxy Proxy Port       | 443  | http / https
 |=====================================================
 
-== Prüfnachweis für die KOB
-
-Für die Beantragung des KOB Zertifikates bei der gematik benötigen Sie als Prüfnachweis den Testreport (zip file) und pro konfiguriertem Aktensystem je ein Screenshot (Bilddatei) von Ihrer GUI des PS auf der die angezeigte eML ersichtlich wird. Den Screenshot Datei(en) erstellen Sie bitte lokal bei Ihnen am System.
-
 === Testreport
 
-Die Testergebnisse selbst sind unter `target/site/serenity/index.html` zu finden und können somit im Browser verifiziert werden.
-Der Testreport wird automatisch nach der Ausführung im `target/kob-testsuite.*-test-report.zip` abgelegt, wenn die Ausführung über den Quit Button in der WorkflowUI beendet wird.
+Die Testergebnisse selbst werden unter `./report` als zip Datei abgelegt, wenn die Ausführung über den Quit Button in der WorkflowUI beendet wird.
 
 === Testreport aus Docker Container
 
@@ -273,16 +193,6 @@ Eine weitere Möglichkeit ist, die Report ZIP Datei über die Anwendung DockerDe
 
 image::/doc/img/docker_desktop_volumes.png[Download Test Report ZIP über Docker Desktop]
 
-=== Upload bei TITUS
-
-Loggen Sie sich in Ihren Account auf dem Titus Bestätigungsportal (https://titus.gematik.solutions) ein und laden Sie die entsprechenden Prüfnachweise im Bestätigungsantrag hoch. Für das Hochladen nutzen sie den Dialog "Nachweise für das Bestätigungsverfahren", wo sowohl der Testreport als ZIP Datei als auch den/die Screenshot Datei(en), welche die eML in ihrem Primärsystem darstellen, ausgewählt werden können. Im Anschluss starten Sie den Bestätigungsnachweis über TITUS.
-
-image::/doc/img/upload_dialog_titus.png[Upload Dialog in TITUS]
-
-Weitere Hinweise zur Handlungsanweisung für die Konformitätsbewertung (KOB) können im Service Desk nachgelesen werden:
- https://service.gematik.de/servicedesk/customer/kb/view/459882847
-
-Fragen zum Titus-Bestätigungsportal und zur Durchführung des KOB Verfahrens können Sie ebenfalls über unseren Service Desk einstellen: https://service.gematik.de/servicedesk/customer/portal/26/group/36
 
 == Troubleshooting / FAQs
 
@@ -337,5 +247,4 @@ docker cp ps-testsuite:/app/tiger-proxy.tgr .
 
 Hier eine Übersicht über die wichtigsten Änderungen, die wir planen. Wenn Sie hier Dinge vermissen oder Anregungen haben, melden Sie sich bitte bei uns!
 
-* Automatisierung der optionalen Tests. Hierfür werden ggf. Anpassungen der Testtreiberschnittstelle notwendig sein. Diese Änderungen werden aber NICHT mit den verpflichtenden Tests kollidieren. Sprich: Die jetzt existierende Schnittstelle wird aller Voraussicht nach bis zur KOB 3.0 unverändert bleiben.
 * Einbau einer Test-REST-API in die Tiger-Testsuite, um eine bessere Integration in CI/CD-Pipelines zu ermöglichen.
