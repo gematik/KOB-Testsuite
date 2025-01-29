@@ -2,13 +2,12 @@
 name: dc-testsuite-kob
 services:
   kob-testsuite:
-    image: gematik1/kob-testsuite:1.0.4
+    build:
+      context: .
     container_name: kob-testsuite
     environment:
       - MAVEN_OPTS=-Dcucumber.filter.tags=${TESTSUITE_TESTS}
       - KOB_STARTBROWSER=false
-      - KOB_PSURL=http://host.docker.internal:8080  # URL to connect PS with test driver interface if available
-      - KOB_ASURL=https://host.docker.internal:8443 # ULR to connect ePA mock services to run tests, e.g. vau handshake test
     ports:
       - "9010:9010"
       - "9011:9011"
@@ -16,9 +15,20 @@ services:
     volumes:
       - ./tiger.yaml:/app/tiger.yaml:ro
       - ./kob.yaml:/app/kob.yaml:ro
-      - ./settings.xml:/home/kobtest/.m2/settings.xml:ro
-      - kob-testsuite-maven:/home/kobtest/.m2/repository:rw
-      - kob-testsuite-report:/app/report:rw
+      - ./diga.yaml:/app/diga.yaml:ro
+      - ./activateResponse.xml:/app/activateResponse.xml:ro
+      - ./createResponse.xml:/app/createResponse.xml:ro
+      - ./settings.xml:/root/.m2/settings.xml:ro
+      - kob-testsuite-maven:/.m2/repository:rw
+      - ./report:/app/report:rw
+  vauServer:
+    image: gematik1/erp-vau-proxy-server
+    environment:
+      - ENCRYPTION_SERVICE_URL=http://vauCryptoServer:8080
+      - TARGET_URL=http://kob-testsuite:8080
+  vauCryptoServer:
+    image: gematik1/erp-vau-crypto-service
+
 volumes:
   kob-testsuite-maven:
     name: kob-testsuite-maven

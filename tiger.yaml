@@ -1,6 +1,9 @@
 tigerProxy:
+  keyFolders:
+    - "src/test/resources/erp-vau"
   activateRbelParsingFor:
     - epa3-vau
+    - erp-vau
   fileSaveInfo.writeToFile: true
   proxyPort: 443
   adminPort: 9011
@@ -9,6 +12,8 @@ tigerProxy:
     serverIdentities:
       - "src/test/resources/epa-as-1.dev.epa4all.de_NIST_X509.p12;00"
       - "src/test/resources/epa-as-2.dev.epa4all.de_NIST_X509.p12;00"
+      - "src/test/resources/erp-dev.app.ti-dienste.de_NIST_X509.p12;00"
+      - "src/test/resources/erp-ref.app.ti-dienste.de_NIST_X509.p12;00"
       - "src/test/resources/idp-ref.zentral.idp.splitdns.ti-dienste.de_NIST_X509.p12;00"
       - "src/test/resources/localhostIdentity.p12;00"
     serverSslSuites:
@@ -39,10 +44,22 @@ tigerProxy:
     - from: /
       to: https://10.30.19.43:443/
       hosts: ["epa-as-2.dev.epa4all.de"]
+    # route für eRp RU Fachdienst
+    - from: /
+    #  to: https://10.31.195.10:443/
+      to: http://vauServer:8080
+      hosts: ["erp-ref.zentral.erp.splitdns.ti-dienste.de", "erp-ref.app.ti-dienste.de", "subscription-ref.zentral.erp.splitdns.ti-dienste.de"]
+    # route für eRp RU-DEV Fachdienst
+    - from: /
+      to: https://10.31.194.12:443/
+      hosts: ["erp-dev.zentral.erp.splitdns.ti-dienste.de", "erp-dev.app.ti-dienste.de", "subscription-dev.zentral.erp.splitdns.ti-dienste.de"]
+    # - from: /
+    #   to: zionserver:8080
+    #   hosts: ["zionserver2", "zionserver:443"]
     # Fallback route to mock service e.g. to test VAU handshake
     - from: /
       to: ${kob.asurl}
-
+      
 lib:
   activateWorkflowUi: "${kob.useBrowser}"
   startBrowser: ${kob.startBrowser|true}
@@ -52,4 +69,5 @@ lib:
 
 additionalConfigurationFiles:
   - filename: kob.yaml
-
+  - filename: diga.yaml
+    baseKey: tiger
