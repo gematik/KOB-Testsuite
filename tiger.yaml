@@ -53,9 +53,6 @@ tigerProxy:
     - from: /
       to: https://10.31.194.12:443/
       hosts: ["erp-dev.zentral.erp.splitdns.ti-dienste.de", "erp-dev.app.ti-dienste.de", "subscription-dev.zentral.erp.splitdns.ti-dienste.de"]
-    # - from: /
-    #   to: zionserver:8080
-    #   hosts: ["zionserver2", "zionserver:443"]
     # Fallback route to mock service e.g. to test VAU handshake
     - from: /
       to: ${kob.asurl}

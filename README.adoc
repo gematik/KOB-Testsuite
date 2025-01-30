@@ -165,7 +165,7 @@ Beim Starten als Docker Container wird der entsprechende Link im Log ausgegeben,
 
 Nachdem der Testfall gestartet wurde, wartet die Testdurchführung auf eine Benutzerinteraktion, um mit der Prüfung der mitgeschnittenen Nachrichten vorzufahren. D.h. das in diesem Moment die DiGA Verordnung erstellt werden muss, *bevor* man die Testdurchführung fortführt. Für die anderen Testfälle wird ebenfalls in der UI jeweils darauf gewartet, dass die entsprechenden UseCases vom Primärsystem ausgeführt wurden.
 
-image::/doc/img/continue_dialog_testsuite.png[Continue Dialog in Testsuite]
+image::/doc/img/continue_dialog_testsuite_diga.png[Continue Dialog in Testsuite]
 
 == Port Tabelle
 
@@ -190,8 +190,6 @@ docker cp kob-testsuite:/app/report/kob-testsuite-test-report.zip .
 ----
 
 Eine weitere Möglichkeit ist, die Report ZIP Datei über die Anwendung DockerDesktop herunterzuladen.
-
-image::/doc/img/docker_desktop_volumes.png[Download Test Report ZIP über Docker Desktop]
 
 
 == Troubleshooting / FAQs
