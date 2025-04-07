@@ -20,28 +20,25 @@ tigerProxy:
   #  hostname: 10.11.98.80
   #  port: 8080
   proxyRoutes:
-    - from: http://ps
+    - from: /
       to: ${kob.psurl}
-    - from: "/"
-      to: ${kob.psurl}
-      hosts: ["ps", "ps:443", "ps:80"]
-    - from: ${kob.psurl}
-      to: ${kob.psurl}
+      hosts: ["ps"]
+      matchForProxyType: false
     # route für den IDP
     - from: /
       to: https://10.31.196.4:443/
       hosts: ["idp-ref.zentral.idp.splitdns.ti-dienste.de"]
-    # AS 1, IBM - "10.30.19.70/135"
+      matchForProxyType: false
+    # AS 1, IBM - "10.30.18.134/135/136/199/200/201"
     - from: /
-      to: https://10.30.19.70:443/
+      to: https://10.30.18.134:443/
       hosts: ["epa-as-1.dev.epa4all.de"]
+      matchForProxyType: false
     # AS 2, RISE - "10.30.19.43"
     - from: /
       to: https://10.30.19.43:443/
       hosts: ["epa-as-2.dev.epa4all.de"]
-    # Fallback route to mock service e.g. to test VAU handshake
-    - from: /
-      to: ${kob.asurl}
+      matchForProxyType: false
 
 lib:
   activateWorkflowUi: "${kob.useBrowser}"

@@ -168,7 +168,8 @@ Da der KOB-Testsuite Container während der Ausführung Maven-Artefakte bezieht,
 
 Dazu müssen die folgenden Einträge angepasst werden:
 
-```xml
+[source,xml]
+----
   <proxy>
     <id>optional</id>
     <active>true</active>
@@ -179,7 +180,7 @@ Dazu müssen die folgenden Einträge angepasst werden:
     <password>password</password>
     <nonProxyHosts>localhost|127.0.0.1</nonProxyHosts>
   </proxy>
-```
+----
 
 == Testausführung
 
@@ -189,8 +190,6 @@ Siehe `.env` Datei.
 Hier können dann auch die optionalen Testfälle, wenn gewünscht, konfiguriert werden.
 
 * `@KOB` - für den Test gegen beide Aktensysteme (Default)
-* `@IBM` - für den Test gegen das IBM Aktensystem
-* `@RISE` - für den Test gegen das RISE Aktensystem
 
 Optionale Testfälle:
 
@@ -254,6 +253,70 @@ image::/doc/img/continue_dialog_testsuite.png[Continue Dialog in Testsuite]
 == Prüfnachweis für die KOB
 
 Für die Beantragung des KOB Zertifikates bei der gematik benötigen Sie als Prüfnachweis den Testreport (zip file) und pro konfiguriertem Aktensystem je ein Screenshot (Bilddatei) von Ihrer GUI des PS auf der die angezeigte eML ersichtlich wird. Den Screenshot Datei(en) erstellen Sie bitte lokal bei Ihnen am System.
+
+[NOTE]
+====
+Sollten ihr Primärsystem oder Middleware keine Verordnung oder abweichende Verordnungen ausstellen können, so ist bei der Beauftragung in TITUS über die Kommentarfunktion link:doc/img/titus_bemerkung.png[Bemerkung] eine Begründung beizufügen.
+====
+
+=== Einzustellende E-Rezepte
+
+In dem o.g. Screenshot für die Beantragung des KOB Zertifikates sollte die elektronische Medikationsliste mit den folgenden Feldern für die jeweiligen Medikationen ersichtlich sein:
+
+* Verordnungsdatum
+* Wirkstoffname
+* Wirkstärke
+* Arzneimittelbezeichnung
+* Form
+* Dosierangabe/ Gebrauchsanweisung
+* PZN
+* Verordner
+
+Abgeleitet werden sollen Einträge von folgenden beispielhaften E-Rezepten, wobei der Screenshot Daten aus der jeweiligen Tabelle enthalten soll:
+
+* Für den Verordnungstyp "PZN-Verordnung"
+- https://github.com/gematik/eRezept-Examples/tree/main/End-to-End-Examples/6_15.01.2025/PZN-Verordnung/PZN-Verordnung_4/[E-Rezept Beispiel in Github] /
+  https://htmlpreview.github.io/?https://github.com/gematik/eRezept-Examples/blob/main/End-to-End-Examples/6_15.01.2025/PZN-Verordnung/PZN-Verordnung_4/PZN_Nr4_VerordnungArzt.html[HTML Vorschau]
+|====================================================================================
+| Arzneimittelbezeichnung      | Form | Dosierangabe/ Gebrauchsanweisung | PZN
+
+| Prospan® Hustensaft 100ml N1 | FLE  | 2mal tägl. 5ml                   | 08585997
+|====================================================================================
+
+* Für den Verordnungstyp "Wirkstoff-Verordnung"
+- https://github.com/gematik/eRezept-Examples/tree/main/End-to-End-Examples/6_15.01.2025/Wirkstoff-Verordnung/Wirkstoff-Verordnung_1/[E-Rezept Beispiel in Github] /
+  https://htmlpreview.github.io/?https://github.com/gematik/eRezept-Examples/blob/main/End-to-End-Examples/6_15.01.2025/Wirkstoff-Verordnung/Wirkstoff-Verordnung_1/WS_V1_VerordnungArzt.html[HTML Vorschau]
+
+|====================================================================================
+| Wirkstoffname | Wirkstärke | Dosierangabe/ Gebrauchsanweisung
+
+| Ramipril      | 5 mg/1     | 1-0-0-0
+|====================================================================================
+
+* Für den Verordnungstyp "Rezeptur-Verordnung"
+- https://github.com/gematik/eRezept-Examples/tree/main/End-to-End-Examples/6_15.01.2025/Rezeptur-Verordnung/Rezeptur-Verordnung_1/[E-Rezept Beispiel in Github] /
+  https://htmlpreview.github.io/?https://github.com/gematik/eRezept-Examples/blob/main/End-to-End-Examples/6_15.01.2025/Rezeptur-Verordnung/Rezeptur-Verordnung_1/Rez_Nr1_VerordnungArzt.html[HTML Vorschau]
+|====================================================================================
+| Wirkstoffname   | Wirkstärke | Dosierangabe/ Gebrauchsanweisung
+
+| Salicylsäure    | 5 g        | 1–3mal/Tag auf die erkrankten Hautstellen auftragen
+| 2-propanol 70 % |            |
+|====================================================================================
+
+* Für den Verordnungstyp "Freitext-Verordnung"
+- https://github.com/gematik/eRezept-Examples/tree/main/End-to-End-Examples/6_15.01.2025/Freitext-Verordnung/Freitext-Verordnung_1/[E-Rezept Beispiel in Github] /
+  https://htmlpreview.github.io/?https://github.com/gematik/eRezept-Examples/blob/main/End-to-End-Examples/6_15.01.2025/Freitext-Verordnung/Freitext-Verordnung_1/FT_V1_VerordnungArzt.html[HTML Vorschau]
+|====================================================================================
+| Arzneimittelbezeichnung
+
+| Metformin 850mg Tabletten N3
+|====================================================================================
+
+==== Nutzung von Gematik E-Rezept Client
+
+Für die Erstellung der E-Rezepte können Sie alternativ den Gematik E-Rezept Client `ERPIONE` nutzen. Dieser ist als Docker Container in https://hub.docker.com/r/gematik1/erpione[Dockerhub] veröffentlicht. Eine weiterführende Dokumentation zu der Funktionsweise des Clients in Verbindung mit dem Backend Service `PRIMSYS` ist in https://github.com/gematik/erp-e2e-testsuite/tree/master/docs/primsys-rest[Github] beschrieben.
+
+Benötigen Sie ein API Key oder haben generell Fragen zu dem Client, wenden Sie sich bitte an den gematik Service Desk und öffnen Sie ein entsprechendes Ticket (siehe <<Fehlertickets>>).
 
 === Testreport
 
@@ -339,3 +402,16 @@ Hier eine Übersicht über die wichtigsten Änderungen, die wir planen. Wenn Sie
 
 * Automatisierung der optionalen Tests. Hierfür werden ggf. Anpassungen der Testtreiberschnittstelle notwendig sein. Diese Änderungen werden aber NICHT mit den verpflichtenden Tests kollidieren. Sprich: Die jetzt existierende Schnittstelle wird aller Voraussicht nach bis zur KOB 3.0 unverändert bleiben.
 * Einbau einer Test-REST-API in die Tiger-Testsuite, um eine bessere Integration in CI/CD-Pipelines zu ermöglichen.
+
+== Fehlertickets
+Wenn Sie ein Fehlerticket eröffnen wollen für dieses Repository, nutzen Sie bitte den gematik Service Desk unter
+link:[https://service.gematik.de/servicedesk/customer/portal/26].
+
+== Beiträge
+Wenn Sie zu diesem Repository beitragen wollen, schauen Sie sich bitte die Datei link:[CONTRIBUTING.MD] an.
+
+== Lizenz
+Siehe link:[LICENSE]
+
+== Kontakt
+gematik GmbH: [OSPO@gematik.de](mailto:OSPO@gematik.de)

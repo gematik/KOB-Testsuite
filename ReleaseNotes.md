@@ -1,5 +1,11 @@
 # Release Notes KOB Testsuite
 
+## Release 1.0.5 (KOB Stufe 2)
+* Upgrade to Tiger 3.7.5
+  * see [release notes](https://github.com/gematik/app-Tiger/blob/master/ReleaseNotes.md) for details
+* The KOB test case must now be executed for both medical record systems (IBM and RISE).
+* The screenshots uploaded to get the KOB certificate should show medical prescriptions as described in [ReadMe Section "Einzustellende E-Rezepte"](README.adoc) for both medical record systems (IBM and RISE).
+
 ## Release 1.0.4
 
 * Upgrade to Tiger 3.6.0
