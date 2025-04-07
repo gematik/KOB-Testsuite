@@ -1,20 +1,24 @@
-/*
- * Copyright 2024 gematik GmbH
- *
+package de.gematik.test.tiger.glue;
+
+/*-
+ * #%L
+ * kob-testsuite
+ * %%
+ * Copyright (C) 2024 - 2025 gematik GmbH
+ * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * #L%
  */
-
-package de.gematik.test.tiger.glue;
 
 import static de.gematik.test.psTestdriver.dto.Status.SUCCESSFUL;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,7 +95,7 @@ public class KobTestdriverGlueCode {
         "Setzen sie das Primärsystem zurück. Insbesondere müssen Sie alle offenen EPA-Sitzungen schließen.");
   }
 
-  @When("KOB lade die EML für die KVNR {tigerResolvedString} im Format {tigerResolvedString} von dem Aktensystem {tigerResolvedString} herunter")
+  @When("KOB stelle eine neue Befugnis für die KVNR {tigerResolvedString} ein und lade die EML im Format {tigerResolvedString} von dem Aktensystem {tigerResolvedString} herunter")
   public void kobDownloadEmlForKvnrAs(String kvnr, String emlTypeString, String aktenSystem) {
     EmlType emlType = EmlType.fromValue(emlTypeString.toLowerCase());
     executeTestdriverAction(
@@ -99,9 +103,9 @@ public class KobTestdriverGlueCode {
             executeActionAndWaitForCompletion(
                 new EmlRetrieval().emlType(emlType).patient(kvnr),
                 "/patient/medication/medication-service/eml"),
-        "Laden Sie für den Patienten mit der KVNR "
+        "Stellen Sie für den Patienten mit der KVNR "
             + kvnr
-            + " die EML-Datei als "
+            + " eine neue Befugnis ein und laden Sie im Anschluss die eML für diesen Patienten als "
             + emlTypeString
             + " von dem Aktensystem "
             + aktenSystem

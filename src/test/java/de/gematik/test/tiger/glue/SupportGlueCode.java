@@ -1,30 +1,39 @@
-/*
- * Copyright 2024 gematik GmbH
- *
+package de.gematik.test.tiger.glue;
+
+/*-
+ * #%L
+ * kob-testsuite
+ * %%
+ * Copyright (C) 2024 - 2025 gematik GmbH
+ * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * #L%
  */
-
-package de.gematik.test.tiger.glue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import de.gematik.rbellogger.data.facet.RbelCborFacet;
-import de.gematik.test.tiger.lib.rbel.RbelMessageValidator;
+import de.gematik.test.tiger.lib.rbel.RbelMessageRetriever;
 import io.cucumber.java.de.Gegebensei;
 import io.cucumber.java.en.When;
 
 public class SupportGlueCode {
+
+  @Gegebensei("KOB Testsuite {string} Version {string}")
+  public void noop(String _testsuite, String _version) {
+    // noop
+  }
 
   @Gegebensei("KOB finde Aktensystem")
   public void kobFindAktenSystem() {
@@ -60,7 +69,7 @@ public class SupportGlueCode {
   }
 
   private static JsonNode extractJacksonNodeFromCurrentRequest(String rbelPath) {
-    return RbelMessageValidator.getInstance().getCurrentRequest().findElement(rbelPath)
+    return RbelMessageRetriever.getInstance().getCurrentRequest().findElement(rbelPath)
       .orElseThrow(() -> new AssertionError("Element not found in tree at path: " + rbelPath))
       .getParentNode().getFacet(RbelCborFacet.class)
       .orElseThrow(() -> new AssertionError("Element at path: " + rbelPath + " does not have a CBOR facet"))

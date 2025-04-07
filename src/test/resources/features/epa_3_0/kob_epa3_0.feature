@@ -3,6 +3,7 @@
 Funktion: KOB Testsuite for EPA 3.0
 
   Grundlage:
+    Gegeben sei KOB Testsuite "Kob" Version "1.0.5"
     Gegeben sei KOB finde Aktensystem
 
   # Testfall: EML Download.
@@ -10,14 +11,14 @@ Funktion: KOB Testsuite for EPA 3.0
   # Das Format des Downloads kann frei gewählt werde (siehe kob.yaml)
   # Der Download wird entweder über die Testtreiber-API oder manuell über die UI getriggert (siehe kob.yaml)
   # Der Screenshot wird in TITUS separat hochgeladen und händisch von der gematik überprüft. Er soll die Anzeige des EML in der UI demonstrieren
-  @Optional @IBM
+  @Mandatory
   Szenario: Download EML IBM
     # Bereite Testumgebung vor
     Gegeben sei TGR lösche aufgezeichnete Nachrichten
     Und TGR lösche die benutzerdefinierte Fehlermeldung
 
     # Wir triggern den Download der eML in dem konfigurierten Format
-    Wenn KOB lade die EML für die KVNR "${kob.kvnrIbm}" im Format "${kob.emlType}" von dem Aktensystem "IBM" herunter
+    Wenn KOB stelle eine neue Befugnis für die KVNR "${kob.kvnrIbm}" ein und lade die EML im Format "${kob.emlType}" von dem Aktensystem "IBM" herunter
 
     # Zunächst überprüfen wir, ob grundsätzlich Verkehr gefunden werden kann und er den Mindestanforderungen entspricht
     Dann TGR die Fehlermeldung wird gesetzt auf: "Es konnte kein Verkehr gefunden werden! Bitte überprüfen Sie, ob der Verkehr tatsächlich über Tiger geroutet wird."
@@ -29,6 +30,22 @@ Funktion: KOB Testsuite for EPA 3.0
     Dann TGR die Fehlermeldung wird gesetzt auf: "Das 'PU'-Flag im VAU-Header muss in der RU auf 0 gesetzt werden!"
     Und TGR prüfe aktueller Request stimmt im Knoten "$.body.header.pu" überein mit "0"
     Und TGR lösche die benutzerdefinierte Fehlermeldung
+
+    ### Wir überprüfen noch den Verkehr des Einstellen einer Befugnis. Dazu müssen wir zunächst die Abfrage zum Setzen der Befugnis finden
+    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "/epa/basic/api/v1/ps/entitlements" übereinstimmt
+    # inner request
+    Und TGR current request with attribute "$.body.decrypted.method" matches "POST"
+    Und TGR current request with attribute "$.body.decrypted.header.[~'x-insurantid']" matches "${kob.kvnrIbm}"
+    # outer response
+    Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.responseCode" überein mit "200"
+    # inner response
+    Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.responseCode" überein mit "201"
+    Und TGR prüfe aktuelle Antwort im Knoten "$.body.decrypted.body" stimmt als JSON überein mit:
+    """
+    {
+      "validTo" : "${json-unit.ignore}"
+    }
+    """
 
     # Wir überprüfen noch den Verkehr des Downloads selbst. Dazu müssen wir zunächst die Abfrage zum Auslösen des Downloads finden
     Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "(/epa/medication/api/v1/fhir/.*|/epa/medication/render/v1/eml/.*)" übereinstimmt
@@ -53,16 +70,14 @@ Funktion: KOB Testsuite for EPA 3.0
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.header.[~'content-type']" überein mit "(application\/fhir\+json|application\/pdf|text\/html.*)"
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.body" überein mit ".*"
 
-    Und TGR setze globale Variable "exec" auf "doneIBM"
-
-  @Optional @RISE
+  @Mandatory
   Szenario: Download EML RISE
     # Bereite Testumgebung vor
     Gegeben sei TGR lösche aufgezeichnete Nachrichten
     Und TGR lösche die benutzerdefinierte Fehlermeldung
 
     # Wir triggern den Download der eML in dem konfigurierten Format
-    Wenn KOB lade die EML für die KVNR "${kob.kvnrRise}" im Format "${kob.emlType}" von dem Aktensystem "RISE" herunter
+    Wenn KOB stelle eine neue Befugnis für die KVNR "${kob.kvnrRise}" ein und lade die EML im Format "${kob.emlType}" von dem Aktensystem "RISE" herunter
 
     # Zunächst überprüfen wir, ob grundsätzlich Verkehr gefunden werden kann und er den Mindestanforderungen entspricht
     Dann TGR die Fehlermeldung wird gesetzt auf: "Es konnte kein Verkehr gefunden werden! Bitte überprüfen Sie, ob der Verkehr tatsächlich über Tiger geroutet wird."
@@ -74,6 +89,22 @@ Funktion: KOB Testsuite for EPA 3.0
     Dann TGR die Fehlermeldung wird gesetzt auf: "Das 'PU'-Flag im VAU-Header muss in der RU auf 0 gesetzt werden!"
     Und TGR prüfe aktueller Request stimmt im Knoten "$.body.header.pu" überein mit "0"
     Und TGR lösche die benutzerdefinierte Fehlermeldung
+
+    ### Wir überprüfen noch den Verkehr des Einstellen einer Befugnis. Dazu müssen wir zunächst die Abfrage zum Setzen der Befugnis finden
+    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "/epa/basic/api/v1/ps/entitlements" übereinstimmt
+    # inner request
+    Und TGR current request with attribute "$.body.decrypted.method" matches "POST"
+    Und TGR current request with attribute "$.body.decrypted.header.[~'x-insurantid']" matches "${kob.kvnrRise}"
+    # outer response
+    Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.responseCode" überein mit "200"
+    # inner response
+    Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.responseCode" überein mit "201"
+    Und TGR prüfe aktuelle Antwort im Knoten "$.body.decrypted.body" stimmt als JSON überein mit:
+    """
+    {
+      "validTo" : "${json-unit.ignore}"
+    }
+    """
 
     # Wir überprüfen noch den Verkehr des Downloads selbst. Dazu müssen wir zunächst die Abfrage zum Auslösen des Downloads finden
     Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "(/epa/medication/api/v1/fhir/.*|/epa/medication/render/v1/eml/.*)" übereinstimmt
@@ -98,8 +129,3 @@ Funktion: KOB Testsuite for EPA 3.0
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.header.[~'content-type']" überein mit "(application\/fhir\+json|application\/pdf|text\/html.*)"
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.body" überein mit ".*"
 
-    Und TGR setze globale Variable "exec" auf "doneRISE"
-
-  @Mandatory @IBM @RISE
-  Szenario: Ausführungsüberprüfung
-    Gegeben sei TGR prüfe das "${exec}" mit "(doneIBM|doneRISE)" überein stimmt
