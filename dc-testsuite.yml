@@ -12,7 +12,7 @@ services:
     ports:
       - "${KOB_WORKFLOW_UI_EXPOSE_PORT:-9010}:9010"
       - "${KOB_TIGER_ADMIN_EXPOSE_PORT:-9011}:9011"
-      - "${KOB_TIGER_PROXY_EXPOSE_PORT:-433}:443"
+      - "${KOB_TIGER_PROXY_EXPOSE_PORT:-443}:443"
     volumes:
       - ./tiger.yaml:/app/tiger.yaml:ro
       - ./kob.yaml:/app/kob.yaml:ro
