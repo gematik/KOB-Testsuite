@@ -1,8 +1,6 @@
 kob:
   # Die URL der Testtreiberschnittstelle des Primärsystems
   psurl: "http://ps-sim:8080"
-  # Die URL der Mock-Aktensysteme. Standard ist 127.0.0.1, für docker-runs sollte host.docker.internal verwendet werden.
-  asurl: "https://localhost:8443"
   # Soll die Testtreiberschnittstelle des Primärsystems verwendet werden?
   # Wenn false, dann werden in der WebUI Nachrichten angezeigt, die
   # beschreiben, was der Tester im Primärsystem machen soll.
@@ -18,13 +16,20 @@ kob:
   asSelection:
     - targetHost: 'epa-as-1.dev'
       ips:
-        - "10.30.19.70"
         - "10.30.18.134"
         - "10.30.18.135"
         - "10.30.18.136"
         - "10.30.18.199"
         - "10.30.18.200"
         - "10.30.18.201"
+    - targetHost: 'epa-as-1.ref'
+      ips:
+        - "10.30.18.145"
+        - "10.30.18.146"
+        - "10.30.18.147"
+        - "10.30.18.209"
+        - "10.30.18.210"
+        - "10.30.18.211"
 
   ##################################################################################
   # Detailkonfigurationen

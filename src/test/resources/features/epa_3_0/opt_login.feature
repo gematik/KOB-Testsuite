@@ -54,7 +54,7 @@ Funktion: Test ePA login
     Und TGR current response with attribute "$.responseCode" matches "200"
     # inner response
     Und TGR current response with attribute "$.body.decrypted.responseCode" matches "302"
-    Und TGR current response with attribute "$.body.decrypted.reasonPhrase" matches "Found"
+    Und TGR current response with attribute "$.body.decrypted.reasonPhrase" matches "(?i)Found"
     # INFO: the internet address is also okay here, because the backend systems in Ru-DEV still sends this back to PS
     # that is not an issue of the PS, so we accept both until backends systems sends only the TI address
     Und TGR current response with attribute "$.body.decrypted.header.[~'location']" matches "(https://idp-ref.app.ti-dienste.de.*|https://idp-ref.zentral.idp.splitdns.ti-dienste.de.*)"

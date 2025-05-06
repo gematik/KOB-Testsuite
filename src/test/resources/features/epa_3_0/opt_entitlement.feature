@@ -62,7 +62,7 @@ Funktion: Test set entitlements by PS
 
     # inner response
     Und TGR current response with attribute "$.body.decrypted.responseCode" matches "201"
-    Und TGR current response with attribute "$.body.decrypted.reasonPhrase" matches "Created"
+    Und TGR current response with attribute "$.body.decrypted.reasonPhrase" matches "(?i)Created"
     Und TGR current response with attribute "$.body.decrypted.header.[~'content-type']" matches "application/json"
     Und TGR current response at "$.body.decrypted.body" matches as JSON:
     """

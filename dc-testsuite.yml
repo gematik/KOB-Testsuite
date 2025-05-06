@@ -9,9 +9,9 @@ services:
       - MAVEN_OPTS=-Dcucumber.filter.tags=${TESTSUITE_TESTS}
       - KOB_STARTBROWSER=false
     ports:
-      - "9010:9010"
-      - "9011:9011"
-      - "443:443"
+      - "${KOB_WORKFLOW_UI_EXPOSE_PORT:-9010}:9010"
+      - "${KOB_TIGER_ADMIN_EXPOSE_PORT:-9011}:9011"
+      - "${KOB_TIGER_PROXY_EXPOSE_PORT:-443}:443"
     volumes:
       - ./tiger.yaml:/app/tiger.yaml:ro
       - ./kob.yaml:/app/kob.yaml:ro
@@ -25,9 +25,17 @@ services:
     image: gematik1/erp-vau-proxy-server
     environment:
       - ENCRYPTION_SERVICE_URL=http://vauCryptoServer:8080
-      - TARGET_URL=http://kob-testsuite:8080
+      - TARGET_URL=${VAU_SERVER_TARGET_URL}
   vauCryptoServer:
     image: gematik1/erp-vau-crypto-service
+  vauTranslationClient:
+    image: gematik1/erp-vau-proxy-client:1.0.29
+    environment:
+      - FORWARD_TARGET_URL=https://erp-dev.zentral.erp.splitdns.ti-dienste.de
+    extra_hosts:
+      - ${VAU_TRANSLATION_CLIENT_ERP_DEV_HOST:-erp-dev.zentral.erp.splitdns.ti-dienste.de}:10.31.194.12
+      - ${VAU_TRANSLATION_CLIENT_ERP_REF_HOST:-erp-ref.zentral.erp.splitdns.ti-dienste.de}:10.31.195.10
+
 
 volumes:
   kob-testsuite-maven:
