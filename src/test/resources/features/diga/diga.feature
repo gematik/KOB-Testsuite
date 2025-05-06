@@ -11,13 +11,14 @@ Funktion: KOB Testsuite für DiGA Verordnungen
     Dann TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.message.path.basicPath" der mit "/Task/$create" übereinstimmt
     Und TGR prüfe aktueller Request stimmt im Knoten "$.body.message.body.Parameters.parameter.valueCoding.code.value" überein mit "162"
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.message.responseCode" überein mit "201"
+    Und TGR speichere Wert des Knotens "$.body.message.body.Task.id.value" der aktuellen Antwort in der Variable "erp.task_id"
 
   # Ein DiGA Rezept wurde am Fachdienst eingestellt
   @Mandatory
   Szenario: E-Rezept einer DiGA bereitstellen
     Wenn TGR zeige Banner "Testfall: E-Rezept einer DiGA bereitstellen"
     Und TGR pausiere Testausführung mit Nachricht "Stellen Sie das erstellte E-Rezept einer DiGA bereit"
-    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.message.path.basicPath" der mit "/Task/162.000.000.000.000.01/$activate" übereinstimmt
+    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.message.path.basicPath" der mit "/Task/${erp.task_id}/$activate" übereinstimmt
     Dann TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.message.responseCode" überein mit "200"
   
   # Ein DiGA Rezept wurde vom Fachdienst gelöscht
@@ -25,5 +26,5 @@ Funktion: KOB Testsuite für DiGA Verordnungen
   Szenario: E-Rezept einer DiGA löschen
     Wenn TGR zeige Banner "Testfall: E-Rezept einer DiGA durch Verordnenden löschen"
     Und TGR pausiere Testausführung mit Nachricht "Löschen Sie das bereitgestellte E-Rezept einer DiGA"
-    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.message.path.basicPath" der mit "/Task/162.000.000.000.000.01/$abort" übereinstimmt
+    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.message.path.basicPath" der mit "/Task/${erp.task_id}/$abort" übereinstimmt
     Dann TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.message.responseCode" überein mit "204"

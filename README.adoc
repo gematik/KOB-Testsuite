@@ -32,6 +32,7 @@ image::/doc/img/setup.png[Setup]
 * Die Testsuite wird auf einem Tester-PC ausgeführt.
 * Auf diesem läuft auch das Primärsystem.
 * Der Konnektor ist korrekt konfiguriert und erreichbar.
+* Die eRezept Fachdienste in der RU sind erreichbar.
 * Auf diesem Testrechner kann nun die Tiger-Testsuite gestartet werden, ebenso wie der Tiger-Proxy.
 * Die Kommunikation zwischen Primärsystem und der TI muss nun über den Tiger-Proxy geleitet werden.
 * Dieser kann die Kommunikation aufzeichnen und analysieren.
@@ -52,12 +53,12 @@ Zusätzlich wurde die unterstützen CipherSuiten wie folgt eingeschränkt:
 
 == Routing
 
-Es muss das Routing der Nachrichten über Tiger-Proxy der KOB-Testsuite erfolgen, um eine Auswertung dieser zu ermöglichen. Der Tiger-Proxy leitet die Anfragen an einen internen DiGA-Mockserver. Wichtig ist hierbei auch, dass in dem äußeren HTTP-Request auch der HTTP-Header "Host" für die Anfrage an den entsprechenden Fachdienst gesetzt ist, damit Tiger-Proxy die Anfrage entsprechend nach dem Mitschnitt weiterleiten kann.
+Es muss das Routing der Nachrichten über Tiger-Proxy der KOB-Testsuite erfolgen, um eine Auswertung dieser zu ermöglichen. Der Tiger-Proxy sendet die Anfragen an den RU-Fachdienst weiter. Dazu muss eine geeignete Verbindung in die RU aufgebaut werden können (z.B. mittels lokalem RU-Konnektor). Wichtig ist hierbei auch, dass in dem äußeren HTTP-Request auch der HTTP-Header "Host" für die Anfrage an den entsprechenden Fachdienst gesetzt ist, damit Tiger-Proxy die Anfrage entsprechend nach dem Mitschnitt weiterleiten kann.
 
 Beispiel für den HTTP-Header, damit Tiger-Proxy korrekt routen kann.
 [source,httprequest]
 ----
-Host: erp-ref.zentral.erp.splitdns.ti-dienste.de
+Host: erp-dev.zentral.erp.splitdns.ti-dienste.de
 ----
 
 Es gibt keine Vorgabe WIE diese Umleitung erfolgen muss, zwei Wege scheinen jedoch sinnvoll:
@@ -69,8 +70,8 @@ Die Routen sind entsprechend konfiguriert, damit der Verkehr hier an den DiGA-Mo
 
 Hierbei sind folgende Punkte zu beachten:
 
-* Primärsystem seitig wird die KOB-Testsuite als Proxy konfiguriert (e.g. `localhost:443`). Hiermit werden die Requests über die KOB-Testsuite an den DiGA-Mockserver gesendet. Ein Request an `https://erp-ref.zentral.erp.splitdns.ti-dienste.de/foobar`, via KOB-Testsuite mit `localhost:443` entspricht somit `curl -x localhost:443 erp-ref.zentral.erp.splitdns.ti-dienste.de/foobar`)
-* Dabei ist darauf zu achten, dass der HTTP Header im (äußeren) HTTP Request dennoch den FQDN des Fachdienstes enthält (e.g `Host: erp-ref.zentral.erp.splitdns.ti-dienste.de`).
+* Primärsystem seitig wird die KOB-Testsuite als Proxy konfiguriert (e.g. `localhost:443`). Hiermit werden die Requests über die KOB-Testsuite an den DiGA-Mockserver gesendet. Ein Request an `https://erp-dev.zentral.erp.splitdns.ti-dienste.de/foobar`, via KOB-Testsuite mit `localhost:443` entspricht somit `curl -x localhost:443 erp-dev.zentral.erp.splitdns.ti-dienste.de/foobar`)
+* Dabei ist darauf zu achten, dass der HTTP Header im (äußeren) HTTP Request dennoch den FQDN des Fachdienstes enthält (e.g `Host: erp-dev.zentral.erp.splitdns.ti-dienste.de`).
 * Eine zusätzliche Manipulation der DNS Auflösung (Variante 2) in der `hosts` Datei ist nicht notwendig.
 
 === DNS Manipulation (Variante 2)
@@ -81,14 +82,17 @@ Beispiel, wenn das Primärsystem auf dem gleichen Rechner läuft, wie die Testsu
 
 [source,shell]
 ----
-127.0.0.1    erp-ref.zentral.erp.splitdns.ti-dienste.de
-127.0.0.1    erp-ref.app.ti-dienste.de
+127.0.0.1    erp-dev.zentral.erp.splitdns.ti-dienste.de
+127.0.0.1    erp-dev.app.ti-dienste.de
 ----
-
 [IMPORTANT]
 ====
 Diese Einträge sollten nach der Durchführung der KOB-Testsuite wieder entfernt werden, da es ansonsten zu einem unbeabsichtigten Fehlverhalten führt, wenn die KOB-Testsuite nicht mehr aktiv läuft und somit die Nachrichten nicht mehr an den DiGA-Mockserver weitergeleitet werden.
 ====
+
+Damit der Tigerproxy die Nachricht am Ende an den RU-DEV Fachdienst schicken kann, müssen in der `.env` Datei die Umgebungsvariablen VAU_TRANSLATION_CLIENT_ERP_DEV_HOST und VAU_TRANSLATION_CLIENT_ERP_REF_HOST auskommentiert werden (siehe __Deactivate/Comment for DNS resolving via extra_hosts (e.g. when using DNS manipulation method)__ in `.env`).
+
+
 
 === Konfiguration von Git
 
@@ -116,7 +120,8 @@ Da der KOB-Testsuite Container während der Ausführung Maven-Artefakte bezieht,
 
 Dazu müssen die folgenden Einträge angepasst werden:
 
-```xml
+[source,xml]
+----
   <proxy>
     <id>optional</id>
     <active>true</active>
@@ -127,7 +132,14 @@ Dazu müssen die folgenden Einträge angepasst werden:
     <password>password</password>
     <nonProxyHosts>localhost|127.0.0.1</nonProxyHosts>
   </proxy>
-```
+----
+
+=== Konfiguration des Backends
+
+Tiger kann entweder mit einem DiGA Mockserver betrieben werden oder den RU-DEV Fachdienst in der RU als Backend nutzen. Der Mockserver ist für lokale Tests und Entwicklung geeignet. Für die Bestätigung ist der RU-DEV Fachdienst auszuwählen. Die Einstellung dazu erfolgt in der `.env` Datei. Die Variable VAU_SERVER_TARGET_URL steuert dabei die Backendauswahl
+
+ 1. Mockserver (VAU_SERVER_TARGET_URL=http://kob-testsuite:8080), oder
+ 2. RU-DEV (VAU_SERVER_TARGET_URL=http://vauTranslationClient:8080) 
 
 == Testausführung
 
@@ -142,6 +154,18 @@ Die Testsuite kann mit einem Docker-Compose gestartet werden.
 ----
 docker compose -f dc-testsuite.yml up --abort-on-container-exit
 ----
+
+[IMPORTANT]
+====
+Nach jeder Änderung im Git-Repository (Branchwechsel, pull oder Update der Quelldateien im /src Ordner) muss ein 
+[source,bash]
+----
+docker compose -f dc-testsuite.yml build
+----
+ausgeführt werden, um die Änderungen zu übernehmen.
+====
+
+
 
 === WorkflowUI
 
@@ -246,3 +270,16 @@ docker cp ps-testsuite:/app/tiger-proxy.tgr .
 Hier eine Übersicht über die wichtigsten Änderungen, die wir planen. Wenn Sie hier Dinge vermissen oder Anregungen haben, melden Sie sich bitte bei uns!
 
 * Einbau einer Test-REST-API in die Tiger-Testsuite, um eine bessere Integration in CI/CD-Pipelines zu ermöglichen.
+
+== Fehlertickets
+Wenn Sie ein Fehlerticket eröffnen wollen für dieses Repository, nutzen Sie bitte den gematik Service Desk unter
+link:[https://service.gematik.de/servicedesk/customer/portal/26].
+
+== Beiträge
+Wenn Sie zu diesem Repository beitragen wollen, schauen Sie sich bitte die Datei link:[CONTRIBUTING.MD] an.
+
+== Lizenz
+Siehe link:[LICENSE]
+
+== Kontakt
+gematik GmbH: [OSPO@gematik.de](mailto:OSPO@gematik.de)
