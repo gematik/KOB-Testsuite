@@ -22,13 +22,16 @@ services:
       - kob-testsuite-maven:/.m2/repository:rw
       - ./report:/app/report:rw
   vauServer:
-    image: gematik1/erp-vau-proxy-server
+    container_name: vauServer
+    image: gematik1/erp-vau-proxy-server:1.0.13
     environment:
       - ENCRYPTION_SERVICE_URL=http://vauCryptoServer:8080
       - TARGET_URL=${VAU_SERVER_TARGET_URL}
   vauCryptoServer:
-    image: gematik1/erp-vau-crypto-service
+    container_name: vauCryptoServer
+    image: gematik1/erp-vau-crypto-service:3.0.7
   vauTranslationClient:
+    container_name: vauTranslationClient
     image: gematik1/erp-vau-proxy-client:1.0.29
     environment:
       - FORWARD_TARGET_URL=https://erp-dev.zentral.erp.splitdns.ti-dienste.de
