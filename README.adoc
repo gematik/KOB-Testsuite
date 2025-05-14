@@ -51,7 +51,7 @@ image::/doc/img/setup.png[Setup]
 
 Die grundsätzlichen fachlichen Voraussetzungen sehen wie folgt aus:
 
-* Die Aktenkonten bei beiden Aktensystemen sind in der RU-DEV eingerichtet worden.
+* Die Aktenkonten bei beiden Aktensystemen sind eingerichtet worden.
 * E-Rezepte für die Aktenkonten wurden eingestellt.
   (z.B. können AVS Hersteller hierfür das Gematik Tool vom Medical Team ERPIONE nutzen)
 * Die Aktenlokalisierung der Aktenkonten kann bei beiden Aktensystemen erfolgreich durchgeführt werden.
@@ -80,12 +80,7 @@ Die folgenden, relevanten Konfigurationen der KOB-Testsuite müssen wie folgt in
 
 === TLS Konfiguration
 
-Der Tiger-Proxy unterstützt TLSv1.2 und gibt Server Zertifikate zurück, welche den Zertifikaten der Aktensysteme in der RU-DEV entsprechen. Siehe folgende Dateien:
-
-* `epa-as-1.dev.epa4all.de_NIST_X509.p12`
-* `epa-as-2.dev.epa4all.de_NIST_X509.p12`
-
-Zusätzlich wurde die unterstützen CipherSuiten wie folgt eingeschränkt (GS-A_4384-*):
+Der Tiger-Proxy unterstützt TLSv1.2 und gibt Server Zertifikate zurück, welche den Zertifikaten der Aktensysteme entsprechen. Zusätzlich wurden die unterstützen CipherSuiten wie folgt eingeschränkt (GS-A_4384-*):
 
 * `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`
 * `TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384`
@@ -97,7 +92,7 @@ Es muss das Routing der Nachrichten über Tiger-Proxy der KOB-Testsuite erfolgen
 Beispiel für den HTTP-Header, damit Tiger-Proxy korrekt routen kann.
 [source,httprequest]
 ----
-Host: epa-as-1.dev.epa4all.de
+Host: epa-as-1.ref.epa4all.de
 ----
 
 Es gibt keine Vorgabe WIE diese Umleitung erfolgen muss, zwei Wege scheinen jedoch sinnvoll:
@@ -109,8 +104,8 @@ Die Routen sind entsprechend konfiguriert, damit der Verkehr hier an die korrekt
 
 Hierbei sind folgende Punkte zu beachten:
 
-* Primärsystem seitig wird die KOB-Testsuite als Proxy konfiguriert (e.g. `localhost:443`). Hiermit werden die Requests über die KOB-Testsuite an die Aktensysteme gesendet. Ein Request an `https://epa-as-1.dev.epa4all.de/foobar`, via KOB-Testsuite mit `localhost:443` entspricht somit `curl -x localhost:443 epa-as-1.dev.epa4all.de/foobar`)
-* Dabei ist darauf zu achten, dass der HTTP Header im (äußeren) HTTP Request dennoch den FQDN des Aktensystems enthält (e.g `Host: epa-as-1.dev.epa4all.de`), damit das Routing an das gewünschte Aktensystem erfolgen kann.
+* Primärsystem seitig wird die KOB-Testsuite als Proxy konfiguriert (e.g. `localhost:443`). Hiermit werden die Requests über die KOB-Testsuite an die Aktensysteme gesendet. Ein Request an `https://epa-as-1.ref.epa4all.de/foobar`, via KOB-Testsuite mit `localhost:443` entspricht somit `curl -x localhost:443 epa-as-1.ref.epa4all.de/foobar`)
+* Dabei ist darauf zu achten, dass der HTTP Header im (äußeren) HTTP Request dennoch den FQDN des Aktensystems enthält (e.g `Host: epa-as-1.ref.epa4all.de`), damit das Routing an das gewünschte Aktensystem erfolgen kann.
 * Eine zusätzliche Manipulation der DNS Auflösung (Variante 2) in der `hosts` Datei ist nicht notwendig.
 
 === DNS Manipulation (Variante 2)
@@ -121,8 +116,9 @@ Beispiel, wenn das Primärsystem auf dem gleichen Rechner läuft, wie die Testsu
 
 [source,shell]
 ----
-127.0.0.1    epa-as-1.dev.epa4all.de
-127.0.0.1    epa-as-2.dev.epa4all.de
+# Zur Durchfuehrung der KOB und/oder optionalen Testfällen
+127.0.0.1    epa-as-1.ref.epa4all.de
+127.0.0.1    epa-as-2.ref.epa4all.de
 ----
 
 [IMPORTANT]
@@ -132,7 +128,7 @@ Diese Einträge sollten nach der Durchführung der KOB-Testsuite wieder entfernt
 
 === Proxy für die Erreichbarkeit der Aktensysteme
 
-Sollten sich die Aktensysteme in der RU-DEV Umgebung nicht direkt erreichen lassen, sondern nur über einen (Forward) Proxy (z.B. in einem unternehmensinternen VPN), dann müssen in der Datei `tiger.yml` folgende Zeilen entsprechen aktiviert und angepasst werden:
+Sollten sich die Aktensysteme nicht direkt erreichen lassen, sondern nur über einen (Forward) Proxy (z.B. in einem unternehmensinternen VPN), dann müssen in der Datei `tiger.yml` folgende Zeilen entsprechen aktiviert und angepasst werden:
 
 [source,yaml]
 ----
@@ -410,8 +406,23 @@ link:[https://service.gematik.de/servicedesk/customer/portal/26].
 == Beiträge
 Wenn Sie zu diesem Repository beitragen wollen, schauen Sie sich bitte die Datei link:[CONTRIBUTING.MD] an.
 
-== Lizenz
-Siehe link:[LICENSE]
+== License
+
+Copyright 2024 gematik GmbH
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+
+See the link:./LICENSE[LICENSE] for the specific language governing permissions and limitations under the License.
+
+== Additional Notes and Disclaimer from gematik GmbH
+
+. Copyright notice: Each published work result is accompanied by an explicit statement of the license conditions for use. These are regularly typical conditions in connection with open source or free software. Programs described/provided/linked here are free software, unless otherwise stated.
+. Permission notice: Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+.. The copyright notice (Item 1) and the permission notice (Item 2) shall be included in all copies or substantial portions of the Software.
+.. The software is provided "as is" without warranty of any kind, either express or implied, including, but not limited to, the warranties of fitness for a particular purpose, merchantability, and/or non-infringement. The authors or copyright holders shall not be liable in any manner whatsoever for any damages or other claims arising from, out of or in connection with the software or the use or other dealings with the software, whether in an action of contract, tort, or otherwise.
+.. The software is the result of research and development activities, therefore not necessarily quality assured and without the character of a liable product. For this reason, gematik does not provide any support or other user assistance (unless otherwise stated in individual cases and without justification of a legal obligation). Furthermore, there is no claim to further development and adaptation of the results to a more current state of the art.
+. Gematik may remove published results temporarily or permanently from the place of publication at any time without prior notice or justification.
+. Please note: Parts of this code may have been generated using AI-supported technology.’ Please take this into account, especially when troubleshooting, for security analyses and possible adjustments.
 
 == Kontakt
 gematik GmbH: [OSPO@gematik.de](mailto:OSPO@gematik.de)
