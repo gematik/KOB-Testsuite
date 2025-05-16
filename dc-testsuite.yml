@@ -2,7 +2,7 @@
 name: dc-testsuite-kob
 services:
   kob-testsuite:
-    image: gematik1/kob-testsuite:1.0.5
+    image: gematik1/kob-testsuite:1.0.6
     container_name: kob-testsuite
     environment:
       - MAVEN_OPTS=-Dcucumber.filter.tags=${TESTSUITE_TESTS}
