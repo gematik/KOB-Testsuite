@@ -3,7 +3,7 @@
 Funktion: KOB Testsuite for EPA 3.0
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "1.0.6"
+    Gegeben sei KOB Testsuite "Kob" Version "1.0.7"
     Gegeben sei KOB finde Aktensystem
 
   # Testfall: EML Download.
