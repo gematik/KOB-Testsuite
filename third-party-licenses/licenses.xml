@@ -64,7 +64,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.18.3</version>
+      <version>2.19.0</version>
       <licenses>
         <license>
           <name>The Apache Software License, Version 2.0</name>
@@ -77,7 +77,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.18.3</version>
+      <version>2.19.0</version>
       <licenses>
         <license>
           <name>The Apache Software License, Version 2.0</name>
@@ -90,7 +90,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.18.3</version>
+      <version>2.19.0</version>
       <licenses>
         <license>
           <name>The Apache Software License, Version 2.0</name>
@@ -1489,7 +1489,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-common</artifactId>
-      <version>3.7.6</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1501,7 +1501,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-httpbin</artifactId>
-      <version>3.7.6</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1513,7 +1513,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-java-agent</artifactId>
-      <version>3.7.6</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1525,7 +1525,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-proxy</artifactId>
-      <version>3.7.6</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1537,7 +1537,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-proxy-scrollable-webui</artifactId>
-      <version>3.7.6</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1549,7 +1549,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-rbel</artifactId>
-      <version>3.7.6</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1561,7 +1561,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-test-lib</artifactId>
-      <version>3.7.6</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1573,7 +1573,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-test-utils</artifactId>
-      <version>3.7.6</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1585,7 +1585,19 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-testenv-mgr</artifactId>
-      <version>3.7.6</version>
+      <version>3.7.9</version>
+      <licenses>
+        <license>
+          <name>Apache License 2.0</name>
+          <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+          <file>apache license, version 2.0 - license-2.0.txt</file>
+        </license>
+      </licenses>
+    </dependency>
+    <dependency>
+      <groupId>de.gematik.test</groupId>
+      <artifactId>tiger-zion</artifactId>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -3428,7 +3440,7 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
-      <version>4.5.13</version>
+      <version>4.5.14</version>
       <licenses>
         <license>
           <name>Apache License, Version 2.0</name>
@@ -3441,7 +3453,7 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpcore</artifactId>
-      <version>4.4.13</version>
+      <version>4.4.16</version>
       <licenses>
         <license>
           <name>Apache License, Version 2.0</name>
