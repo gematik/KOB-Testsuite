@@ -1,5 +1,10 @@
 # Release Notes KOB Testsuite
 
+## Release 1.0.7
+
+* Upgrade to Tiger 3.7.9, fixes failed Titus-Uploads
+  * see [release notes](https://github.com/gematik/app-Tiger/blob/master/ReleaseNotes.md) for details
+
 ## Release 1.0.6
 * The KOB test case must now be executed for both medical record systems (IBM and RISE) in RU-REF environment.
 * Fixed default HTTPS port for tiger proxy from 433 to standard 443

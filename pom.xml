@@ -22,7 +22,7 @@
 
     <groupId>de.gematik</groupId>
     <artifactId>kob-testsuite</artifactId>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <packaging>jar</packaging>
     <description>KOB Testsuite fuer PS Hersteller</description>
 
@@ -32,7 +32,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.maven-surefire-plugin>3.5.3</version.maven-surefire-plugin>
         <version.maven-failsafe-plugin>3.5.3</version.maven-failsafe-plugin>
-        <version.tiger>3.7.7</version.tiger>
+        <version.tiger>3.7.9</version.tiger>
         <version.serenity>4.2.17</version.serenity>
         <jacoco.version>0.8.13</jacoco.version>
     </properties>
