@@ -1489,7 +1489,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-common</artifactId>
-      <version>3.7.7</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1501,7 +1501,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-httpbin</artifactId>
-      <version>3.7.7</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1513,7 +1513,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-java-agent</artifactId>
-      <version>3.7.7</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1525,7 +1525,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-proxy</artifactId>
-      <version>3.7.7</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1537,7 +1537,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-proxy-scrollable-webui</artifactId>
-      <version>3.7.7</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1549,7 +1549,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-rbel</artifactId>
-      <version>3.7.7</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1561,7 +1561,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-test-lib</artifactId>
-      <version>3.7.7</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1573,7 +1573,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-test-utils</artifactId>
-      <version>3.7.7</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
@@ -1585,7 +1585,7 @@
     <dependency>
       <groupId>de.gematik.test</groupId>
       <artifactId>tiger-testenv-mgr</artifactId>
-      <version>3.7.7</version>
+      <version>3.7.9</version>
       <licenses>
         <license>
           <name>Apache License 2.0</name>
