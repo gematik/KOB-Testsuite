@@ -1,4 +1,8 @@
 :doctype: book
+:toc:
+:toc-title: Inhaltsverzeichnis
+:toclevels: 1
+:toc-placement!:
 ifndef::env-github[]
 image::doc/Gematik_Logo_Flag_With_Background.png[logo,width=200,height=47,role=right]
 endif::[]
@@ -8,16 +12,9 @@ ifdef::env-github[]
 ++++
 endif::[]
 
+[discrete]
 = KOB-Testsuite für DiGA
-
-== Inhaltsverzeichnis
-
-* <<_einführung,Einführung>>
-* <<_setup,Setup>>
-* <<_konfiguration,Konfiguration>>
-* <<_routing,Routing>>
-* <<_testausführung,Testausführung>>
-* <<_port_tabelle,Port Tabelle>>
+toc::[]
 
 == Einführung
 
@@ -200,9 +197,13 @@ image::/doc/img/continue_dialog_testsuite_diga.png[Continue Dialog in Testsuite]
 | Tiger-Proxy Proxy Port       | 443  | http / https
 |=====================================================
 
+== Prüfnachweis für DiGA
+
+Für die Beantragung der DiGA Bestätigung bei der gematik benötigen Sie als Prüfnachweis den Testreport (ZIP Datei).
+
 === Testreport
 
-Die Testergebnisse selbst werden unter `./report` als zip Datei abgelegt, wenn die Ausführung über den Quit Button in der WorkflowUI beendet wird.
+Die Testergebnisse selbst werden unter `./report` als ZIP Datei abgelegt, wenn die Ausführung über den Quit Button in der WorkflowUI beendet wird.
 
 === Testreport aus Docker Container
 
@@ -214,6 +215,25 @@ docker cp kob-testsuite:/app/report/kob-testsuite-test-report.zip .
 ----
 
 Eine weitere Möglichkeit ist, die Report ZIP Datei über die Anwendung DockerDesktop herunterzuladen.
+
+=== Upload bei TITUS
+
+Bestätigungsauftrag anlegen -> Dialog 1
+Abrufauftrag anlegen/bearbeiten -> 
+Upload Nachweise -> Testbericht hochladen Dialog2
+Beauftragen -> Geamtik am Zug
+
+Konformitätsbestätigung 
+
+Loggen Sie sich in Ihren Account auf dem Titus Bestätigungsportal (https://titus.gematik.solutions) ein und laden Sie die entsprechenden Prüfnachweise im Bestätigungsantrag hoch. Für das Hochladen nutzen sie den Dialog "Nachweise für das Bestätigungsverfahren" und laden Sie dort den Testreport als ZIP Datei hoch. Im Anschluss starten Sie den Bestätigungsnachweis über TITUS.
+
+image::/doc/img/upload_dialog_titus_diga.png[Upload Dialog in TITUS]
+
+Weitere Hinweise zur Handlungsanweisung für die Konformitätsbestätigung können im Service Desk nachgelesen werden:
+ https://wiki.gematik.de/plugins/servlet/remotepageview?pageId=459882847#TitusHandlungsanweisungBest%C3%A4tigungsverfahren-E-Rezeptverordnend(Workflow162)
+ 
+
+Fragen zum Titus-Bestätigungsportal und zur Durchführung des Verfahrens zur Konformitätsbestätigung können Sie ebenfalls über unseren Service Desk einstellen: https://service.gematik.de/servicedesk/customer/portal/26/group/36
 
 
 == Troubleshooting / FAQs
@@ -278,8 +298,23 @@ link:[https://service.gematik.de/servicedesk/customer/portal/26].
 == Beiträge
 Wenn Sie zu diesem Repository beitragen wollen, schauen Sie sich bitte die Datei link:[CONTRIBUTING.MD] an.
 
-== Lizenz
-Siehe link:[LICENSE]
+== License
+
+Copyright 2025 gematik GmbH
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+
+See the link:./LICENSE[LICENSE] for the specific language governing permissions and limitations under the License.
+
+== Additional Notes and Disclaimer from gematik GmbH
+
+. Copyright notice: Each published work result is accompanied by an explicit statement of the license conditions for use. These are regularly typical conditions in connection with open source or free software. Programs described/provided/linked here are free software, unless otherwise stated.
+. Permission notice: Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+.. The copyright notice (Item 1) and the permission notice (Item 2) shall be included in all copies or substantial portions of the Software.
+.. The software is provided "as is" without warranty of any kind, either express or implied, including, but not limited to, the warranties of fitness for a particular purpose, merchantability, and/or non-infringement. The authors or copyright holders shall not be liable in any manner whatsoever for any damages or other claims arising from, out of or in connection with the software or the use or other dealings with the software, whether in an action of contract, tort, or otherwise.
+.. The software is the result of research and development activities, therefore not necessarily quality assured and without the character of a liable product. For this reason, gematik does not provide any support or other user assistance (unless otherwise stated in individual cases and without justification of a legal obligation). Furthermore, there is no claim to further development and adaptation of the results to a more current state of the art.
+. Gematik may remove published results temporarily or permanently from the place of publication at any time without prior notice or justification.
+. Please note: Parts of this code may have been generated using AI-supported technology.’ Please take this into account, especially when troubleshooting, for security analyses and possible adjustments.
 
 == Kontakt
-gematik GmbH: [OSPO@gematik.de](mailto:OSPO@gematik.de)
+gematik GmbH: mailto:OSPO@gematik.de[OSPO@gematik.de]

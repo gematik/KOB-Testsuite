@@ -3,7 +3,7 @@
 Funktion: KOB Testsuite for EPA 3.0
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "1.0.5"
+    Gegeben sei KOB Testsuite "Kob" Version "1.0.7"
     Gegeben sei KOB finde Aktensystem
 
   # Testfall: EML Download.
@@ -53,7 +53,7 @@ Funktion: KOB Testsuite for EPA 3.0
     # Nun prüfen wir die Struktur der Anfrage
     Dann TGR prüfe aktueller Request stimmt im Knoten "$.method" überein mit "POST"
     Und TGR prüfe aktueller Request stimmt im Knoten "$.header.[~'content-type']" überein mit "application/octet-stream"
-    Und TGR prüfe aktueller Request stimmt im Knoten "$.header.[~'host']" überein mit "epa-as-1.*.epa4all.de.*"
+    Und TGR prüfe aktueller Request stimmt im Knoten "$.header.[~'host']" überein mit "epa-as-1.ref.epa4all.de.*"
     Und TGR prüfe aktueller Request stimmt im Knoten "$.header.[~'x-useragent']" überein mit "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
 
     # Und nun die Struktur der inneren Anfrage (der VAU-verschlüsselte HTTP-Request)
@@ -112,7 +112,7 @@ Funktion: KOB Testsuite for EPA 3.0
     # Nun prüfen wir die Struktur der Anfrage
     Dann TGR prüfe aktueller Request stimmt im Knoten "$.method" überein mit "POST"
     Und TGR prüfe aktueller Request stimmt im Knoten "$.header.[~'content-type']" überein mit "application/octet-stream"
-    Und TGR prüfe aktueller Request stimmt im Knoten "$.header.[~'host']" überein mit "epa-as-2.*.epa4all.de.*"
+    Und TGR prüfe aktueller Request stimmt im Knoten "$.header.[~'host']" überein mit "epa-as-2.ref.epa4all.de.*"
     Und TGR prüfe aktueller Request stimmt im Knoten "$.header.[~'x-useragent']" überein mit "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
 
     # Und nun die Struktur der inneren Anfrage (der VAU-verschlüsselte HTTP-Request)

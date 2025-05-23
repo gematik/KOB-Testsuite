@@ -15,3 +15,8 @@
 * RU-DEV is now the default backend server
 * Tiger Version 3.7.7 fixes VAU decryption issues
 * Updated create and activate responses for mockserver
+
+## Release 1.0.0
+
+* Update Tiger Version to 3.7.9
+* ReadMe section for Titus Upload added
