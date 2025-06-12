@@ -1915,11 +1915,11 @@
     <dependency>
       <groupId>io.cucumber</groupId>
       <artifactId>query</artifactId>
-      <version>13.2.0</version>
+      <version>13.3.0</version>
       <licenses>
         <license>
           <name>MIT License</name>
-          <url>http://www.opensource.org/licenses/mit-license</url>
+          <url>https://www.opensource.org/licenses/mit-license</url>
           <distribution>repo</distribution>
           <file>mit license - mit-license.html</file>
         </license>

@@ -18,7 +18,7 @@ toc::[]
 
 == Einführung
 
-Dies ist eine prerelease Fassung der KOB-Testsuite, die die Konformitätsbestätigung der gematik für DiGA ermöglicht. Es handelt sich hierbei nicht um die finale Version, mit der eine tatsächliche Bestätigung ausgestellt werden kann!
+Dies ist eine prerelease Fassung der KOB-Testsuite, die die Konformitätsbestätigung der gematik für DiGA ermöglicht.
 
 == Setup
 

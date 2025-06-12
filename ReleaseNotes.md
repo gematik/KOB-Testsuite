@@ -20,3 +20,7 @@
 
 * Update Tiger Version to 3.7.9
 * ReadMe section for Titus Upload added
+
+## Release 1.0.2
+
+* Update readme
