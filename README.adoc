@@ -110,6 +110,15 @@ git config --global core.autocrlf false   # per-user solution
 git config --local core.autocrlf false    # per-project solution
 ----
 
+=== Zugang zur RU prüfen
+Wichtig: Bitte prüfen Sie mit diesem curl Befehl, ob Sie von Ihrem lokalen Rechner Zugang zur RU haben:
+
+[source,bash]
+----
+curl -v https://erp-dev.zentral.erp.splitdns.ti-dienste.de/VAUCertificate
+----
+
+Sollten Sie keinen Zugang haben, wenden Sie sich bitte an Ihre IT.
 
 === Proxy Konfiguration für Maven (Docker)
 
