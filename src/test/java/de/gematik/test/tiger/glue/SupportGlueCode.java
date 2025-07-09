@@ -27,7 +27,7 @@ package de.gematik.test.tiger.glue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import de.gematik.rbellogger.data.facet.RbelCborFacet;
+import de.gematik.rbellogger.facets.jackson.RbelCborFacet;
 import de.gematik.test.tiger.lib.rbel.RbelMessageRetriever;
 import io.cucumber.java.de.Gegebensei;
 import io.cucumber.java.en.When;

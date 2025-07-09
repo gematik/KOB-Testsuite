@@ -30,9 +30,10 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version.maven-surefire-plugin>3.5.3</version.maven-surefire-plugin>
-        <version.maven-failsafe-plugin>3.5.3</version.maven-failsafe-plugin>
-        <version.tiger>3.7.9</version.tiger>
+        <!-- necessary to run with tiger 4.0.7 due to bug in 3.5.3 -->
+        <version.maven-surefire-plugin>3.5.2</version.maven-surefire-plugin>
+        <version.maven-failsafe-plugin>3.5.2</version.maven-failsafe-plugin>
+        <version.tiger>4.0.7</version.tiger>
         <version.serenity>4.2.17</version.serenity>
         <jacoco.version>0.8.13</jacoco.version>
     </properties>
@@ -40,9 +41,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>1.5.18</version>
+                <groupId>de.gematik.test</groupId>
+                <artifactId>tiger-bom</artifactId>
+                <version>${version.tiger}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
