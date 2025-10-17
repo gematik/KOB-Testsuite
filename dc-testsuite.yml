@@ -23,7 +23,7 @@ services:
       - ./report:/app/report:rw
   vauServer:
     container_name: vauServer
-    image: gematik1/erp-vau-proxy-server:1.0.14
+    image: gematik1/erp-vau-proxy-server:1.0.16
     environment:
       - ENCRYPTION_SERVICE_URL=http://vauCryptoServer:8080
       - TARGET_URL=${VAU_SERVER_TARGET_URL}
@@ -32,7 +32,7 @@ services:
     image: gematik1/erp-vau-crypto-service:3.0.7
   vauTranslationClient:
     container_name: vauTranslationClient
-    image: gematik1/erp-vau-proxy-client:1.0.30
+    image: gematik1/erp-vau-proxy-client:1.0.32
     environment:
       - FORWARD_TARGET_URL=https://erp-dev.zentral.erp.splitdns.ti-dienste.de
     extra_hosts:
