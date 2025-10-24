@@ -1915,7 +1915,7 @@
     <dependency>
       <groupId>io.cucumber</groupId>
       <artifactId>query</artifactId>
-      <version>13.4.0</version>
+      <version>13.6.0</version>
       <licenses>
         <license>
           <name>MIT License</name>
