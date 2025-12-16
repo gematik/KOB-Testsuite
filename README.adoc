@@ -291,7 +291,7 @@ Dazu müssen Sie den folgenden Befehl ausführen, um die *.tgr aus dem ps-testsu
 
 [source]
 ----
-docker cp ps-testsuite:/app/tiger-proxy.tgr .
+docker cp kob-testsuite:/app/tiger-proxy.tgr .
 ----
 
 == Geplante Änderungen
