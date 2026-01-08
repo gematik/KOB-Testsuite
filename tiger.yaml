@@ -77,3 +77,5 @@ additionalConfigurationFiles:
   - filename: kob.yaml
   - filename: diga.yaml
     baseKey: tiger
+#  - filename: tiaas.yaml
+#    baseKey: tiger

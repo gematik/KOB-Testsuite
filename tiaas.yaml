@@ -1,0 +1,11 @@
+tigerProxy:
+  proxyRoutes:
+    - from: /VAU
+      to: http://vauServer:8080
+      hosts: ["address_for_tiaas_for_tiger.de"]
+    - from: /VAUCertificate
+      to: http://vauServer:8080
+      hosts: ["address_for_tiaas_for_tiger.de"]
+    - from: /
+      to: https://adresse_zum_gateway.de
+      hosts: ["address_for_tiaas_for_tiger.de"]
