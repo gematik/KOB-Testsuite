@@ -144,37 +144,7 @@ Dazu müssen die folgenden Einträge angepasst werden:
 Tiger kann entweder mit einem DiGA Mockserver betrieben werden oder den RU-DEV Fachdienst in der RU als Backend nutzen. Der Mockserver ist für lokale Tests und Entwicklung geeignet. Für die Bestätigung ist der RU-DEV Fachdienst auszuwählen. Die Einstellung dazu erfolgt in der `.env` Datei. Die Variable VAU_SERVER_TARGET_URL steuert dabei die Backendauswahl
 
  1. Mockserver (VAU_SERVER_TARGET_URL=http://kob-testsuite:8080), oder
- 2. RU-DEV (VAU_SERVER_TARGET_URL=http://vauTranslationClient:8080)
-
-=== Konfiguration bei einem TIAAS/Gateway
-
-Wenn die KOB-Testsuite in einer TIAAS- oder Gateway-Umgebung betrieben wird - sowohl Konnektoranfragen als Fachdienstanfragen laufen über den selben Host - dann sind folgende Anpassungen in der `hosts` Datei notwendig:
-
-Host
-[source,shell]
-----
-127.0.0.1   address_for_tiaas_for_tiger.de
-----
-
-In der tiger.yaml kommentieren Sie die letzten zwei Zeilen ein:
-
-[source,shell]
-----
-  - filename: tiaas.yaml
-    baseKey: tiger
-----
-
-In der tiaas.yaml Datei muss im Eintrag
-[source,shell]
-----
-    to: https://adresse_zum_gateway.de
-----
-Ihre konkrete Gateway-Adresse eingetragen werden.
-
-In der .env Datei muss folgende Variable einkommentiert und auf die Adresse des Gateways gesetzt werden:
-VAU_TRANSLATION_DESTINATION_HOST= hier die gateway adresse eintragen
-
-Zusätzlich muss im Primärsystem die Adresse address_for_tiaas_for_tiger.de eingetragen werden, damit alle Anfragen über den TigerProxy laufen können.
+ 2. RU-DEV (VAU_SERVER_TARGET_URL=http://vauTranslationClient:8080) 
 
 == Testausführung
 
