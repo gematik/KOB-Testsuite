@@ -16,7 +16,6 @@ services:
       - ./tiger.yaml:/app/tiger.yaml:ro
       - ./kob.yaml:/app/kob.yaml:ro
       - ./diga.yaml:/app/diga.yaml:ro
-      - ./tiaas.yaml:/app/tiaas.yaml:ro
       - ./activateResponse.xml:/app/activateResponse.xml:ro
       - ./createResponse.xml:/app/createResponse.xml:ro
       - kob-testsuite-maven:/home/kobtest/.m2/repository:rw
@@ -35,10 +34,11 @@ services:
     container_name: vauTranslationClient
     image: gematik1/erp-vau-proxy-client:1.0.32
     environment:
-      - FORWARD_TARGET_URL=https://${VAU_TRANSLATION_DESTINATION_HOST:-erp-dev.zentral.erp.splitdns.ti-dienste.de}
+      - FORWARD_TARGET_URL=https://erp-dev.zentral.erp.splitdns.ti-dienste.de
     extra_hosts:
       - ${VAU_TRANSLATION_CLIENT_ERP_DEV_HOST:-erp-dev.zentral.erp.splitdns.ti-dienste.de}:10.31.194.12
       - ${VAU_TRANSLATION_CLIENT_ERP_REF_HOST:-erp-ref.zentral.erp.splitdns.ti-dienste.de}:10.31.195.10
+
 
 volumes:
   kob-testsuite-maven:
