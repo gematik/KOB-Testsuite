@@ -24,3 +24,7 @@
 ## Release 1.0.2
 
 * Update readme
+
+## Release 1.1.0
+
+* delete project because it has moved to https://github.com/gematik/tiger-erzp-testsuite
