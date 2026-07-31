@@ -3,7 +3,7 @@ tigerProxy:
     - epa3-vau
   fileSaveInfo.writeToFile: true
   proxyPort: 443
-  adminPort: 9011
+  adminPort: 9021
   activateForwardAllLogging: false
   tls:
     serverIdentities:
@@ -22,10 +22,10 @@ tigerProxy:
   #  hostname: 10.11.98.80
   #  port: 8080
   proxyRoutes:
+    # route für PS
     - from: /
       to: ${kob.psurl}
-      hosts: ["ps"]
-      matchForProxyType: false
+      hosts: [ "ps", "ps-sim" ]
     # route für den IDP
     - from: /
       to: https://10.31.196.4:443/
@@ -55,9 +55,9 @@ tigerProxy:
 lib:
   activateWorkflowUi: "${kob.useBrowser}"
   startBrowser: ${kob.startBrowser|true}
-  workflowUiPort: 9010
+  workflowUiPort: 9020
   trafficVisualization: true
-  runTestsOnStart: true
+  runTestsOnStart: false
 
 additionalConfigurationFiles:
   - filename: kob.yaml

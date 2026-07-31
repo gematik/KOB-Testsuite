@@ -4,7 +4,7 @@ package de.gematik.test.tiger.glue;
  * #%L
  * kob-testsuite
  * %%
- * Copyright (C) 2024 - 2025 gematik GmbH
+ * Copyright (C) 2024 - 2026 gematik GmbH
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import de.gematik.test.tiger.common.config.TigerGlobalConfiguration;
 import de.gematik.test.tiger.common.data.config.tigerproxy.ForwardProxyInfo;
 import de.gematik.test.tiger.lib.TigerDirector;
 import de.gematik.test.tiger.proxy.TigerProxy;
-import de.gematik.test.tiger.proxy.TigerRouteSelector;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -87,7 +86,7 @@ public class ConfigureAsRoutes {
   }
 
   private static String findFirstOnlineHost(List<String> potentialIpAdresses) {
-    return new TigerRouteSelector(potentialIpAdresses, forwardProxyInfo)
+    return new KobRouteSelector(potentialIpAdresses, forwardProxyInfo)
         .selectFirstReachableDestination();
   }
 }

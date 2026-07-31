@@ -1,5 +1,5 @@
 # language: de
-@Optional @EPA_3_0
+@Optional @EPA_3_1_3
 Funktion: Test information operations by PS
 
   Grundlage:
@@ -12,7 +12,7 @@ Funktion: Test information operations by PS
 
     Wenn TGR show banner "Testfall: Frage den Status eines existierenden Aktenkontos beim Aktensystem mit dem Primärsystem ab"
     # For customers who trigger the record status request manually via UI
-    Dann TGR pause test run execution with message "Bitte initiiere eine Abfrage des Status eines existierenden Aktenkontos beim Aktensystem durch ein Primärsystem!"
+    Dann KOB lokalisiere die Akte und befrage Zustimmung des Patienten "${kob.kvnrIbm}" ab
 
     ### get record status
     # request
@@ -30,7 +30,7 @@ Funktion: Test information operations by PS
 
     Wenn TGR show banner "Testfall: Frage den Status von Widersprüchen eines existierenden Aktenkontos beim Aktensystem mit dem Primärsystem ab"
     # For customers who trigger the record status request manually via UI
-    Dann TGR pause test run execution with message "Bitte initiiere eine Abfrage des Status von Widersprüchen eines existierenden Aktenkontos beim Aktensystem durch ein Primärsystem!"
+    Dann KOB lokalisiere die Akte und befrage Zustimmung des Patienten "${kob.kvnrIbm}" ab
 
     ### get consent decisions
     # request
@@ -44,7 +44,7 @@ Funktion: Test information operations by PS
     Und TGR current response at "$.body" matches as JSON:
     """
       {
-        "data": [
+        "data": [,
                   {"functionId":"medication","decision":"${json-unit.ignore}"},
                   {"functionId":"erp-submission","decision":"${json-unit.ignore}"}
                 ]
@@ -52,4 +52,5 @@ Funktion: Test information operations by PS
     """
 
     Und TGR current response with attribute "$.body.data.0.decision" matches "(permit|deny)"
+    Und TGR current response with attribute "$.body.data.1.decision" matches "(permit|deny)"
     Und TGR current response with attribute "$.body.data.1.decision" matches "(permit|deny)"
