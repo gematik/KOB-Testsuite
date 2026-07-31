@@ -1,4 +1,8 @@
 :doctype: book
+:toc:
+:toc-title: Inhaltsverzeichnis
+:toclevels: 1
+:toc-placement!:
 ifndef::env-github[]
 image::doc/Gematik_Logo_Flag_With_Background.png[logo,width=200,height=47,role=right]
 endif::[]
@@ -8,33 +12,30 @@ ifdef::env-github[]
 ++++
 endif::[]
 
+[discrete]
 = KOB-Testsuite
-
-== Inhaltsverzeichnis
-
-* <<_einführung,Einführung>>
-* <<_setup,Setup>>
-* <<_testvorbedingungen,Testvorbedingungen>>
-* <<_konfiguration,Konfiguration>>
-* <<_routing,Routing>>
-* <<_testausführung,Testausführung>>
-* <<_port_tabelle,Port Tabelle>>
-* <<_prüfnachweis_für_die_kob,Prüfnachweis für die KOB>>
+toc::[]
 
 == Einführung
 
-Dies ist die Testsuite, mit welcher die Konformitätsbestätigung der gematik für EPA 3.0 erreicht werden kann.
-
-Es sind der verpflichtende KOB-Test sowie optionale Tests vorhanden.
-In näherer Zukunft werden diese Tests mittels Testtreiber-Schnittstelle auch in einen voll automatisierbaren Zustand gebracht, sodass automatisierbar Regressionstests durchgeführt werden können.
+Dies ist die Testsuite, mit welcher die Konformitätsbestätigung der gematik für EPA 3.1.3 erreicht werden kann.
 
 [IMPORTANT]
 ====
-Für die Ausführung der KOB-Testsuite ist es wichtig, dass nicht die PS-Testsuite und auch keine Mock Services aus dem epa-deployment parallel auf dem gleichen Rechner verwendet werden (u.a. wegen Port Konflikte).
+Stellen Sie sicher, dass keine anderen Testsuites oder Mock-Services parallel laufen, die die gleichen Ports verwenden (siehe Port-Tabelle unten). Dies kann zu Portkonflikten führen und die Testausführung verhindern.
 ====
 
-== Setup
+.Verwendete Ports
+|===
+|Service |Port |Protokoll
 
+|Tiger Testsuite (WorkflowUI) |9020 |http
+|Tiger-Proxy Admin Port |9021 |http
+|Tiger-Proxy Proxy Port |443 |http / https
+|===
+
+== 1. Vorbereitung
+=== Setup (technische Voraussetzungen)
 Die grundsätzlichen technischen Voraussetzungen sehen wie folgt aus:
 
 image::/doc/img/setup.png[Setup]
@@ -42,54 +43,99 @@ image::/doc/img/setup.png[Setup]
 * Die Testsuite wird auf einem Tester-PC ausgeführt.
 * Auf diesem läuft auch das Primärsystem.
 * Der Konnektor ist korrekt konfiguriert und erreichbar.
-* Auf diesem Testrechner kann nun die Tiger-Testsuite gestartet werden, ebenso wie der Tiger-Proxy.
+* Auf diesem Testrechner kann nun die KOB-Testsuite gestartet werden, ebenso wie der Tiger-Proxy.
 * Die Kommunikation zwischen Primärsystem und der TI muss nun über den Tiger-Proxy geleitet werden.
 * Dieser kann die Kommunikation aufzeichnen und analysieren.
 * Die Testsuite kann Artefakte von Maven Central aus dem Internet beziehen.
 
-== Testvorbedingungen
+=== Testvorbedingungen
 
 Die grundsätzlichen fachlichen Voraussetzungen sehen wie folgt aus:
 
 * Die Aktenkonten bei beiden Aktensystemen sind eingerichtet worden.
-* E-Rezepte für die Aktenkonten wurden eingestellt.
-  (z.B. können AVS Hersteller hierfür das Gematik Tool vom Medical Team ERPIONE nutzen)
 * Die Aktenlokalisierung der Aktenkonten kann bei beiden Aktensystemen erfolgreich durchgeführt werden.
 * Für die genutzte LEI (SMCB) kann eine Befugnis (Entitlement) für die Aktenkonten bei den beiden Aktensystemen eingestellt werden.
-* In Nicht-PU-Umgebungen muss der Client (das Primärsystem) die verwendeten Schlüssel (K2_c2s_app_data und K2_s2c_app_data) Base64 kodiert im Header "VAU-nonPU-Tracing" übertragen. Dies ist nur für die Testumgebungen (z.B. KOB-Testfall) vorgesehen und *MUSS* für die produktive Umgebung (PU) zwingend wieder entfernt und dürfen dort *NICHT* übertragen werden. (siehe A_24477)
+* In Nicht-PU-Umgebungen muss der Client (das Primärsystem) die verwendeten Schlüssel (K2_c2s_app_data und K2_s2c_app_data) Base64 kodiert im Header "VAU-nonPU-Tracing" übertragen.
+Dies ist nur für die Testumgebungen (z.B. KOB-Testfall) vorgesehen und *MUSS* für die produktive Umgebung (PU) zwingend wieder entfernt und dürfen dort *NICHT* übertragen werden. (siehe A_24477)
 
-== Konfiguration
+=== Konfiguration
 
 [WARNING]
 ====
 Für eine ordnungsgemäße Ausführung der KOB-Testsuite dürfen nur bestimmte Dateien angepasst werden.
 Diese sind:
+
 * `kob.yaml` (Konfiguration der Testsuite)
 * `dc-testsuite.yml` (Konfiguration des Docker-Containers)
 * `.env` (Konfiguration des Docker-Containers)
 
 Alle übrigen Dateien dürfen nicht verändert werden!
+
 ====
 
 Die folgenden, relevanten Konfigurationen der KOB-Testsuite müssen wie folgt in `kob.yaml` vorgenommen werden:
 
 * `kvnrIbm` - die für die KOB gegen das IBM Aktensystem verwendete KVNR
 * `kvnrRise` - die für die KOB gegen das RISE Aktensystem verwendete KVNR
-* `emltype` - das für die KOB verwendete EML-Format
-* `useTestdriverApi` - ob die Testtreiber-API bei der KOB verwendet werden soll
 
-=== TLS Konfiguration
+==== TLS
 
-Der Tiger-Proxy unterstützt TLSv1.2 und gibt Server Zertifikate zurück, welche den Zertifikaten der Aktensysteme entsprechen. Zusätzlich wurden die unterstützen CipherSuiten wie folgt eingeschränkt (GS-A_4384-*):
+Der Tiger-Proxy unterstützt TLSv1.2 und gibt Server Zertifikate zurück, welche den Zertifikaten der Aktensysteme entsprechen.
+Zusätzlich wurden die unterstützen CipherSuiten wie folgt eingeschränkt (GS-A_4384-*):
 
 * `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`
 * `TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384`
 
-== Routing
+==== Git
 
-Es muss das Routing der Nachrichten über Tiger-Proxy der KOB-Testsuite erfolgen, um eine Auswertung dieser zu ermöglichen. Der Tiger-Proxy leitet die Anfragen an die korrekten Aktensysteme weiter. Wichtig ist hierbei auch, dass in dem äußeren HTTP-Request auch der HTTP-Header "Host" für die Anfrage an das entsprechende Aktensystem gesetzt ist, damit Tiger-Proxy die Anfrage entsprechend nach dem Mitschnitt weiterleiten kann.
+Bei dem Checkout für eine lokale Kopie von dem Repository ist darauf zu achten, dass die Dateien nicht verändert werden durch ein Checkout selbst.
+Hierzu ist zu prüfen, dass folgenden Git Einstellungen (`.gitconfig`) für den Checkout des Repos genutzt werden:
+
+[source]
+----
+[core]
+  autocrlf = false
+----
+
+Dies kann mit folgenden Befehlen erreicht werden, je nachdem auf welcher Ebene die Einstellung getroffen werden soll:
+
+[source,shell]
+----
+git config --system core.autocrlf false   # per-system solution
+git config --global core.autocrlf false   # per-user solution
+git config --local core.autocrlf false    # per-project solution
+----
+
+==== Proxy Konfiguration für Maven (Docker)
+
+Da der KOB-Testsuite Container während der Ausführung Maven-Artefakte bezieht, muss das Internet für den Container erreichbar sein.
+Sollte das Internet nur über einen Proxy-Server erreichbar sein, müssen die Einstellungen in der [./settings.xml](./settings.xml) für die Ausführung des PS-Testsuite Containers angepasst werden.
+Bitte beachten Sie, dass der Parameter `<active>true</active>` gesetzt werden muss, um die Einstellungen zu aktivieren und das Docker-Volume `kob-testsuite-maven` gelöscht werden muss, um die Änderungen zu übernehmen.
+
+Dazu müssen die folgenden Einträge angepasst werden:
+
+[source,xml]
+----
+  <proxy>
+    <id>optional</id>
+    <active>true</active>
+    <protocol>https</protocol>
+    <host>proxy.example.com</host>
+    <port>8080</port>
+    <username>user</username>
+    <password>password</password>
+    <nonProxyHosts>localhost|127.0.0.1</nonProxyHosts>
+  </proxy>
+----
+
+== 2. Routing einrichten
+
+Es muss das Routing der Nachrichten über Tiger-Proxy der KOB-Testsuite erfolgen, um eine Auswertung dieser zu ermöglichen.
+Der Tiger-Proxy leitet die Anfragen an die korrekten Aktensysteme weiter.
+Wichtig ist hierbei auch, dass in dem äußeren HTTP-Request auch der HTTP-Header "Host" für die Anfrage an das entsprechende Aktensystem gesetzt ist, damit Tiger-Proxy die Anfrage entsprechend nach dem Mitschnitt weiterleiten kann.
 
 Beispiel für den HTTP-Header, damit Tiger-Proxy korrekt routen kann.
+
 [source,httprequest]
 ----
 Host: epa-as-1.ref.epa4all.de
@@ -104,13 +150,16 @@ Die Routen sind entsprechend konfiguriert, damit der Verkehr hier an die korrekt
 
 Hierbei sind folgende Punkte zu beachten:
 
-* Primärsystem seitig wird die KOB-Testsuite als Proxy konfiguriert (e.g. `localhost:443`). Hiermit werden die Requests über die KOB-Testsuite an die Aktensysteme gesendet. Ein Request an `https://epa-as-1.ref.epa4all.de/foobar`, via KOB-Testsuite mit `localhost:443` entspricht somit `curl -x localhost:443 epa-as-1.ref.epa4all.de/foobar`)
+* Primärsystem seitig wird die KOB-Testsuite als Proxy konfiguriert (e.g. `localhost:443`).
+Hiermit werden die Requests über die KOB-Testsuite an die Aktensysteme gesendet.
+Ein Request an `https://epa-as-1.ref.epa4all.de/foobar`, via KOB-Testsuite mit `localhost:443` entspricht somit `curl -x localhost:443 epa-as-1.ref.epa4all.de/foobar`)
 * Dabei ist darauf zu achten, dass der HTTP Header im (äußeren) HTTP Request dennoch den FQDN des Aktensystems enthält (e.g `Host: epa-as-1.ref.epa4all.de`), damit das Routing an das gewünschte Aktensystem erfolgen kann.
 * Eine zusätzliche Manipulation der DNS Auflösung (Variante 2) in der `hosts` Datei ist nicht notwendig.
 
 === DNS Manipulation (Variante 2)
 
-Alternativ kann die DNS-Auflösung beeinflusst werden, z.B. über das Editieren der Host-Einträge im Testsystem selbst (e.g. /etc/hosts). Hier werden die Hostnamen der Aktensysteme auf die IP-Adresse des Testrechners, wo der Tiger-Proxy mit dem Port 443 läuft, umgeleitet.
+Alternativ kann die DNS-Auflösung beeinflusst werden, z.B. über das Editieren der Host-Einträge im Testsystem selbst (e.g. /etc/hosts).
+Hier werden die Hostnamen der Aktensysteme auf die IP-Adresse des Testrechners, wo der Tiger-Proxy mit dem Port 443 läuft, umgeleitet.
 
 Beispiel, wenn das Primärsystem auf dem gleichen Rechner läuft, wie die Testsuite mit dem Tiger-Proxy.
 
@@ -138,68 +187,78 @@ Sollten sich die Aktensysteme nicht direkt erreichen lassen, sondern nur über e
     port: <PROXY_PORT>
 ----
 
-=== Konfiguration von Git
 
-Bei dem Checkout für eine lokale Kopie von dem Repository ist darauf zu achten, dass die Dateien nicht verändert werden durch ein Checkout selbst. Hierzu ist zu prüfen, dass folgenden Git Einstellungen (`.gitconfig`) für den Checkout des Repos genutzt werden:
+== 3. Tests konfigurieren
 
-[source]
+In der Datei `.env` (Root-Verzeichnis) legen Sie über die Variable `TESTSUITE_TESTS` fest, welches Primärsystem getestet wird und welche Tests ausgeführt werden.
+
+=== Primärsystem-Tag wählen
+
+Jeder Hersteller muss den Tag seines Primärsystems zusammen mit `@KOB` angeben:
+
+* `@PVS` – Praxis-Verwaltungssystem
+* `@KIS` – Krankenhaus-Informationssystem
+* `@ZPVS` – Zahnarzt-Praxisverwaltungssystem
+* `@AVS` – Apotheken-Verwaltungssystem
+* `@Pflege` – Pflege-System
+
+[NOTE]
+====
+Der Tag `@KOB` ist bei allen Testfällen standardmäßig gesetzt und kennzeichnet die verpflichtenden Tests. Er muss immer mit Ihrem Primärsystem-Tag kombiniert werden.
+====
+
+.Beispiel für ein PVS
+[source,properties]
 ----
-[core]
-  autocrlf = false
-----
-
-Dies kann mit folgenden Befehlen erreicht werden, je nachdem auf welcher Ebene die Einstellung getroffen werden soll:
-
-[source, shell]
-----
-git config --system core.autocrlf false   # per-system solution
-git config --global core.autocrlf false   # per-user solution
-git config --local core.autocrlf false    # per-project solution
-----
-
-
-=== Proxy Konfiguration für Maven (Docker)
-
-Da der KOB-Testsuite Container während der Ausführung Maven-Artefakte bezieht, muss das Internet für den Container erreichbar sein. Sollte das Internet nur über einen Proxy-Server erreichbar sein, müssen die Einstellungen in der [./settings.xml](./settings.xml) für die Ausführung des PS-Testsuite Containers angepasst werden. Bitte beachten Sie, dass der Parameter `<active>true</active>` gesetzt werden muss, um die Einstellungen zu aktivieren und das Docker-Volume `kob-testsuite-maven` gelöscht werden muss, um die Änderungen zu übernehmen.
-
-Dazu müssen die folgenden Einträge angepasst werden:
-
-[source,xml]
-----
-  <proxy>
-    <id>optional</id>
-    <active>true</active>
-    <protocol>https</protocol>
-    <host>proxy.example.com</host>
-    <port>8080</port>
-    <username>user</username>
-    <password>password</password>
-    <nonProxyHosts>localhost|127.0.0.1</nonProxyHosts>
-  </proxy>
+TESTSUITE_TESTS=@KOB and @PVS
 ----
 
-== Testausführung
+=== Testumfang nach Zielgruppe
 
+Der Testumfang richtet sich nach dem Berechtigungsumfang des Primärsystems gemäß § 352 SGB V:
+
+[cols="2,2,5", options="header"]
+|===
+|Zielgruppe
+|Testfälle
+|Berechtigungsumfang
+
+|PVS, ZPVS, KIS
+|TF 1–12
+|Vollständige Verarbeitungsrechte
+
+|AVS
+|TF 1–11
+|Ohne automatische eML-eMP-Verknüpfung über das E-Rezept
+
+|Pflegesysteme
+|TF 3, 4, 5 und 7
+|Nur lesende Zugriffe
+|===
+
+=== Optionale Feature-Tags
+
+Für spezifische Funktionsbereiche können zusätzliche Tags kombiniert werden:
+
+* `@login` – Aufbau einer User-Session
+* `@information-record-status` – Aktenkontolokalisierung
+* `@information-consent-decisions` – Abfrage der Zustimmung
+* `@entitlement` – Einstellen einer Befugnis
+
+.Beispiel: Nur Login-Tests für PVS
+[source,properties]
+----
+TESTSUITE_TESTS=@KOB and @PVS and @login
+----
+
+== 4. Testsuite starten
 Die KOB-Testsuite kann entweder lokal per Maven oder in einem Docker-Container ausgeführt werden.
-Per Default starten momentan nur die verpflichtenden KOB-Testfälle. Ohne diesen Filter werden alle Tests ausgeführt.
-Siehe `.env` Datei.
-Hier können dann auch die optionalen Testfälle, wenn gewünscht, konfiguriert werden.
-
-* `@KOB` - für den Test gegen beide Aktensysteme (Default)
-
-Optionale Testfälle:
-
-* `@login` - Aufbau einer User-Session bei einem der beiden Aktensysteme
-* `@information-record-status` - Aktenkontolokalisierung bei einem der beiden Aktensysteme
-* `@information-consent-decisions` - Abfrage der Zustimmung für ein Aktenkonto bei einem der beiden Aktensysteme
-* `@entitlement` - Einstellen einer Befugnis für ein Aktenkonto bei einem der beiden Aktensysteme
 
 === Lokal (Maven)
-
 Für die lokale Ausführung werden folgende Software-Versionen empfohlen:
 
 * Maven Version >= 3.9
-* JAVA Version >= 17
+* JAVA Version >= 21
 
 Ist dies gegeben, reicht ein einfaches Kommando `mvn clean verify` im Root-Verzeichnis des Projekts.
 
@@ -212,12 +271,22 @@ Die Testsuite kann mit einem Docker-Compose gestartet werden.
 docker compose -f dc-testsuite.yml up
 ----
 
-=== WorkflowUI
+== 5. Tests durchführen
 
-Die Durchführung der Testsuite geschieht über die von der KOB-Testsuite bereitgestellte Webseite der WorkflowUI.
-Hierzu wird die folgende Adresse im Browser aufgerufen, wenn sich die Testsuite auf dem lokalen Rechner gestartet wurde: http://localhost:9010.
-Beim Starten über Maven versucht die Testsuite diese Seite automatisch im Default-Browser zu öffnen.
-Beim Starten als Docker Container wird der entsprechende Link im Log ausgegeben, sobald die Seite aufrufbar ist.
+Die Testdurchführung erfolgt über eine webbasierte Benutzeroberfläche (WorkflowUI), die sich automatisch im Browser öffnet.
+
+
+=== WorkflowUI öffnen
+
+**Maven-Start:**
+
+* Die WorkflowUI öffnet sich automatisch im Standard-Browser unter http://localhost:9020
+* Falls das automatische Öffnen fehlschlägt, rufen Sie die URL manuell auf
+
+**Docker-Start:**
+
+* Die WorkflowUI öffnet sich *nicht* automatisch
+* Der aufrufbare Link wird im Log ausgegeben, sobald die Oberfläche bereit ist:
 
 [source,bash]
 ----
@@ -230,92 +299,39 @@ Beim Starten als Docker Container wird der entsprechende Link im Log ausgegeben,
 
 ========================================================================================================================
 09:21:12.065 [main ] INFO  d.g.t.t.l.TigerDirector - Waiting for workflow Ui to fetch status...
-09:21:12.065 [main ] INFO  d.g.t.t.l.TigerDirector - Workflow UI http://localhost:9010
+09:21:12.065 [main ] INFO  d.g.t.t.l.TigerDirector - Workflow UI http://localhost:9020
 ----
+* Öffnen Sie den angezeigten Link manuell im Browser (hier: http://localhost:9020)
 
-Nachdem der Testfall gestartet wurde, wartet die Testdurchführung auf eine Benutzerinteraktion, um mit der Prüfung der mitgeschnittenen Nachrichten vorzufahren. D.h. das in diesem Moment die eML vom Aktensystem abgerufen wurden muss, *bevor* man die Testdurchführung fortführt.
+
+=== Ablauf der Testdurchführung
+
+1. **Testfall auswählen**: In der WorkflowUI auf der linken Seite ganz oben auf das Tiger-Icon klicken und in der Übersicht den gewünschten Testfall auswählen
+2. **Aktensystem wählen**: IBM oder RISE Aktensystem als Testumgebung festlegen
+3. **Test starten**: Die Testsuite zeigt ein Dialogfenster mit der Testaufgabe und den erforderlichen Testdaten an (z.B. "Fügen Sie einen eMP-Eintrag mit folgenden Daten hinzu..." oder "Laden Sie die eML für folgende KVNR herunter...")
+4. **Aktion im Primärsystem ausführen**: Führen Sie die angeforderte Operation in Ihrem Primärsystem aus – die konkrete Bedienung ist systemabhängig
+5. **Continue**: Erst *nachdem* die Aktion vollständig ausgeführt wurde, klicken Sie auf "Continue"
+6. **Automatische Validierung**: Die Testsuite wertet nun die aufgezeichneten Requests aus und validiert diese gegen die KOB-Anforderungen
+
+[IMPORTANT]
+====
+Klicken Sie erst auf "Continue", wenn die angeforderte Aktion vollständig ausgeführt wurde. Die Testsuite prüft dann alle zwischenzeitlich aufgezeichneten Nachrichten.
+====
 
 image::/doc/img/continue_dialog_testsuite.png[Continue Dialog in Testsuite]
 
-== Port Tabelle
 
-|=====================================================
-| Service                      | Port | Protocol
-| Tiger Testsuite (WorkflowUI) | 9010 | http
-| Tiger-Proxy Admin Port       | 9011 | http
-| Tiger-Proxy Proxy Port       | 443  | http / https
-|=====================================================
 
-== Prüfnachweis für die KOB
+== 6. Prüfnachweis für die KOB
 
-Für die Beantragung des KOB Zertifikates bei der gematik benötigen Sie als Prüfnachweis den Testreport (zip file) und pro konfiguriertem Aktensystem je ein Screenshot (Bilddatei) von Ihrer GUI des PS auf der die angezeigte eML ersichtlich wird. Den Screenshot Datei(en) erstellen Sie bitte lokal bei Ihnen am System.
+Für die Beantragung des KOB Zertifikates bei der gematik benötigen Sie als Prüfnachweis den Testreport (zip file).
 
 [NOTE]
 ====
 Sollten ihr Primärsystem oder Middleware keine Verordnung oder abweichende Verordnungen ausstellen können, so ist bei der Beauftragung in TITUS über die Kommentarfunktion link:doc/img/titus_bemerkung.png[Bemerkung] eine Begründung beizufügen.
 ====
 
-=== Einzustellende E-Rezepte
-
-In dem o.g. Screenshot für die Beantragung des KOB Zertifikates sollte die elektronische Medikationsliste mit den folgenden Feldern für die jeweiligen Medikationen ersichtlich sein:
-
-* Verordnungsdatum
-* Wirkstoffname
-* Wirkstärke
-* Arzneimittelbezeichnung
-* Form
-* Dosierangabe/ Gebrauchsanweisung
-* PZN
-* Verordner
-
-Abgeleitet werden sollen Einträge von folgenden beispielhaften E-Rezepten, wobei der Screenshot Daten aus der jeweiligen Tabelle enthalten soll:
-
-* Für den Verordnungstyp "PZN-Verordnung"
-- https://github.com/gematik/eRezept-Examples/tree/main/End-to-End-Examples/6_15.01.2025/PZN-Verordnung/PZN-Verordnung_4/[E-Rezept Beispiel in Github] /
-  https://htmlpreview.github.io/?https://github.com/gematik/eRezept-Examples/blob/main/End-to-End-Examples/6_15.01.2025/PZN-Verordnung/PZN-Verordnung_4/PZN_Nr4_VerordnungArzt.html[HTML Vorschau]
-|====================================================================================
-| Arzneimittelbezeichnung      | Form | Dosierangabe/ Gebrauchsanweisung | PZN
-
-| Prospan® Hustensaft 100ml N1 | FLE  | 2mal tägl. 5ml                   | 08585997
-|====================================================================================
-
-* Für den Verordnungstyp "Wirkstoff-Verordnung"
-- https://github.com/gematik/eRezept-Examples/tree/main/End-to-End-Examples/6_15.01.2025/Wirkstoff-Verordnung/Wirkstoff-Verordnung_1/[E-Rezept Beispiel in Github] /
-  https://htmlpreview.github.io/?https://github.com/gematik/eRezept-Examples/blob/main/End-to-End-Examples/6_15.01.2025/Wirkstoff-Verordnung/Wirkstoff-Verordnung_1/WS_V1_VerordnungArzt.html[HTML Vorschau]
-
-|====================================================================================
-| Wirkstoffname | Wirkstärke | Dosierangabe/ Gebrauchsanweisung
-
-| Ramipril      | 5 mg/1     | 1-0-0-0
-|====================================================================================
-
-* Für den Verordnungstyp "Rezeptur-Verordnung"
-- https://github.com/gematik/eRezept-Examples/tree/main/End-to-End-Examples/6_15.01.2025/Rezeptur-Verordnung/Rezeptur-Verordnung_1/[E-Rezept Beispiel in Github] /
-  https://htmlpreview.github.io/?https://github.com/gematik/eRezept-Examples/blob/main/End-to-End-Examples/6_15.01.2025/Rezeptur-Verordnung/Rezeptur-Verordnung_1/Rez_Nr1_VerordnungArzt.html[HTML Vorschau]
-|====================================================================================
-| Wirkstoffname   | Wirkstärke | Dosierangabe/ Gebrauchsanweisung
-
-| Salicylsäure    | 5 g        | 1–3mal/Tag auf die erkrankten Hautstellen auftragen
-| 2-propanol 70 % |            |
-|====================================================================================
-
-* Für den Verordnungstyp "Freitext-Verordnung"
-- https://github.com/gematik/eRezept-Examples/tree/main/End-to-End-Examples/6_15.01.2025/Freitext-Verordnung/Freitext-Verordnung_1/[E-Rezept Beispiel in Github] /
-  https://htmlpreview.github.io/?https://github.com/gematik/eRezept-Examples/blob/main/End-to-End-Examples/6_15.01.2025/Freitext-Verordnung/Freitext-Verordnung_1/FT_V1_VerordnungArzt.html[HTML Vorschau]
-|====================================================================================
-| Arzneimittelbezeichnung
-
-| Metformin 850mg Tabletten N3
-|====================================================================================
-
-==== Nutzung von Gematik E-Rezept Client
-
-Für die Erstellung der E-Rezepte können Sie alternativ den Gematik E-Rezept Client `ERPIONE` nutzen. Dieser ist als Docker Container in https://hub.docker.com/r/gematik1/erpione[Dockerhub] veröffentlicht. Eine weiterführende Dokumentation zu der Funktionsweise des Clients in Verbindung mit dem Backend Service `PRIMSYS` ist in https://github.com/gematik/erp-e2e-testsuite/tree/master/docs/primsys-rest[Github] beschrieben.
-
-Benötigen Sie ein API Key oder haben generell Fragen zu dem Client, wenden Sie sich bitte an den gematik Service Desk und öffnen Sie ein entsprechendes Ticket (siehe <<Fehlertickets>>).
-
-=== Testreport
-
+=== Testreport aus Maven
 Die Testergebnisse selbst sind unter `target/site/serenity/index.html` zu finden und können somit im Browser verifiziert werden.
 Der Testreport wird automatisch nach der Ausführung im `target/kob-testsuite.*-test-report.zip` abgelegt, wenn die Ausführung über den Quit Button in der WorkflowUI beendet wird.
 
@@ -334,16 +350,176 @@ image::/doc/img/docker_desktop_volumes.png[Download Test Report ZIP über Docker
 
 === Upload bei TITUS
 
-Loggen Sie sich in Ihren Account auf dem Titus Bestätigungsportal (https://titus.gematik.solutions) ein und laden Sie die entsprechenden Prüfnachweise im Bestätigungsantrag hoch. Für das Hochladen nutzen sie den Dialog "Nachweise für das Bestätigungsverfahren", wo sowohl der Testreport als ZIP Datei als auch den/die Screenshot Datei(en), welche die eML in ihrem Primärsystem darstellen, ausgewählt werden können. Im Anschluss starten Sie den Bestätigungsnachweis über TITUS.
+Loggen Sie sich in Ihren Account auf dem Titus Bestätigungsportal (https://titus.gematik.solutions) ein und laden Sie die entsprechenden Prüfnachweise im Bestätigungsantrag hoch.
+Für das Hochladen nutzen sie den Dialog "Nachweise für das Bestätigungsverfahren", wo der Testreport als ZIP Datei ausgewählt werden kann.
+Im Anschluss starten Sie den Bestätigungsnachweis über TITUS.
 
 image::/doc/img/upload_dialog_titus.png[Upload Dialog in TITUS]
 
 Weitere Hinweise zur Handlungsanweisung für die Konformitätsbewertung (KOB) können im Service Desk nachgelesen werden:
- https://service.gematik.de/servicedesk/customer/kb/view/459882847
+https://service.gematik.de/servicedesk/customer/kb/view/459882847
 
 Fragen zum Titus-Bestätigungsportal und zur Durchführung des KOB Verfahrens können Sie ebenfalls über unseren Service Desk einstellen: https://service.gematik.de/servicedesk/customer/portal/26/group/36
 
-== Troubleshooting / FAQs
+
+== 7. FHIR-Dokumentation (Referenz)
+
+Die FHIR-Strukturen, die in den KOB-Testfällen verwendet werden, basieren auf dem Implementation Guide _ePA Medication Service_ in Version 1.3.4:
+
+https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/artifacts.html[FHIR-Artefakte des ePA Medication Service 1.3.4,window=_blank]
+
+=== Input-Profile für schreibende Operationen
+
+Die Input-Profile legen die Struktur des Request-Bodys der jeweiligen FHIR-Operation fest.
+
+[cols="3,2,5", options="header"]
+|===
+|Anwendungsfall
+|FHIR-Operation
+|Input-Profil
+
+|eML-Eintrag hinzufügen
+|`$add-eml-entry`
+|https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/StructureDefinition-epa-op-add-eml-entry-input-parameters.html[Input-Profil öffnen,window=_blank]
+
+|eMP-Eintrag hinzufügen
+|`$add-emp-entry`
+|https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/StructureDefinition-epa-op-add-emp-entry-input-parameters.html[Input-Profil öffnen,window=_blank]
+
+|eMP-Eintrag aktualisieren
+|`$update-emp-entry`
+|https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/StructureDefinition-epa-op-update-emp-entry-input-parameters.html[Input-Profil öffnen,window=_blank]
+|===
+=== Erstellung eines `$add-emp-entry`-Requests
+
+[NOTE]
+====
+Die folgenden Tabellen dienen als Hilfestellung zur Implementierung. Maßgeblich sind die FHIR-Profile des Implementation Guide _ePA Medication Service_ Version 1.3.4:
+https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/artifacts.html[FHIR-Artefakte,window=_blank]
+====
+
+Folgende Inhalte müssen im Request-Body der Operation `$add-emp-entry` gesetzt werden:
+
+* `medicationRequest`
+* `medication`
+* `organization`
+* `format`
+* `chronologyId` (kann weggelassen werden, wenn es sich um initialen eMP-Eintrag handelt.)
+
+Am Beispiel der Operation $add-emp-entry zeigt die folgende Tabelle, in welchen FHIR-Elementen die vorgegebenen Testdaten abzubilden sind.
+
+==== MedicationRequest-Elemente
+
+[cols="3,6,4", options="header"]
+|===
+|Element |FHIRPath innerhalb der Ressource |Wert
+
+|Indikation (ICD-10-GM)
+|`reasonCode.coding.where(system = 'http://fhir.de/CodeSystem/bfarm/icd-10-gm').code`
+|`I11`
+
+|Grund
+|`extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/reason-patient-instruction-extension').valueString`
+|`Bluthochdruck`
+
+|Dosierung (strukturiert)
+|`dosageInstruction.timing.repeat` + `dosageInstruction.doseAndRate.doseQuantity`
+|`frequency: 2, period: 1d, when: MORN/EVE, Dosis: 1 Stück`
+
+|Dosierung (Freitext)
+|`dosageInstruction.text`
+|`1-0-1-0 Stück` oder fachlich gleichwertig
+
+|Gerenderte Dosierung
+|`extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.renderedDosageInstruction').valueMarkdown`
+|`1-0-1-0 Stück`
+
+|Hinweis für Versicherte
+|`extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/patient-note-extension').valueAnnotation.text`
+|`Benazepril kann anfangs Schwindel verursachen`
+
+|Hinweis für Mitbehandelnde
+|`note.text`
+|`Hinweis für den LE`
+
+|Status des eMP-Eintrags
+|`status`
+|`active`
+
+|Anwendungszeitraum (Start)
+|`extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.effectiveDosePeriod').valuePeriod.start`
+|`2026-12-01`
+
+|Anwendungszeitraum (Ende)
+|`extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.effectiveDosePeriod').valuePeriod.end`
+|`2026-12-31`
+|===
+
+==== Medication-Elemente
+
+[cols="3,6,4", options="header"]
+|===
+|Element |FHIRPath innerhalb der Ressource |Wert
+
+|Handelsname
+|`code.text`
+|`Benazepril AL 20 mg Filmtabletten 98 Stk.`
+
+|Handelsname (PZN)
+|`code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn').code`
+|`04351736`
+
+|ATC-Code
+|`code.coding.where(system = 'http://fhir.de/CodeSystem/bfarm/atc').code`
+|`C09AA05`
+
+|Wirkstoff (ASK)
+|`ingredient.itemCodeableConcept.coding.where(system = 'http://fhir.de/CodeSystem/ask').code`
+|`22686`
+
+|Wirkstoff
+|`ingredient.itemCodeableConcept.text`
+|`Benazepril hydrochlorid`
+
+|Wirkstärke (strukturiert)
+|`ingredient.strength.numerator` + `ingredient.strength.denominator`
+|`20 mg pro 1 Tbl.`
+
+|Wirkstärke (Freitext)
+|`ingredient.strength.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-ingredient-amount-extension').valueString`
+|`20 mg`
+
+|Darreichungsform
+|`form.coding.where(system = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM').code`
+|`FTA`
+
+|Packungsgröße
+|`amount.numerator.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-total-quantity-formulation-extension').valueString` + `amount.numerator.unit`
+|`98 Stück`
+|===
+
+== 8. Troubleshooting / FAQs
+
+=== Maven Build-Fehler: Failed to delete target/kob-testsuite.jar
+
+**Problem:** Beim erneuten Ausführen von `mvn clean install` erscheint die Fehlermeldung:
+----
+Failed to delete ...\kob-testsuite\target\kob-testsuite.jar
+----
+
+**Ursache:** Die Testsuite läuft noch im Hintergrund und blockiert die Datei.
+
+**Lösung:**
+
+1. Öffnen Sie im Browser: http://localhost:9020
+2. Klicken Sie auf den roten **"Quit Test Run"** Button
+3. Warten Sie, bis die Testsuite vollständig beendet ist
+4. Führen Sie `mvn clean install` erneut aus
+
+[TIP]
+====
+Beenden Sie die Testsuite immer über den "Quit Test Run" Button, bevor Sie einen neuen Maven-Lauf starten.
+====
 
 === Starten der Testsuite (Docker)
 
@@ -353,7 +529,7 @@ Der Zugriff auf das Docker Volume schlägt fehl.
 
 *Variante 1*
 
-Das Volume mit der gleichen Bezeichnung schon existiert und wurde von einer  anderen, möglicherweise älteren, Version der KOB-Testsuite erstellt wurde.
+Das Volume mit der gleichen Bezeichnung schon existiert und wurde von einer anderen, möglicherweise älteren, Version der KOB-Testsuite erstellt wurde.
 Man muss das Volume einmal löschen und bei Start der neuen Testsuite wird es wieder angelegt.
 
 [source]
@@ -369,7 +545,9 @@ Bitte prüfen Sie vor dem Start der Testsuite, ob Sie das `.docker` Verzeichnis 
 
 *Variante 3 (ohne Docker Volume)*
 
-Eine weitere Möglichkeit ist auf die Nutzung des Docker Volume zu verzichten. Der Nachteil hierbei ist, dass die Maven Artefakte bei jedem Start der Testsuite erneut heruntergeladen werden müssen, was mehr Zeit in Anspruch nimmt. Hierzu wird die Zeile `- kob-testsuite-maven:/.m2` wie folgt mit einem Hash (#) auskommentiert.
+Eine weitere Möglichkeit ist auf die Nutzung des Docker Volume zu verzichten.
+Der Nachteil hierbei ist, dass die Maven Artefakte bei jedem Start der Testsuite erneut heruntergeladen werden müssen, was mehr Zeit in Anspruch nimmt.
+Hierzu wird die Zeile `- kob-testsuite-maven:/.m2` wie folgt mit einem Hash (#) auskommentiert.
 
 [source]
 ----
@@ -383,7 +561,8 @@ Eine weitere Möglichkeit ist auf die Nutzung des Docker Volume zu verzichten. D
 
 === Ausführen der Tests / fehlschlagende Tests
 
-Im Falle eines fehlgeschlagenen Testlaufs und dem Schreiben eines Support-Tickets im gematik Service Desk ist es sinnvoll, die *.tgr-Datei mit den aufgezeichneten Nachrichten anzuhängen. Damit ist es möglich, die Traces in eine lokale Tiger-Anwendung zu importieren, um die Kommunikation und deren Meldungsdetails anzuzeigen.
+Im Falle eines fehlgeschlagenen Testlaufs und dem Schreiben eines Support-Tickets im gematik Service Desk ist es sinnvoll, die *.tgr-Datei mit den aufgezeichneten Nachrichten anzuhängen.
+Damit ist es möglich, die Traces in eine lokale Tiger-Anwendung zu importieren, um die Kommunikation und deren Meldungsdetails anzuzeigen.
 
 Dazu müssen Sie den folgenden Befehl ausführen, um die *.tgr aus dem ps-testsuite Container in das lokale Verzeichnis zu kopieren.
 
@@ -392,25 +571,20 @@ Dazu müssen Sie den folgenden Befehl ausführen, um die *.tgr aus dem ps-testsu
 docker cp ps-testsuite:/app/tiger-proxy.tgr .
 ----
 
-== Geplante Änderungen
+== 9. Fehlertickets
 
-Hier eine Übersicht über die wichtigsten Änderungen, die wir planen. Wenn Sie hier Dinge vermissen oder Anregungen haben, melden Sie sich bitte bei uns!
-
-* Automatisierung der optionalen Tests. Hierfür werden ggf. Anpassungen der Testtreiberschnittstelle notwendig sein. Diese Änderungen werden aber NICHT mit den verpflichtenden Tests kollidieren. Sprich: Die jetzt existierende Schnittstelle wird aller Voraussicht nach bis zur KOB 3.0 unverändert bleiben.
-* Einbau einer Test-REST-API in die Tiger-Testsuite, um eine bessere Integration in CI/CD-Pipelines zu ermöglichen.
-
-== Fehlertickets
 Wenn Sie ein Fehlerticket eröffnen wollen für dieses Repository, nutzen Sie bitte den gematik Service Desk unter
 link:[https://service.gematik.de/servicedesk/customer/portal/26].
 
 == Beiträge
+
 Wenn Sie zu diesem Repository beitragen wollen, schauen Sie sich bitte die Datei link:[CONTRIBUTING.MD] an.
 
 == License
 
-Copyright 2024 gematik GmbH
+Copyright 2024-2026 gematik GmbH
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+Apache License, Version 2.0
 
 See the link:./LICENSE[LICENSE] for the specific language governing permissions and limitations under the License.
 
@@ -422,7 +596,9 @@ See the link:./LICENSE[LICENSE] for the specific language governing permissions 
 .. The software is provided "as is" without warranty of any kind, either express or implied, including, but not limited to, the warranties of fitness for a particular purpose, merchantability, and/or non-infringement. The authors or copyright holders shall not be liable in any manner whatsoever for any damages or other claims arising from, out of or in connection with the software or the use or other dealings with the software, whether in an action of contract, tort, or otherwise.
 .. The software is the result of research and development activities, therefore not necessarily quality assured and without the character of a liable product. For this reason, gematik does not provide any support or other user assistance (unless otherwise stated in individual cases and without justification of a legal obligation). Furthermore, there is no claim to further development and adaptation of the results to a more current state of the art.
 . Gematik may remove published results temporarily or permanently from the place of publication at any time without prior notice or justification.
-. Please note: Parts of this code may have been generated using AI-supported technology.’ Please take this into account, especially when troubleshooting, for security analyses and possible adjustments.
+. Parts of this software and - in isolated cases - content such as text or images may have been developed using the support of AI tools. They are subject to the same reviews, tests, and security checks as any other contribution. The functionality of the software itself is not based on AI decisions.
+. Please note: Parts of this code may have been generated using AI-supported technology. Please take this into account, especially when troubleshooting, for security analyses and possible adjustments.
 
 == Kontakt
+
 gematik GmbH: [OSPO@gematik.de](mailto:OSPO@gematik.de)

@@ -1,5 +1,5 @@
 # language: de
-@Optional @EPA_3_0 @entitlement
+@Optional @EPA_3_1_3 @entitlement
 Funktion: Test set entitlements by PS
 
   Grundlage:
@@ -11,7 +11,7 @@ Funktion: Test set entitlements by PS
 
     Wenn TGR show banner "Testfall: Befugnisvergabe durch ein Primärsystem"
     # For customers who trigger the post request for a new entitlement manually via UI
-    Dann TGR pause test run execution with message "Bitte initiiere die Befugnisvergabe durch ein Primärsystem!"
+    Dann KOB erstelle eine Befugnis für das Aktenkonto des Patienten "${kob.kvnrIbm}"
 
     ### set entitlements
     Und TGR find last request to path ".*" with "$.body.decrypted.path.basicPath" matching "/epa/basic/api/v1/ps/entitlements"

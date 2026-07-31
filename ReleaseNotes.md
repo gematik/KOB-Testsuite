@@ -1,5 +1,28 @@
 # Release Notes KOB Testsuite
 
+## Release 2.0.0-RC1 (ePA 3.1.3)
+
+* The updated list of KOB test cases for ePA 3.1.3 dgMP must be executed for both medical record systems (IBM and RISE) in the RU-REF environment.
+  * following [IOP-Anforderungen gemäß § 385 SGB V - im Rahmen der ePA für alle – Medication Service  
+    (ePA 3.1.3)](https://www.ina.gematik.de/fileadmin/user_upload/IOP-Afo_ePAfa_V2.0.1.pdf)
+* Included test cases in this release candidate:
+  * Testfall 1: eMP-Eintrag hinzufügen
+  * Testfall 2: eMP-Eintrag aktualisieren
+  * Testfall 3: Medikationsplan anzeigen
+  * Testfall 4: Medikationsplan gerendert anzeigen (PDF)
+  * Testfall 5: eMP-Chronologie abrufen
+  * Testfall 6: eML-Eintrag hinzufügen
+  * Testfall 7: Medikationsliste anzeigen
+
+* Upgrades
+  * Upgrade to Java 21
+  * Upgrade to Tiger 4.3.2
+    * see [release notes](https://github.com/gematik/app-Tiger/blob/master/ReleaseNotes.md) for details
+
+## Release 1.0.8
+
+* Fixed findAvailableHosts error, caused by incorrect proxy usage
+
 ## Release 1.0.7
 
 * Upgrade to Tiger 3.7.9, fixes failed Titus-Uploads

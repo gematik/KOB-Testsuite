@@ -12,7 +12,8 @@ tags:
     description: Specific operations for the KOB EPA 3.0 testsuite. These operations and the mandatory operations are required
       for the KOB EPA 3.0 testsuite.
 servers:
-  - url: 'http'
+  - description: URL matching the hosts in tiger route configuration in tiger.yaml
+    url: 'ps:8080'
 paths:
   /system/start:
     post:
@@ -31,7 +32,9 @@ paths:
           $ref: '#/components/responses/not-implemented'
   /system/reset:
     post:
-      summary: Resets the Primärsystem. This operation is used to reset the Primärsystem to a clean state. More detail
+      summary: Resets the Primärsystem.
+      description:
+        This operation is used to reset the Primärsystem to a clean state. More detail
         of what needs to be reset can be found in the body. As a fallback the Primärsystem can simply reboot, resetting
         all state. If more control can be exerted over the state of the application a soft reset can be performed.
       tags:
@@ -54,7 +57,8 @@ paths:
           $ref: '#/components/responses/not-implemented'
   /patient/insert-egk:
     post:
-      summary: Insert an EGK into an attached card reader. All implicit operations (read VSD, ensure entitlement on EPA...)
+      summary: Insert EGK
+      description: Insert an EGK into an attached card reader. All implicit operations (read VSD, ensure entitlement on EPA...)
         are triggered by this operation. IF this operation is implemented and an action is created, the test suite MUST wait
         for the action to be completed before continuing.
       tags:
@@ -77,7 +81,8 @@ paths:
           $ref: '#/components/responses/not-implemented'
   /patient/medication/medication-service/eml:
     post:
-      summary: Retrieves an EML (Elektronischer Medikationsliste) for a patient
+      summary: Retrieve EML
+      description: Retrieves an EML (Elektronischer Medikationsliste) for a patient
       tags:
         - KOB EPA 3.0
       operationId: retrieve-eml
@@ -87,6 +92,57 @@ paths:
           'application/gematik.psTestdriver.v0.1.0+json':
             schema:
               $ref: '#/components/schemas/eml-retrieval'
+      responses:
+        '201':
+          $ref: '#/components/responses/action-created'
+        '400':
+          $ref: '#/components/responses/bad-request'
+        '500':
+          $ref: '#/components/responses/server-error'
+  /patient/epa/get-status:
+    post:
+      tags:
+        - Optional
+      operationId: get-status
+      parameters:
+        - in: header
+          name: kvnr
+          schema:
+            $ref: '#/components/schemas/kvnr'
+      responses:
+        '201':
+          $ref: '#/components/responses/action-created'
+        '400':
+          $ref: '#/components/responses/bad-request'
+        '500':
+          $ref: '#/components/responses/server-error'
+  /patient/epa/get-session:
+    post:
+      tags:
+        - Optional
+      operationId: get-session
+      parameters:
+        - in: header
+          name: kvnr
+          schema:
+            $ref: '#/components/schemas/kvnr'
+      responses:
+        '201':
+          $ref: '#/components/responses/action-created'
+        '400':
+          $ref: '#/components/responses/bad-request'
+        '500':
+          $ref: '#/components/responses/server-error'
+  /patient/epa/get-entitlement:
+    post:
+      tags:
+        - Optional
+      operationId: get-entitlement
+      parameters:
+        - in: header
+          name: kvnr
+          schema:
+            $ref: '#/components/schemas/kvnr'
       responses:
         '201':
           $ref: '#/components/responses/action-created'
@@ -156,7 +212,8 @@ paths:
           description: Internal server error
   /actions/{id}/screenshot:
     get:
-      summary: Take a representative screenshot of the current state of the application. This
+      summary: Take Screenshot
+      description: Take a representative screenshot of the current state of the application. This
         image MUST include the data of the action with the given id, if applicable. (e.g. the retrieved EML)
       tags:
         - Mandatory
@@ -196,7 +253,7 @@ components:
           $ref: '#/components/schemas/status'
         type:
           type: string
-          enum: [ 'retrieve-eml','start-primaersystem','insert-egk' ]
+          enum: [ 'retrieve-eml','start-primaersystem','insert-egk','get-status','get-session','get-entitlement' ]
           description: Type of the action
         requestUrl:
           type: string
@@ -273,8 +330,33 @@ components:
         'application/gematik.psTestdriver.v0.1.0+json':
           schema:
             $ref: '#/components/schemas/action'
+    login-ok:
+      description: "OK, Successful login"
+      content:
+        application/json:
+          example:
+            vau-np: c9a7289e763616d449886acdeb8b83d115881c5d078b8643d112190bc7516584
+          schema:
+            type: object
+            properties:
+              vau-np:
+                type: string
+            required:
+              - vau-np
     bad-request:
       description: Bad request
+      content:
+        'application/gematik.psTestdriver.v0.1.0+json':
+          schema:
+            $ref: '#/components/schemas/error-message'
+    forbidden:
+      description: Forbidden
+      content:
+        'application/gematik.psTestdriver.v0.1.0+json':
+          schema:
+            $ref: '#/components/schemas/error-message'
+    not-found:
+      description: Not Found
       content:
         'application/gematik.psTestdriver.v0.1.0+json':
           schema:

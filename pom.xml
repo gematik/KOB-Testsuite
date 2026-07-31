@@ -22,19 +22,22 @@
 
     <groupId>de.gematik</groupId>
     <artifactId>kob-testsuite</artifactId>
-    <version>1.0.7</version>
+    <version>2.0.0-RC1</version>
     <packaging>jar</packaging>
     <description>KOB Testsuite fuer PS Hersteller</description>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version.maven-surefire-plugin>3.5.3</version.maven-surefire-plugin>
-        <version.maven-failsafe-plugin>3.5.3</version.maven-failsafe-plugin>
-        <version.tiger>3.7.9</version.tiger>
-        <version.serenity>4.2.17</version.serenity>
-        <jacoco.version>0.8.13</jacoco.version>
+        <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <openapi-generator-maven-plugin.version>7.23.0</openapi-generator-maven-plugin.version>
+        <tiger.version>4.3.2</tiger.version>
+        <jacoco.version>0.8.15</jacoco.version>
+        <lombok.version>1.18.46</lombok.version>
+        <logback.version>1.6.0</logback.version>
     </properties>
 
     <dependencyManagement>
@@ -42,7 +45,7 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.5.18</version>
+                <version>${logback.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -51,13 +54,13 @@
         <dependency>
             <groupId>de.gematik.test</groupId>
             <artifactId>tiger-test-lib</artifactId>
-            <version>${version.tiger}</version>
+            <version>${tiger.version}</version>
         </dependency>
         <!-- Dependencies for API code generation -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.19.0</version>
+            <version>2.22.0</version>
         </dependency>
         <dependency>
             <groupId>javax.annotation</groupId>
@@ -67,23 +70,23 @@
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>jackson-databind-nullable</artifactId>
-            <version>0.2.6</version>
+            <version>0.2.10</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
-            <version>4.0.5</version>
+            <version>4.0.9</version>
         </dependency>
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>4.0.2</version>
+            <version>4.0.5</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
-            <version>1.18.38</version>
+            <version>${lombok.version}</version>
         </dependency>
     </dependencies>
 
@@ -117,7 +120,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${version.maven-surefire-plugin}</version>
+                    <version>${maven-surefire-plugin.version}</version>
                     <configuration>
                         <argLine>@{argLine} -Dfile.encoding=UTF-8</argLine>
                         <properties>
@@ -126,6 +129,20 @@
                                 <value>org.sonar.java.jacoco.JUnitListener</value>
                             </property>
                         </properties>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
                     </configuration>
                 </plugin>
             </plugins>
@@ -140,7 +157,7 @@
             <plugin>
                 <groupId>de.gematik.test</groupId>
                 <artifactId>tiger-maven-plugin</artifactId>
-                <version>${version.tiger}</version>
+                <version>${tiger.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -186,7 +203,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${version.maven-failsafe-plugin}</version>
+                <version>${maven-failsafe-plugin.version}</version>
                 <configuration>
                     <!--
                         WorkflowUI needs this to allow it to block execution of maven,
@@ -209,7 +226,7 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.13.0</version>
+                <version>${openapi-generator-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -277,7 +294,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>2.5.0</version>
+                <version>2.6.0</version>
                 <configuration>
                     <!-- file header -->
                     <licenseName>apache_v2_0</licenseName>

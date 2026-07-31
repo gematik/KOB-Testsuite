@@ -1,0 +1,147 @@
+# language: de
+@Mandatory @KOB @EPA_3_1_3 @PVS @ZPVS @KIS @AVS
+Funktion: KOB Testfall 2: eMP-Eintrag aktualisieren
+
+  Grundlage:
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC1"
+    Gegeben sei KOB finde Aktensystem
+
+  Szenariogrundriss: Testfall 2: eMP-Eintrag aktualisieren (nach Anweisung) (<AS>)
+  Getestete Anforderungen: IG-MED04646V85, IG-MED15823A2P
+  Die Operation eMP-Eintrag aktualisieren dient der gezielten Aktualisierung eines bestehenden Medikationseintrags im elektronischen Medikationsplan (eMP).
+  Sie ermöglicht es, inhaltliche Änderungen an einer bereits dokumentierten Medikation vorzunehmen – beispielsweise um eine Notiz zu ergänzen,
+  eine Dosierung zu verändern oder den Status des Eintrags zu aktualisieren.
+
+    # Bereite Testumgebung vor
+    Gegeben sei TGR lösche aufgezeichnete Nachrichten
+    Und TGR lösche die benutzerdefinierte Fehlermeldung
+
+    # Wir triggern das Aktualisieren eines existierenden eMP-Eintrags im vorgegebenen Format
+    Wenn KOB aktualisiere einen neuen eMP-Eintrag im Aktensystem "<AS>" für das Aktenkonto des Patienten "<KVNR>"
+
+    # Zunächst überprüfen wir, ob grundsätzlich Verkehr gefunden werden kann und er den Mindestanforderungen entspricht
+    Dann TGR die Fehlermeldung wird gesetzt auf: "Es konnte kein Verkehr gefunden werden! Bitte überprüfen Sie, ob der Verkehr tatsächlich über Tiger geroutet wird."
+    Und TGR finde die letzte Anfrage mit dem Pfad ".*"
+
+    # In nicht-PU Umgebungen muss der Client (das Primärsystem) die verwendeten Schlüssel (K2_c2s_app_data und K2_s2c_app_data)
+    # Base64 kodiert im Header "VAU-nonPU-Tracing" übertragen. Diese Schlüssel dürfen NICHT in der PU übertragen werden.
+    Dann TGR die Fehlermeldung wird gesetzt auf: "Der 'VAU-nonPU-Tracing'-Header konnte nicht gefunden werden! Dieser muss in der RU gesetzt werden!"
+    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.header.[~'VAU-nonPU-Tracing']" der mit "[A-Za-z0-9+\/]{41,44}=? [A-Za-z0-9+\/]{41,44}=?" übereinstimmt
+    Dann TGR die Fehlermeldung wird gesetzt auf: "Das 'PU'-Flag im VAU-Header muss in der RU auf 0 gesetzt werden!"
+    Und TGR current request with attribute "$.body.header.pu" matches "0"
+    Und TGR lösche die benutzerdefinierte Fehlermeldung
+
+    ### Wir überprüfen noch den Verkehr des Einstellen eines eMP-Eintrags. Dazu müssen wir zunächst die Abfrage zum Hinzufügen des eMP-Eintrags finden
+    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "^\/epa\/medication\/api\/v1\/fhir\/\$update-emp-entry(\?.*)?$" übereinstimmt
+
+    # Nun prüfen wir die Struktur der äußeren Anfrage
+    Dann TGR current request with attribute "$.method" matches "POST"
+    Und TGR current request with attribute "$.header.[~'content-type']" matches "application/octet-stream"
+    Und TGR current request with attribute "$.header.[~'host']" matches "<FQDN>.*"
+    Und TGR current request with attribute "$.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
+
+    # Und nun die Struktur der inneren Anfrage (der VAU-verschlüsselte HTTP-Request)
+    Und TGR current request with attribute "$.body.decrypted.method" matches "POST"
+    Und TGR current request with attribute "$.body.decrypted.header.[~'accept']" matches "(application\/fhir\+json|application\/fhir\+xml)"
+    Und TGR current request with attribute "$.body.decrypted.header.[~'X-Requesting-Organization']" matches ".*"
+    Und TGR current request with attribute "$.body.decrypted.header.[~'X-Request-ID']" matches "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    Und TGR current request with attribute "$.body.decrypted.header.[~'x-insurantid']" matches "<KVNR>"
+    Und TGR current request with attribute "$.body.decrypted.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
+
+    # Nun prüfen wir die äußere Antwort. Damit stellen wir sicher, dass der Server die Anfrage korrekt verstanden hat
+    Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.responseCode" überein mit "200"
+    Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.header.[~'content-type']" überein mit "application/octet-stream"
+
+    # Als letztes prüfen wir die Struktur der inneren Antwort (der VAU-verschlüsselte HTTP-Response)
+    Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.responseCode" überein mit "200"
+    Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.header.[~'content-type']" überein mit "(application\/fhir\+json|application\/fhir\+xml)"
+    Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.body" überein mit ".*"
+
+
+    # Parameters prüfen
+    Und TGR current request with attribute "$.body.decrypted.body.resourceType" matches "Parameters"
+    Und TGR current request with attribute "$.body.decrypted.body.meta.profile[*]" matches "https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-update-emp-entry-input-parameters"
+
+    # Prüfe acknowledgedChronologyId
+    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='acknowledgedChronologyId')].valueId" matches "^[A-Za-z0-9.-]{1,64}$"
+
+    # Prüfe medicationPlanIdentifier
+    Und TGR current request contains node "$.body.decrypted.body.parameter.[?(@.name=='medicationPlanIdentifier')]"
+    Und TGR current request at "$.body.decrypted.body.parameter.[?(@.name=='medicationPlanIdentifier')].valueIdentifier" matches as JSON:
+    """
+    {
+      "system": "https://gematik.de/fhir/sid/emp-identifier",
+      "value": "^[A-Za-z0-9.-]{1,64}$"
+    }
+    """
+
+    # Prüfe emp-entry
+    Und TGR current request contains node "$.body.decrypted.body.parameter.[?(@.name=='empEntry')]"
+
+    # Prüfe MedicationRequest
+    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.resourceType" matches "MedicationRequest"
+    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.meta.profile[*]" matches "https://gematik.de/fhir/epa-medication/StructureDefinition/emp-medication-request(\|[0-9]+\.[0-9]+\.[0-9]+)?"
+    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.id" matches "^[A-Za-z0-9.-]{1,64}$"
+    # eMP-Kontext prüfen
+    Und TGR current request at "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.extension.[?(@.url=='https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension')]" matches as JSON:
+    """
+    {
+      "url": "https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension",
+      "valueCode": "EMP"
+    }
+    """
+    # eMP-Identifier prüfen
+    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.identifier.[?(@.system=='https://gematik.de/fhir/sid/emp-identifier')].value" matches "^[A-Za-z0-9.-]{1,64}$"
+
+    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.intent" matches "plan"
+    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.status" matches "on-hold"
+    # Medication-Referenz existiert
+    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.medicationReference.reference" matches "^Medication/[A-Za-z0-9.-]{1,64}$"
+
+    # Gerenderte Dosierung prüfen
+    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.extension.[?(@..url =$ 'renderedDosageInstruction')].valueMarkdown" matches "täglich: 08:00 Uhr — je 1 Stück"
+
+    # Dosierung: Freitext oder strukturiert
+    Und KOB current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.dosageInstruction.[*].text" matches "täglich: 08:00 Uhr — je 1 Stück" or at "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.dosageInstruction.[*]" matches as JSON:
+    """
+    {
+      "timing": {
+        "repeat": {
+          "frequency": 1,
+          "period": 1,
+          "periodUnit": "d",
+          "timeOfDay": [
+            "08:00:00"
+          ]
+        }
+      },
+      "doseAndRate": [
+        {
+          "doseQuantity": {
+            "value": 1,
+            "unit": "Stück",
+            "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_BMP_DOSIEREINHEIT",
+            "code": "1"
+          }
+        }
+      ]
+    }
+    """
+
+    # Patientenbezug prüfen
+    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.subject.identifier.system" matches "http://fhir.de/sid/gkv/kvid-10"
+    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.subject.identifier.value" matches "<KVNR>"
+
+
+
+    @IBM @Mandatory
+    Beispiele: IBM_RU-REF
+
+      | AS   | KVNR            | FQDN                    |
+      | IBM  | ${kob.kvnrIbm}  | epa-as-1.ref.epa4all.de |
+
+    @RISE @Mandatory
+    Beispiele: RISE_RU-REF
+
+      | AS   | KVNR            | FQDN                    |
+      | RISE | ${kob.kvnrRise} | epa-as-2.ref.epa4all.de |

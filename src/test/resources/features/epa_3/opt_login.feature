@@ -1,5 +1,5 @@
 # language: de
-@Optional @EPA_3_0 @login
+@Optional @EPA_3_1_3 @login
 Funktion: Test ePA login
 
   Grundlage:
@@ -11,7 +11,7 @@ Funktion: Test ePA login
 
     Wenn TGR show banner "Testfall: Aufbau einer User Session mit IDP und Authorization Service"
     # For customers who trigger the OIDC-Flow manually via UI
-    Dann TGR pause test run execution with message "Bitte initiiere den Aufbau einer User Session mit dem Primärsystem!"
+    Wenn KOB erstelle eine User-Session mit dem Aktensystem des Patienten "${kob.kvnrIbm}" auf
 
     ### getNonce
     Und TGR find last request to path ".*" with "$.body.decrypted.path.basicPath" matching "/epa/authz/v1/getNonce"

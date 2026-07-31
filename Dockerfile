@@ -15,7 +15,7 @@
 # Docker Rules from https://wiki.gematik.de/display/DEV/Docker+Rules
 
 # used java 21 image due to different m2 respository location
-FROM maven:3-eclipse-temurin-21-alpine
+FROM maven:3-eclipse-temurin-26-alpine
 
 # The STOPSIGNAL instruction sets the system call signal that will be sent to the container to exit
 # SIGTERM = 15 - https://de.wikipedia.org/wiki/Signal_(Unix)
