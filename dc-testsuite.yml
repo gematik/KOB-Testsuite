@@ -2,10 +2,10 @@
 name: dc-testsuite-kob
 services:
   kob-testsuite:
-    image: gematik1/kob-testsuite:2.0.0-RC1
+    image: gematik1/kob-testsuite:2.0.0-RC2
     container_name: kob-testsuite
     environment:
-      - MAVEN_OPTS=-Dcucumber.filter.tags=${TESTSUITE_TESTS}
+      - CUCUMBER_FILTER_TAGS=${TESTSUITE_TESTS}
       - KOB_STARTBROWSER=false
       - KOB_PSURL=http://host.docker.internal:8080  # URL to connect PS with test driver interface if available
       - KOB_ASURL=https://host.docker.internal:8443 # ULR to connect ePA mock services to run tests, e.g. vau handshake test

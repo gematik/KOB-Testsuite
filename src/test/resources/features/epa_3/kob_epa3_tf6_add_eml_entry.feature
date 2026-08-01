@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 6: eML-Eintrag hinzufügen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC1"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC2"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 6: eML-Eintrag hinzufügen (<AS>)
