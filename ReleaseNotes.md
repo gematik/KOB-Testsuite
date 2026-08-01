@@ -1,5 +1,8 @@
 # Release Notes KOB Testsuite
 
+## Release 2.0.0-RC2 (ePA 3.1.3)
+* Fixed Docker startup failures caused by complex Cucumber tag expressions by using CUCUMBER_FILTER_TAGS instead of MAVEN_OPTS.
+
 ## Release 2.0.0-RC1 (ePA 3.1.3)
 
 * The updated list of KOB test cases for ePA 3.1.3 dgMP must be executed for both medical record systems (IBM and RISE) in the RU-REF environment.

@@ -4,7 +4,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.6.0</version>
+      <version>1.6.1</version>
       <licenses>
         <license>
           <name>EPL-2.0</name>
@@ -23,7 +23,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
-      <version>1.6.0</version>
+      <version>1.6.1</version>
       <licenses>
         <license>
           <name>EPL-2.0</name>

@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 7: Medikationsliste anzeigen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC1"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC2"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 7: Medikationsliste anzeigen (<AS>)
