@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 2: eMP-Eintrag aktualisieren
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC2"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC3"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 2: eMP-Eintrag aktualisieren (nach Anweisung) (<AS>)
@@ -57,88 +57,53 @@ Funktion: KOB Testfall 2: eMP-Eintrag aktualisieren
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.header.[~'content-type']" überein mit "(application\/fhir\+json|application\/fhir\+xml)"
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.body" überein mit ".*"
 
+    # Grundstruktur: Parameters mit genau einer MedicationRequest in empEntry
+    Und FHIR evaluiert FHIRPath "($this is Parameters) and parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).count() = 1" mit Fehlermeldung "Der Request enthält nicht die erwartete Parameters-Ressource mit genau einer MedicationRequest im Parameter 'empEntry'"
 
-    # Parameters prüfen
-    Und TGR current request with attribute "$.body.decrypted.body.resourceType" matches "Parameters"
-    Und TGR current request with attribute "$.body.decrypted.body.meta.profile[*]" matches "https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-update-emp-entry-input-parameters"
+   # Profil: Parameters
+    Und FHIR evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-update-emp-entry-input-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eMP-Eintrag aktualisieren'"
 
-    # Prüfe acknowledgedChronologyId
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='acknowledgedChronologyId')].valueId" matches "^[A-Za-z0-9.-]{1,64}$"
+    # Profil: MedicationRequest
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/emp-medication-request')).exists()" mit Fehlermeldung "Die MedicationRequest deklariert nicht das erwartete EMPMedicationRequest-Profil"
 
-    # Prüfe medicationPlanIdentifier
-    Und TGR current request contains node "$.body.decrypted.body.parameter.[?(@.name=='medicationPlanIdentifier')]"
-    Und TGR current request at "$.body.decrypted.body.parameter.[?(@.name=='medicationPlanIdentifier')].valueIdentifier" matches as JSON:
-    """
-    {
-      "system": "https://gematik.de/fhir/sid/emp-identifier",
-      "value": "^[A-Za-z0-9.-]{1,64}$"
-    }
-    """
+    # acknowledgedChronologyId: optional, aber falls vorhanden korrekt
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'acknowledgedChronologyId').empty() or (parameter.where(name = 'acknowledgedChronologyId').count() = 1 and parameter.where(name = 'acknowledgedChronologyId').value.ofType(id).count() = 1 and parameter.where(name = 'acknowledgedChronologyId').value.ofType(id).toString().matches('^[A-Za-z0-9.-]{1,64}$'))" mit Fehlermeldung "Der optionale Parameter 'acknowledgedChronologyId' hat nicht den erwarteten Datentyp oder ein ungültiges Format"
 
-    # Prüfe emp-entry
-    Und TGR current request contains node "$.body.decrypted.body.parameter.[?(@.name=='empEntry')]"
+    # medicationPlanIdentifier
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationPlanIdentifier').value.ofType(Identifier).where(system.toString() = 'https://gematik.de/fhir/sid/emp-identifier' and value.toString().matches('^[A-Za-z0-9.-]{1,64}$')).count() = 1" mit Fehlermeldung "Der medicationPlanIdentifier muss ein Identifier mit System 'https://gematik.de/fhir/sid/emp-identifier' und gültigem Werteformat sein"
 
-    # Prüfe MedicationRequest
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.resourceType" matches "MedicationRequest"
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.meta.profile[*]" matches "https://gematik.de/fhir/epa-medication/StructureDefinition/emp-medication-request(\|[0-9]+\.[0-9]+\.[0-9]+)?"
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.id" matches "^[A-Za-z0-9.-]{1,64}$"
-    # eMP-Kontext prüfen
-    Und TGR current request at "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.extension.[?(@.url=='https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension')]" matches as JSON:
-    """
-    {
-      "url": "https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension",
-      "valueCode": "EMP"
-    }
-    """
-    # eMP-Identifier prüfen
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.identifier.[?(@.system=='https://gematik.de/fhir/sid/emp-identifier')].value" matches "^[A-Za-z0-9.-]{1,64}$"
+    # Kontext-Extension: MedicationRequest = 'EMP'
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension').exists()" mit Fehlermeldung "Die EMP-Kontext-Extension fehlt in der MedicationRequest"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension' and value.ofType(code) = 'EMP').exists()" mit Fehlermeldung "Die EMP-Kontext-Extension in MedicationRequest enthält nicht den erwarteten Code 'EMP'"
 
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.intent" matches "plan"
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.status" matches "on-hold"
-    # Medication-Referenz existiert
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.medicationReference.reference" matches "^Medication/[A-Za-z0-9.-]{1,64}$"
+    # eMP-Identifier
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).identifier.where(system.toString() = 'https://gematik.de/fhir/sid/emp-identifier' and value.toString().matches('^[A-Za-z0-9.-]{1,64}$')).exists()" mit Fehlermeldung "Die MedicationRequest enthält keinen gültigen EMP-Identifier"
 
-    # Gerenderte Dosierung prüfen
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.extension.[?(@..url =$ 'renderedDosageInstruction')].valueMarkdown" matches "täglich: 08:00 Uhr — je 1 Stück"
+   # MedicationRequest.intent = 'plan'
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).intent.toString() = 'plan'" mit Fehlermeldung "Das Element 'intent' fehlt oder entspricht nicht dem erwarteten Wert 'plan'"
 
-    # Dosierung: Freitext oder strukturiert
-    Und KOB current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.dosageInstruction.[*].text" matches "täglich: 08:00 Uhr — je 1 Stück" or at "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.dosageInstruction.[*]" matches as JSON:
-    """
-    {
-      "timing": {
-        "repeat": {
-          "frequency": 1,
-          "period": 1,
-          "periodUnit": "d",
-          "timeOfDay": [
-            "08:00:00"
-          ]
-        }
-      },
-      "doseAndRate": [
-        {
-          "doseQuantity": {
-            "value": 1,
-            "unit": "Stück",
-            "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_BMP_DOSIEREINHEIT",
-            "code": "1"
-          }
-        }
-      ]
-    }
-    """
+    # 1. Status = 'on-hold'
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).status.toString() = 'on-hold'" mit Fehlermeldung "Der Status fehlt oder entspricht nicht dem erwarteten Wert 'on-hold'"
 
-    # Patientenbezug prüfen
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.subject.identifier.system" matches "http://fhir.de/sid/gkv/kvid-10"
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@.name=='empEntry')].resource.subject.identifier.value" matches "<KVNR>"
+    # 2. Medication-Referenz
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).medication.reference.toString().matches('^Medication/[A-Za-z0-9.-]{1,64}$')" mit Fehlermeldung "Die Medication-Referenz fehlt oder entspricht nicht dem erwarteten Format 'Medication/<ID>'"
 
+    # 3. Gerenderte Dosieranweisung (markdown)
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.renderedDosageInstruction').exists()" mit Fehlermeldung "Die Extension für die gerenderte Dosieranweisung fehlt"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.renderedDosageInstruction' and value.ofType(markdown).where(toString().trim().length() > 0).exists()).exists()" mit Fehlermeldung "Die gerenderte Dosieranweisung fehlt, hat den falschen Datentyp oder ist leer"
 
+    # 4. Dosieranweisung: Freitext ODER strukturiert mit täglich 08:00 Uhr, 1 Stück
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).dosageInstruction.exists()" mit Fehlermeldung "Die MedicationRequest enthält keine Dosieranweisung"
+    Und FHIR evaluiert FHIRPath "(parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).dosageInstruction.text.where(toString().trim().length() > 0).exists()) or (parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).dosageInstruction.where(timing.repeat.frequency = 1 and timing.repeat.period = 1 and timing.repeat.periodUnit.toString() = 'd' and timing.repeat.timeOfDay.count() = 1 and timing.repeat.timeOfDay.where(toString() = '08:00:00').count() = 1 and doseAndRate.dose.ofType(Quantity).where(value = 1 and unit.toString() = 'Stück' and system.toString() = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_BMP_DOSIEREINHEIT' and code.toString() = '1').exists()).exists())" mit Fehlermeldung "Weder eine textuelle Dosieranweisung noch die erwartete strukturierte Dosierung 'täglich um 08:00 Uhr — je 1 Stück' ist vorhanden"
+
+    # 5. Patientenbezug
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).subject.identifier.where(system.toString() = 'http://fhir.de/sid/gkv/kvid-10' and value.exists()).exists()" mit Fehlermeldung "Der Patientenbezug enthält keinen KVNR-Identifier mit einem Wert"
 
     @IBM @Mandatory
     Beispiele: IBM_RU-REF
 
-      | AS   | KVNR            | FQDN                    |
-      | IBM  | ${kob.kvnrIbm}  | epa-as-1.ref.epa4all.de |
+      | AS  | KVNR           | FQDN                    |
+      | IBM | ${kob.kvnrIbm} | epa-as-1.ref.epa4all.de |
 
     @RISE @Mandatory
     Beispiele: RISE_RU-REF

@@ -1,5 +1,8 @@
 # Release Notes KOB Testsuite
 
+## Release 2.0.0-RC3 (ePA 3.1.3)
+* Validation for add-eML, add-eMP, and update-eMP now supports both XML and JSON formats.
+
 ## Release 2.0.0-RC2 (ePA 3.1.3)
 * Fixed Docker startup failures caused by complex Cucumber tag expressions by using CUCUMBER_FILTER_TAGS instead of MAVEN_OPTS.
 

@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 1: eMP-Eintrag hinzufügen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC2"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC3"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 1: eMP-Eintrag hinzufügen (<AS>)
@@ -57,119 +57,93 @@ Funktion: KOB Testfall 1: eMP-Eintrag hinzufügen
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.header.[~'content-type']" überein mit "(application\/fhir\+json|application\/fhir\+xml)"
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.body" überein mit ".*"
 
-    # eMP Eintrag
-    Und TGR current request at "$.body.decrypted.body.parameter.[?(@..name=='empEntry')].resource.extension.[?(@..url =$ 'context-extension')]" matches as JSON:
-    """
-    {
-      "url" : "https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension",
-      "valueCode" : "EMP"
-    }
-    """
+    # Grundstruktur: Parameters mit MedicationRequest und Medication
+    Und FHIR evaluiert FHIRPath "($this is Parameters) and parameter.resource.ofType(MedicationRequest).exists() and parameter.part.resource.ofType(Medication).exists()" mit Fehlermeldung "Der Request enthält nicht die erwarteten Ressourcen vom Typ Parameters, MedicationRequest und Medication"
 
-    # 1. Indikation (ICD-10-Code): I11
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@..name=='empEntry')].resource.reasonCode.[?(@..system=$'icd-10-gm')].coding.[?(@..system=$'icd-10-gm')].code" matches "I11"
+    # Profil: Parameters
+    Und FHIR evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-add-emp-entry-input-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eMP-Eintrag hinzufügen'"
+
+    # Profil: Medication
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/emp-medication')).exists()" mit Fehlermeldung "Die Medication deklariert nicht das erwartete EMPMedication-Profil"
+
+    # MedicationRequest.intent = 'plan'
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).intent.exists()" mit Fehlermeldung "Das Element 'intent' der MedicationRequest fehlt"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).where(intent.toString() = 'plan').exists()" mit Fehlermeldung "Das Element 'intent' entspricht nicht dem erwarteten Wert 'plan'"
+
+    # Kontext-Extension: MedicationRequest = 'EMP'
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension').exists()" mit Fehlermeldung "Die EMP-Kontext-Extension fehlt in der MedicationRequest"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension' and value.ofType(code) = 'EMP').exists()" mit Fehlermeldung "Die EMP-Kontext-Extension in MedicationRequest enthält nicht den erwarteten Code 'EMP'"
+
+    # Kontext-Extension: Medication = 'EMP'
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension').exists()" mit Fehlermeldung "Die EMP-Kontext-Extension fehlt in der Medication"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension' and value.ofType(code) = 'EMP').exists()" mit Fehlermeldung "Die EMP-Kontext-Extension in Medication enthält nicht den erwarteten Code 'EMP'"
+
+    # 1. Indikation (ICD-10-GM): I11
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).reasonCode.exists()" mit Fehlermeldung "Die MedicationRequest enthält keine Indikation in 'reasonCode'"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).reasonCode.coding.where(system = 'http://fhir.de/CodeSystem/bfarm/icd-10-gm').exists()" mit Fehlermeldung "Die MedicationRequest enthält keine ICD-10-GM-Codierung"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).reasonCode.coding.where(system = 'http://fhir.de/CodeSystem/bfarm/icd-10-gm' and code = 'I11').exists()" mit Fehlermeldung "Die ICD-10-GM-Codierung enthält nicht den erwarteten Code 'I11'"
 
     # 2. Grund (Freitext): Bluthochdruck
-    Und TGR current request at "$.body.decrypted.body.parameter.[?(@..name=='empEntry')].resource.extension.[?(@..url =$ 'reason-patient-instruction-extension')]" matches as JSON:
-    """
-    {
-      "url" : "https://gematik.de/fhir/epa-medication/StructureDefinition/reason-patient-instruction-extension",
-      "valueString" : "Bluthochdruck"
-    }
-    """
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/reason-patient-instruction-extension').exists()" mit Fehlermeldung "Die Extension für den Begründungstext fehlt"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/reason-patient-instruction-extension' and value.ofType(string).exists()).exists()" mit Fehlermeldung "Die Extension für den Begründungstext enthält keinen Wert vom Typ string"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/reason-patient-instruction-extension' and value.ofType(string) = 'Bluthochdruck').exists()" mit Fehlermeldung "Der Begründungstext entspricht nicht dem erwarteten Wert 'Bluthochdruck'"
 
-    # 3. Dosierangabe (strukturiert oder Freitext)
-    Und TGR current request at "$.body.decrypted.body.parameter.[?(@..name=='empEntry')].resource.extension.[?(@..url =$ 'renderedDosageInstruction')]" matches as JSON:
-    """
-    {
-      "url" : "http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.renderedDosageInstruction",
-      "valueMarkdown" : "${json-unit.ignore}"
-    }
-    """
-    Und KOB current request with attribute "$.body.decrypted.body.parameter.[?(@..name=='empEntry')].resource.dosageInstruction.[*].text" matches ".*" or at "$.body.decrypted.body.parameter.[?(@..name=='empEntry')].resource.dosageInstruction.[*]" matches as JSON:
-    """
-    {
-      "timing" : {
-        "repeat" : {
-          "frequency" : 2,
-          "period" : 1,
-          "periodUnit" : "d",
-          "when" : [
-            "MORN",
-            "EVE"
-          ]
-        }
-      },
-      "doseAndRate" : [
-        {
-          "doseQuantity" : {
-            "value" : 1,
-            "unit" : "Stück",
-            "system" : "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_BMP_DOSIEREINHEIT",
-            "code" : "1"
-          }
-        }
-      ]
-    }
-    """
+    # 3. Gerenderte Dosieranweisung (markdown)
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.renderedDosageInstruction').exists()" mit Fehlermeldung "Die Extension für die gerenderte Dosieranweisung fehlt"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.renderedDosageInstruction' and value.ofType(markdown).where(toString().trim().length() > 0).exists()).exists()" mit Fehlermeldung "Die gerenderte Dosieranweisung fehlt, hat den falschen Datentyp oder ist leer"
 
-    # 4. Hinweis für Versicherten (Freitext)
-    Und TGR current request at "$.body.decrypted.body.parameter.[?(@..name=='empEntry')].resource.extension.[?(@..url =$ 'patient-note-extension')]" matches as JSON:
-    """
-    {
-      "url" : "https://gematik.de/fhir/epa-medication/StructureDefinition/patient-note-extension",
-      "valueAnnotation" : {
-      "text" : "kann Schwindel verursachen"
-      }
-    }
-    """
+    # 4. Dosieranweisung (strukturiert oder Freitext)
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).dosageInstruction.exists()" mit Fehlermeldung "Die MedicationRequest enthält keine Dosieranweisung"
+    Und FHIR evaluiert FHIRPath "(parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).dosageInstruction.text.where(toString().trim().length() > 0).exists()) or (parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).dosageInstruction.where(timing.repeat.frequency = 2 and timing.repeat.period = 1 and timing.repeat.periodUnit = 'd' and timing.repeat.when.count() = 2 and timing.repeat.when.where($this = 'MORN').count() = 1 and timing.repeat.when.where($this = 'EVE').count() = 1 and doseAndRate.dose.ofType(Quantity).where(value = 1 and unit = 'Stück' and system = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_BMP_DOSIEREINHEIT' and code = '1').exists()).exists())" mit Fehlermeldung "Weder textuelle noch strukturierte Dosieranweisung vorhanden"
 
-    # 5. Hinweis für Mitbehandelnde (Freitext)
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@..name=='empEntry')].resource.note.[*].text" matches "Hinweis für den LE"
+    # 5. Hinweis für Versicherte
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/patient-note-extension').exists()" mit Fehlermeldung "Die Extension für den Hinweis für Versicherte fehlt"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/patient-note-extension' and value.ofType(Annotation).text.toString().trim().length() > 0).exists()" mit Fehlermeldung "Hinweis für Versicherte fehlt oder ist leer"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/patient-note-extension' and value.ofType(Annotation).text = 'kann Schwindel verursachen').exists()" mit Fehlermeldung "Der Hinweis für Versicherte entspricht nicht dem erwarteten Wert 'kann Schwindel verursachen'"
 
-    # 6. Status (Medication Status Code)
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@..name=='empEntry')].resource.status" matches "active"
+    # 6. Hinweis für Mitbehandelnde
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).note.where(text.exists()).exists()" mit Fehlermeldung "Hinweis für Mitbehandelnde fehlt vollständig"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).note.where(text = 'Hinweis für den LE').exists()" mit Fehlermeldung "Der Hinweis für Mitbehandelnde entspricht nicht dem erwarteten Wert 'Hinweis für den LE'"
 
-    # 7. Anwendungszeitraum (Startdatum, Enddatum): entspricht Regex
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@..name=='empEntry')].resource.extension.[?(@..url =$ 'effectiveDosePeriod')].valuePeriod.start" matches "^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?$"
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@..name=='empEntry')].resource.extension.[?(@..url =$ 'effectiveDosePeriod')].valuePeriod.end" matches "^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?$"
+    # 7. Status = 'active'
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).status.exists()" mit Fehlermeldung "Der Status der MedicationRequest fehlt"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).where(status.toString() = 'active').exists()" mit Fehlermeldung "Der Status entspricht nicht dem erwarteten Wert 'active'"
 
-    # 8. Medikation-Angaben - Handelsname (Freitext, PZN falls vorhanden)
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@..name=='medication')].part.[?(@..resource.resourceType=='Medication')].resource.code.text" matches "(?i).*Benazepril.*"
-    Und KOB current request with optional attribute "$.body.decrypted.body.parameter.[?(@..name=='medication')].part.[?(@..resource.resourceType=='Medication')].resource.code.coding.[?(@..system =$ 'pzn')]" matches as JSON :
-    """
-    {
-      "system" : "http://fhir.de/CodeSystem/ifa/pzn",
-      "code" : "04351736",
-      "display" : "Benazepril AL 20 mg Filmtabletten 98 Stk."
-    }
-    """
+    # 8. Anwendungszeitraum (Period mit start/end)
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.effectiveDosePeriod').exists()" mit Fehlermeldung "Die Extension für den Anwendungszeitraum fehlt"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.effectiveDosePeriod').value.ofType(Period).exists()" mit Fehlermeldung "Die Extension für den Anwendungszeitraum enthält keinen Wert vom Typ Period"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.effectiveDosePeriod').value.ofType(Period).start.exists()" mit Fehlermeldung "Das Startdatum des Anwendungszeitraums fehlt"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.effectiveDosePeriod').value.ofType(Period).end.exists()" mit Fehlermeldung "Das Enddatum des Anwendungszeitraums fehlt"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.effectiveDosePeriod').value.ofType(Period).where(start <= end).exists()" mit Fehlermeldung "Das Startdatum des Anwendungszeitraums liegt nach dem Enddatum"
 
-    # 8. Medikation-Angaben - Wirkstoff (ASK/ATC)
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@..name=='medication')].part.[?(@..resource.resourceType=='Medication')].resource.ingredient.[*].itemCodeableConcept.text" matches "Benazepril hydrochlorid"
+    # Anwendungszeitraum: Datumsformat-Validierung
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.effectiveDosePeriod').value.ofType(Period).start.toString().matches('^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?$')" mit Fehlermeldung "Anwendungszeitraum: Startdatum hat ungültiges Format"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.effectiveDosePeriod').value.ofType(Period).end.toString().matches('^([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]+)?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?$')" mit Fehlermeldung "Anwendungszeitraum: Enddatum hat ungültiges Format"
 
-    # 8. Medikation-Angaben - Wirkstärke (strukturiert oder Freitext)
-    Und KOB current request with attribute "$.body.decrypted.body.parameter.[?(@..name=='medication')].part.[?(@..resource.resourceType=='Medication')].resource.ingredient.[*].strength.extension.[?(@..url =$ 'amount-extension')].valueString" matches ".*(?i)20 ?mg.*" or at "$.body.decrypted.body.parameter.[?(@..name=='medication')].part.[?(@..resource.resourceType=='Medication')].resource.ingredient.[*].strength" matches as JSON:
-    """
-    {
-      "numerator" : {
-        "value" : 20,
-        "unit" : "mg"
-      }
-    }
-    """
+    # 9. Handelsname (Freitext)
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.exists()" mit Fehlermeldung "Die Medication enthält keine Arzneimittelbezeichnung in 'code'"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.text.exists()" mit Fehlermeldung "Der Handelsname der Medication fehlt"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.text.where(matches('(?i).*Benazepril.*')).exists()" mit Fehlermeldung "Der Handelsname enthält nicht den erwarteten Text 'Benazepril'"
 
-    # 8. Medikation-Angaben - Darreichungsform (KBV Darreichungsform)
-    Und TGR current request at "$.body.decrypted.body.parameter.[?(@..name=='medication')].part.[?(@..resource.resourceType=='Medication')].resource.form" matches as JSON:
-    """
-    {
-      "coding" : [ {
-        "system" : "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM",
-        "code" : "FTA",
-        "display" : "FTA|Filmtablette[n]?|Filmtabl\\."
-      } ]
-    }
-    """
+    # 10. PZN (optional, aber falls vorhanden korrekt)
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn').empty() or (parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn').count() = 1 and parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn' and code = '04351736' and display = 'Benazepril AL 20 mg Filmtabletten 98 Stk.').count() = 1)" mit Fehlermeldung "Die angegebene PZN-Codierung entspricht nicht den erwarteten Werten"
+
+    # 11. Wirkstoff (ASK-Code 22686)
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.exists()" mit Fehlermeldung "Die Medication enthält keinen Wirkstoff"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.where(item.ofType(CodeableConcept).text = 'Benazepril hydrochlorid' and item.ofType(CodeableConcept).coding.where(system = 'http://fhir.de/CodeSystem/ask' and code = '22686').exists()).exists()" mit Fehlermeldung "Kein Wirkstoff enthält die Bezeichnung 'Benazepril hydrochlorid' und den ASK-Code '22686'"
+
+    # 12. Wirkstärke (20 mg strukturiert oder Freitext)
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.strength.exists()" mit Fehlermeldung "Für den Wirkstoff ist keine Wirkstärke angegeben"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.where(strength.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-ingredient-amount-extension' and value.ofType(string).where(matches('(?i).*20\\s*mg.*')).exists()).exists() or (strength.numerator.value = 20 and strength.numerator.unit.toString().matches('(?i)^mg$') and strength.denominator.value = 1 and strength.denominator.unit = 'Tbl.')).exists()" mit Fehlermeldung "Die Wirkstärke entspricht weder der erwarteten Freitextangabe '20 mg' noch dem erwarteten strukturierten Verhältnis '20 mg pro Tablette'"
+
+    # 13. Darreichungsform (KBV: FTA)
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).form.exists()" mit Fehlermeldung "Die Darreichungsform der Medication fehlt"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).form.coding.where(system = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM').exists()" mit Fehlermeldung "Die Darreichungsform enthält keine Codierung aus dem erwarteten KBV-Codesystem"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).form.coding.where(system = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM' and code = 'FTA' and display.where(matches('^(FTA|Filmtablette[n]?|Filmtabl\\.)$')).exists()).exists()" mit Fehlermeldung "Die Darreichungsform entspricht nicht dem erwarteten Code 'FTA' und der erwarteten Bezeichnung"
+
+    # 14. Medication-Referenz (relativ)
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).medication.reference.exists()" mit Fehlermeldung "Die Medication-Referenz fehlt in der MedicationRequest"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).medication.reference.where(matches('^Medication/.+$')).exists()" mit Fehlermeldung "Die Medication-Referenz entspricht nicht dem erwarteten Format 'Medication/<ID>'"
 
     @IBM @Mandatory
     Beispiele: IBM_RU-REF

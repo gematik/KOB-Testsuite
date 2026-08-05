@@ -350,9 +350,13 @@ image::/doc/img/docker_desktop_volumes.png[Download Test Report ZIP über Docker
 
 === Upload bei TITUS
 
-Loggen Sie sich in Ihren Account auf dem Titus Bestätigungsportal (https://titus.gematik.solutions) ein und laden Sie die entsprechenden Prüfnachweise im Bestätigungsantrag hoch.
-Für das Hochladen nutzen sie den Dialog "Nachweise für das Bestätigungsverfahren", wo der Testreport als ZIP Datei ausgewählt werden kann.
-Im Anschluss starten Sie den Bestätigungsnachweis über TITUS.
+Loggen Sie sich in Ihren Account auf dem Titus Bestätigungsportal (https://titus.gematik.solutions) und öffnen Sie den Dialog „Neue Bestätigung“. Wählen Sie dort:
+
+- als Bestätigungsmodul: ePA,
+- die passende Modulausprägung für den ePA Medication Service,
+- die zugehörige Version.
+
+Klicken Sie anschließend auf „Bestätigungsauftrag anlegen“. Der Testreport soll als ZIP-Datei hochgeladen werden.
 
 image::/doc/img/upload_dialog_titus.png[Upload Dialog in TITUS]
 
