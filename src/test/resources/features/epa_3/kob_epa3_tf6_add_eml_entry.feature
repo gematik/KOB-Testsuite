@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 6: eML-Eintrag hinzufügen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC2"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC3"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 6: eML-Eintrag hinzufügen (<AS>)
@@ -54,82 +54,59 @@ Funktion: KOB Testfall 6: eML-Eintrag hinzufügen
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.header.[~'content-type']" überein mit "(application\/fhir\+json|application\/fhir\+xml)"
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.body" überein mit ".*"
 
-    # eML Eintrag - manuell (nicht über E-Rezept Fachdienst)
-    Und TGR current request at "$.body.decrypted.body.parameter.[?(@..name=='medicationStatement')].resource.extension.[?(@..url =$ 'context-extension')]" matches as JSON:
-    """
-    {
-      "url" : "https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension",
-      "valueCode" : "MANUAL"
-    }
-    """
+    # Grundstruktur: Parameters mit MedicationStatement und Medication
+    Und FHIR evaluiert FHIRPath "($this is Parameters) and parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).exists() and parameter.where(name = 'medication').resource.ofType(Medication).exists()" mit Fehlermeldung "Der Request enthält nicht die erwarteten Ressourcen vom Typ Parameters, MedicationStatement und Medication"
 
-    # 1. Dosierangabe (strukturiert oder Freitext)
-    Und TGR current request at "$.body.decrypted.body.parameter.[?(@..name=='medicationStatement')].resource.extension.[?(@..url =$ 'renderedDosageInstruction')]" matches as JSON:
-    """
-    {
-      "url" : "http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationStatement.renderedDosageInstruction",
-      "valueMarkdown" : "${json-unit.ignore}"
-    }
-    """
-    Und KOB current request with attribute "$.body.decrypted.body.parameter.[?(@..name=='empEntry')].resource.dosage.[*].text" matches ".*" or at "$.body.decrypted.body.parameter.[?(@..name=='medicationStatement')].resource.dosage.[*]" matches as JSON:
-    """
-    {
-      "timing" : {
-        "repeat" : {
-          "frequency" : 4,
-          "period" : 1,
-          "periodUnit" : "d",
-          "when" : [ "MORN","NOON","EVE","NIGHT" ]
-        }
-      },
-      "doseAndRate" : [
-        {
-          "doseQuantity" : {
-            "value" : 1,
-            "unit" : "Stück",
-            "system" : "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_BMP_DOSIEREINHEIT",
-            "code" : "1"
-          }
-        }
-      ]
-    }
-    """
-    # 2. Medikation-Angaben - Handelsname (Freitext, PZN falls vorhanden)
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@..name=='medication')].resource.code.text" matches "(?i).*Benazepril.*"
-    Und KOB current request with optional attribute "$.body.decrypted.body.parameter.[?(@..name=='medication')].resource.code.coding.[?(@..system =$ 'pzn')]" matches as JSON :
-    """
-    {
-      "system" : "http://fhir.de/CodeSystem/ifa/pzn",
-      "code" : "04351682",
-      "display" : "Benazepril AL 5 mg Filmtabletten 98 Stk."
-     }
-    """
+    # Profil: Parameters für add-eML-entry
+    Und FHIR evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-add-eml-entry-input-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eML-Eintrag hinzufügen'"
 
-    # 2. Medikation-Angaben - Wirkstoff (ASK/ATC)
-    Und TGR current request with attribute "$.body.decrypted.body.parameter.[?(@..name=='medication')].resource.ingredient.[*].itemCodeableConcept.text" matches "Benazepril hydrochlorid"
+    # Profil: MedicationStatement
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-medication-statement')).exists()" mit Fehlermeldung "Das MedicationStatement deklariert nicht das erwartete EPAMedicationStatement-Profil"
 
-    # 2. Medikation-Angaben - Wirkstärke (strukturiert oder Freitext)
-    Und KOB current request with attribute "$.body.decrypted.body.parameter.[?(@..name=='medication')].resource.ingredient.[*].strength.extension.[?(@..url =$ 'amount-extension')].valueString" matches ".*(?i)5 ?mg.*" or at "$.body.decrypted.body.parameter.[?(@..name=='medication')].resource.ingredient.[*].strength" matches as JSON:
-    """
-    {
-      "numerator" : {
-        "value" : 5,
-        "unit" : "mg"
-      }
-    }
-    """
+    # Profil: Medication
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-medication')).exists()" mit Fehlermeldung "Die Medication deklariert nicht das erwartete EPAMedication-Profil"
 
-    # 2. Medikation-Angaben - Darreichungsform (KBV Darreichungsform)
-    Und TGR current request at "$.body.decrypted.body.parameter.[?(@..name=='medication')].resource.form" matches as JSON:
-    """
-    {
-      "coding" : [ {
-        "system" : "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM",
-        "code" : "FTA",
-        "display" : "FTA|Filmtablette[n]?|Filmtabl\\."
-      } ]
-    }
-    """
+    # eML-Eintrag wurde manuell erstellt
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension').exists()" mit Fehlermeldung "Die Kontext-Extension fehlt im MedicationStatement"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension' and value.ofType(code).toString() = 'MANUAL').exists()" mit Fehlermeldung "Die Kontext-Extension des MedicationStatement enthält nicht den erwarteten Code 'MANUAL'"
+
+    # 1. Gerenderte Dosieranweisung
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationStatement.renderedDosageInstruction').exists()" mit Fehlermeldung "Die Extension für die gerenderte Dosieranweisung fehlt"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationStatement.renderedDosageInstruction' and value.ofType(markdown).where(toString().trim().length() > 0).exists()).exists()" mit Fehlermeldung "Die gerenderte Dosieranweisung fehlt, hat den falschen Datentyp oder ist leer"
+
+    # 2. Dosieranweisung: strukturiert oder Freitext
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).dosage.exists()" mit Fehlermeldung "Das MedicationStatement enthält keine Dosieranweisung"
+    Und FHIR evaluiert FHIRPath "(parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).dosage.text.where(toString().trim().length() > 0).exists()) or (parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).dosage.where(timing.repeat.frequency = 4 and timing.repeat.period = 1 and timing.repeat.periodUnit.toString() = 'd' and timing.repeat.when.count() = 4 and timing.repeat.when.where(toString() = 'MORN').count() = 1 and timing.repeat.when.where(toString() = 'NOON').count() = 1 and timing.repeat.when.where(toString() = 'EVE').count() = 1 and timing.repeat.when.where(toString() = 'NIGHT').count() = 1 and doseAndRate.dose.ofType(Quantity).where(value = 1 and unit.toString() = 'Stück' and system.toString() = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_BMP_DOSIEREINHEIT' and code.toString() = '1').exists()).exists())" mit Fehlermeldung "Weder eine textuelle Dosierung noch die erwartete strukturierte Dosierung '1-1-1-1 Stück' ist vorhanden"
+
+    # 3. Handelsname
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).code.exists()" mit Fehlermeldung "Die Medication enthält keine Arzneimittelbezeichnung in 'code'"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).code.text.where(matches('(?i).*Benazepril.*')).exists()" mit Fehlermeldung "Der Handelsname fehlt oder enthält nicht den erwarteten Text 'Benazepril'"
+
+    # 4. PZN: optional, aber falls vorhanden mit erwarteten Testdaten
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).code.coding.where(system.toString() = 'http://fhir.de/CodeSystem/ifa/pzn').empty() or (parameter.where(name = 'medication').resource.ofType(Medication).code.coding.where(system.toString() = 'http://fhir.de/CodeSystem/ifa/pzn').count() = 1 and parameter.where(name = 'medication').resource.ofType(Medication).code.coding.where(system.toString() = 'http://fhir.de/CodeSystem/ifa/pzn' and code.toString() = '04351682' and display.toString() = 'Benazepril AL 5 mg Filmtabletten 98 Stk.').count() = 1)" mit Fehlermeldung "Die angegebene PZN-Codierung entspricht nicht den erwarteten Werten"
+
+    # 5. Wirkstoff: Benazepril hydrochlorid mit ASK-Code 22686
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.exists()" mit Fehlermeldung "Die Medication enthält keinen Wirkstoff"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.where(item.ofType(CodeableConcept).text.toString() = 'Benazepril hydrochlorid' and item.ofType(CodeableConcept).coding.where(system.toString() = 'http://fhir.de/CodeSystem/ask' and code.toString() = '22686').exists()).exists()" mit Fehlermeldung "Kein Wirkstoff enthält die Bezeichnung 'Benazepril hydrochlorid' und den ASK-Code '22686'"
+
+    # 6. Wirkstärke: 5 mg strukturiert oder Freitext
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.strength.exists()" mit Fehlermeldung "Für den Wirkstoff ist keine Wirkstärke angegeben"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.where((strength.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-ingredient-amount-extension').value.ofType(string).where(matches('(?i).*5\\s*mg.*')).exists()) or (strength.numerator.value = 5 and strength.numerator.unit.toString().matches('(?i)^mg$') and strength.denominator.value = 1 and strength.denominator.unit.toString() = 'Tbl.')).exists()" mit Fehlermeldung "Die Wirkstärke entspricht weder der erwarteten Freitextangabe '5 mg' noch dem erwarteten strukturierten Verhältnis '5 mg pro Tablette'"
+
+    # 7. Darreichungsform: KBV FTA
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).form.exists()" mit Fehlermeldung "Die Darreichungsform der Medication fehlt"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).form.coding.where(system.toString() = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM').exists()" mit Fehlermeldung "Die Darreichungsform enthält keine Codierung aus dem erwarteten KBV-Codesystem"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).form.coding.where(system.toString() = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM' and code.toString() = 'FTA' and display.toString().matches('^(FTA|Filmtablette[n]?|Filmtabl\\.)$')).exists()" mit Fehlermeldung "Die Darreichungsform entspricht nicht dem erwarteten Code 'FTA' und der erwarteten Bezeichnung"
+
+    # 8. Medication-Referenz im MedicationStatement
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).medication.reference.exists()" mit Fehlermeldung "Die Medication-Referenz fehlt im MedicationStatement"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).medication.reference.where(matches('^Medication/[A-Za-z0-9.-]{1,64}$')).exists()" mit Fehlermeldung "Die Medication-Referenz entspricht nicht dem erwarteten Format 'Medication/<ID>'"
+
+    # 9. Medication-Referenz verweist auf die enthaltene Medication
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).medication.reference.toString() = ('Medication/' + parameter.where(name = 'medication').resource.ofType(Medication).id.toString())" mit Fehlermeldung "Die Medication-Referenz im MedicationStatement verweist nicht auf die im Request enthaltene Medication"
+
+    # 10. Patientenbezug
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).subject.identifier.where(system.toString() = 'http://fhir.de/sid/gkv/kvid-10' and value.exists()).exists()" mit Fehlermeldung "Der Patientenbezug enthält keinen KVNR-Identifier mit einem Wert"
 
     @IBM @Mandatory
     Beispiele: IBM_RU-REF

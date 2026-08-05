@@ -22,7 +22,7 @@
 
     <groupId>de.gematik</groupId>
     <artifactId>kob-testsuite</artifactId>
-    <version>2.0.0-RC2</version>
+    <version>2.0.0-RC3</version>
     <packaging>jar</packaging>
     <description>KOB Testsuite fuer PS Hersteller</description>
 
@@ -35,9 +35,13 @@
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <openapi-generator-maven-plugin.version>7.23.0</openapi-generator-maven-plugin.version>
         <tiger.version>4.3.2</tiger.version>
+        <tiger.fhir.version>1.2.15</tiger.fhir.version>
+<!--        <tiger.fhir.version>1.2.18-SNAPSHOT</tiger.fhir.version>-->
+        <tiger-testsuite-validator.version>1.1.9</tiger-testsuite-validator.version>
         <jacoco.version>0.8.15</jacoco.version>
         <lombok.version>1.18.46</lombok.version>
         <logback.version>1.6.1</logback.version>
+        <exec-maven-plugin.version>3.6.3</exec-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -55,6 +59,11 @@
             <groupId>de.gematik.test</groupId>
             <artifactId>tiger-test-lib</artifactId>
             <version>${tiger.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.gematik.test.tiger</groupId>
+            <artifactId>tiger-on-fhir</artifactId>
+            <version>${tiger.fhir.version}</version>
         </dependency>
         <!-- Dependencies for API code generation -->
         <dependency>
@@ -169,6 +178,7 @@
                         <configuration>
                             <glues>
                                 <glue>de.gematik.test.tiger.glue</glue>
+                                <glue>de.gematik.test.tiger.glue.fhir</glue>
                             </glues>
                         </configuration>
                     </execution>
@@ -386,6 +396,50 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>validate-test-report</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>${exec-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>validate-report</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>de.gematik.test.tiger.validator.MainZipsValidatorChecker</mainClass>
+                                    <arguments>
+                                        <!-- To be set via command line or in Jenkins -->
+                                        <!--suppress UnresolvedMavenProperty -->
+                                        <argument>${validate-report.bundle}</argument>
+                                        <!--suppress UnresolvedMavenProperty -->
+                                        <argument>${validate-report.report}</argument>
+                                    </arguments>
+                                    <executableDependency>
+                                        <groupId>de.gematik.test</groupId>
+                                        <artifactId>tiger-testsuite-validator</artifactId>
+                                    </executableDependency>
+                                    <includePluginDependencies>true</includePluginDependencies>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>de.gematik.test</groupId>
+                                <artifactId>tiger-testsuite-validator</artifactId>
+                                <version>${tiger-testsuite-validator.version}</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                 </plugins>
             </build>

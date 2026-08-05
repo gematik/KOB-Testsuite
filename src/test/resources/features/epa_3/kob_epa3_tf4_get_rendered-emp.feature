@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 4: Medikationsplan gerendert anzeigen (PDF)
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC2"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC3"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 4: Medikationsplan gerendert anzeigen (PDF) (<AS>)

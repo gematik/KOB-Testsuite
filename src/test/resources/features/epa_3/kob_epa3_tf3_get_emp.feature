@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 3: Medikationsplan anzeigen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC2"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC3"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 3: Medikationsplan anzeigen (<AS>)
