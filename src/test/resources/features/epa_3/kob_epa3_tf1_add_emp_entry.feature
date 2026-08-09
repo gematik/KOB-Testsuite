@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 1: eMP-Eintrag hinzufügen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC3"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC5"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 1: eMP-Eintrag hinzufügen (<AS>)
@@ -58,13 +58,16 @@ Funktion: KOB Testfall 1: eMP-Eintrag hinzufügen
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.body" überein mit ".*"
 
     # Grundstruktur: Parameters mit MedicationRequest und Medication
-    Und FHIR evaluiert FHIRPath "($this is Parameters) and parameter.resource.ofType(MedicationRequest).exists() and parameter.part.resource.ofType(Medication).exists()" mit Fehlermeldung "Der Request enthält nicht die erwarteten Ressourcen vom Typ Parameters, MedicationRequest und Medication"
+    Und FHIR evaluiert FHIRPath "($this is Parameters) and parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).count() = 1 and parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).count() = 1" mit Fehlermeldung "Der Request enthält nicht genau einen Parameter 'empEntry' mit MedicationRequest und einen Parameter 'medication' mit Medication-Ressource"
 
     # Profil: Parameters
     Und FHIR evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-add-emp-entry-input-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eMP-Eintrag hinzufügen'"
 
     # Profil: Medication
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/emp-medication')).exists()" mit Fehlermeldung "Die Medication deklariert nicht das erwartete EMPMedication-Profil"
+
+    # Profil: MedicationRequest
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/emp-medication-request')).exists()" mit Fehlermeldung "Die MedicationRequest deklariert nicht das erwartete EMPMedicationRequest-Profil"
 
     # MedicationRequest.intent = 'plan'
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).intent.exists()" mit Fehlermeldung "Das Element 'intent' der MedicationRequest fehlt"
@@ -99,11 +102,11 @@ Funktion: KOB Testfall 1: eMP-Eintrag hinzufügen
     # 5. Hinweis für Versicherte
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/patient-note-extension').exists()" mit Fehlermeldung "Die Extension für den Hinweis für Versicherte fehlt"
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/patient-note-extension' and value.ofType(Annotation).text.toString().trim().length() > 0).exists()" mit Fehlermeldung "Hinweis für Versicherte fehlt oder ist leer"
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/patient-note-extension' and value.ofType(Annotation).text = 'kann Schwindel verursachen').exists()" mit Fehlermeldung "Der Hinweis für Versicherte entspricht nicht dem erwarteten Wert 'kann Schwindel verursachen'"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/patient-note-extension' and value.ofType(Annotation).text.toString().matches('(?i).*Schwindel verursachen.*')).exists()" mit Fehlermeldung "Der Hinweis für Versicherte enthält nicht den erwarteten Inhalt 'Schwindel verursachen'"
 
     # 6. Hinweis für Mitbehandelnde
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).note.where(text.exists()).exists()" mit Fehlermeldung "Hinweis für Mitbehandelnde fehlt vollständig"
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).note.where(text = 'Hinweis für den LE').exists()" mit Fehlermeldung "Der Hinweis für Mitbehandelnde entspricht nicht dem erwarteten Wert 'Hinweis für den LE'"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).note.where(text = 'Hinweis für LE').exists()" mit Fehlermeldung "Der Hinweis für Mitbehandelnde entspricht nicht dem erwarteten Wert 'Hinweis für LE'"
 
     # 7. Status = 'active'
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).status.exists()" mit Fehlermeldung "Der Status der MedicationRequest fehlt"
@@ -126,7 +129,7 @@ Funktion: KOB Testfall 1: eMP-Eintrag hinzufügen
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.text.where(matches('(?i).*Benazepril.*')).exists()" mit Fehlermeldung "Der Handelsname enthält nicht den erwarteten Text 'Benazepril'"
 
     # 10. PZN (optional, aber falls vorhanden korrekt)
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn').empty() or (parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn').count() = 1 and parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn' and code = '04351736' and display = 'Benazepril AL 20 mg Filmtabletten 98 Stk.').count() = 1)" mit Fehlermeldung "Die angegebene PZN-Codierung entspricht nicht den erwarteten Werten"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn').empty() or (parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn').count() = 1 and parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn' and code = '04351736').count() = 1)" mit Fehlermeldung "Die angegebene PZN-Codierung entspricht nicht den erwarteten Werten"
 
     # 11. Wirkstoff (ASK-Code 22686)
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.exists()" mit Fehlermeldung "Die Medication enthält keinen Wirkstoff"
@@ -134,12 +137,12 @@ Funktion: KOB Testfall 1: eMP-Eintrag hinzufügen
 
     # 12. Wirkstärke (20 mg strukturiert oder Freitext)
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.strength.exists()" mit Fehlermeldung "Für den Wirkstoff ist keine Wirkstärke angegeben"
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.where(strength.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-ingredient-amount-extension' and value.ofType(string).where(matches('(?i).*20\\s*mg.*')).exists()).exists() or (strength.numerator.value = 20 and strength.numerator.unit.toString().matches('(?i)^mg$') and strength.denominator.value = 1 and strength.denominator.unit = 'Tbl.')).exists()" mit Fehlermeldung "Die Wirkstärke entspricht weder der erwarteten Freitextangabe '20 mg' noch dem erwarteten strukturierten Verhältnis '20 mg pro Tablette'"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.where(strength.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-ingredient-amount-extension' and value.ofType(string).where(matches('(?i).*20\\s*mg.*')).exists()).exists() or (strength.numerator.value = 20 and strength.numerator.unit.toString().matches('(?i)^mg$') and strength.denominator.value = 1)).exists()" mit Fehlermeldung "Die Wirkstärke entspricht weder der erwarteten Freitextangabe '20 mg' noch dem erwarteten strukturierten Verhältnis mit 20 mg und der Bezugsmenge 1"
 
     # 13. Darreichungsform (KBV: FTA)
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).form.exists()" mit Fehlermeldung "Die Darreichungsform der Medication fehlt"
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).form.coding.where(system = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM').exists()" mit Fehlermeldung "Die Darreichungsform enthält keine Codierung aus dem erwarteten KBV-Codesystem"
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).form.coding.where(system = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM' and code = 'FTA' and display.where(matches('^(FTA|Filmtablette[n]?|Filmtabl\\.)$')).exists()).exists()" mit Fehlermeldung "Die Darreichungsform entspricht nicht dem erwarteten Code 'FTA' und der erwarteten Bezeichnung"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).form.coding.where(system = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM' and code = 'FTA' and (display.empty() or display.matches('(?i)^(FTA|Filmtablette[n]?|Filmtabl[.])$'))).exists()" mit Fehlermeldung "Die Darreichungsform enthält nicht den erwarteten KBV-Code 'FTA' oder ein vorhandenes display ist ungültig"
 
     # 14. Medication-Referenz (relativ)
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).medication.reference.exists()" mit Fehlermeldung "Die Medication-Referenz fehlt in der MedicationRequest"

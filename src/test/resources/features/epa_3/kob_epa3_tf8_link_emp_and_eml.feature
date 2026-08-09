@@ -1,21 +1,24 @@
 # language: de
-@Mandatory @KOB @EPA_3_1_3 @PVS @ZPVS @KIS @AVS @Pflege
-Funktion: KOB Testfall 7: Medikationsliste anzeigen
+@KOB @EPA_3_1_3 @PVS @ZPVS @KIS @AVS
+Funktion: KOB Testfall 8: eML-eMP-Verknüpfung hinzufügen (manuell)
 
   Grundlage:
     Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC5"
     Gegeben sei KOB finde Aktensystem
 
-  Szenariogrundriss: Testfall 7: Medikationsliste anzeigen (<AS>)
-  Getestete Anforderungen: IG-MED05461W2P
-  Die Operation Medikationsliste anzeigen ermöglicht den gezielten Abruf einer konsolidierten FHIR-Darstellung der elektronischen Medikationsliste (eML).
+  Szenariogrundriss: Testfall 8: eML-eMP-Verknüpfung hinzufügen (manuell)  (<AS>)
+  Getestete Anforderungen: IG-MED18027VAP, IG-MED68008AH6
+  Die Operation eML-eMP Verknüpfung hinzufügen ermöglicht dem Primärsystem einen eML-Eintrag mit einem eMP-Eintrag zu
+  verknüpfen. Die Einträge werden verknüpft, indem das angegebene MedicationStatment mit dem eMP hinter dem übergebenen
+  MedicationPlanIdentifier verlinkt werden. Wie bei allen Änderungen des eMP muss der Request die neuste ChronologyProvenanceID
+  mitliefern um zu beweisen, dass die aktuellste Version genutzt wird.
 
     # Bereite Testumgebung vor
     Gegeben sei TGR lösche aufgezeichnete Nachrichten
     Und TGR lösche die benutzerdefinierte Fehlermeldung
 
-    # Wir triggern den Abruf des Medikationsplans im vorgegebenen Format
-    Wenn KOB rufe die Medikationsliste mit der FHIR Operation im Aktensystem "<AS>" für das Aktenkonto des Patienten "<KVNR>" ab
+    # Wir fragen an, dass die eML und eMP mit den angegebenen IDs verknüpft
+    Wenn KOB verknüpfe im Aktensystem "<AS>" einen eML-Eintrag mit einem eMP-Eintrag des Patienten "<KVNR>"
 
     # Zunächst überprüfen wir, ob grundsätzlich Verkehr gefunden werden kann und er den Mindestanforderungen entspricht
     Dann TGR die Fehlermeldung wird gesetzt auf: "Es konnte kein Verkehr gefunden werden! Bitte überprüfen Sie, ob der Verkehr tatsächlich über Tiger geroutet wird."
@@ -28,8 +31,8 @@ Funktion: KOB Testfall 7: Medikationsliste anzeigen
     Und TGR current request with attribute "$.body.header.pu" matches "0"
     Und TGR lösche die benutzerdefinierte Fehlermeldung
 
-    ### Wir überprüfen noch den Verkehr des Abrufs der Medikationsliste. Dazu müssen wir zunächst die Anfrage zum Abruf finden
-    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "^\/epa\/medication\/api\/v1\/fhir\/\$medication-list$" übereinstimmt
+    ### Wir überprüfen den Verkehr des Verlinken der eML-eMP
+    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "^/epa/medication/api/v1/fhir/MedicationStatement/[^/]+/\$link-emp(\?.*)?$" übereinstimmt
 
     # Nun prüfen wir die Struktur der äußeren Anfrage
     Dann TGR current request with attribute "$.method" matches "POST"
@@ -38,8 +41,9 @@ Funktion: KOB Testfall 7: Medikationsliste anzeigen
     Und TGR current request with attribute "$.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
 
     # Und nun die Struktur der inneren Anfrage (der VAU-verschlüsselte HTTP-Request)
-    Und TGR current request with attribute "$.body.decrypted.method" matches "GET"
+    Und TGR current request with attribute "$.body.decrypted.method" matches "POST"
     Und TGR current request with attribute "$.body.decrypted.header.[~'accept']" matches "(application\/fhir\+json|application\/fhir\+xml)"
+    Und TGR current request with attribute "$.body.decrypted.header.[~'X-Requesting-Organization']" matches ".*"
     Und TGR current request with attribute "$.body.decrypted.header.[~'X-Request-ID']" matches "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     Und TGR current request with attribute "$.body.decrypted.header.[~'x-insurantid']" matches "<KVNR>"
     Und TGR current request with attribute "$.body.decrypted.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
@@ -52,6 +56,21 @@ Funktion: KOB Testfall 7: Medikationsliste anzeigen
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.responseCode" überein mit "200"
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.header.[~'content-type']" überein mit "(application\/fhir\+json|application\/fhir\+xml)"
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.body" überein mit ".*"
+
+   # Grundstruktur: Parameters mit genau zwei Parametern
+    Und FHIR evaluiert FHIRPath "($this is Parameters) and parameter.count() = 2" mit Fehlermeldung "Der Request ist keine Parameters-Ressource oder enthält nicht genau zwei Parameter"
+
+   # Profil: Link-eMP-Operation
+    Und FHIR evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-link-emp-entry-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eML-Eintrag mit eMP-Eintrag verknüpfen'"
+
+   # medicationPlanIdentifier
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationPlanIdentifier').count() = 1" mit Fehlermeldung "Der Parameter 'medicationPlanIdentifier' muss genau einmal vorhanden sein"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationPlanIdentifier').value.ofType(Identifier).where(system.toString() = 'https://gematik.de/fhir/sid/emp-identifier' and value.toString().matches('^[A-Za-z0-9.-]{1,64}$')).exists()" mit Fehlermeldung "Der medicationPlanIdentifier muss ein Identifier mit System 'https://gematik.de/fhir/sid/emp-identifier' und gültigem Werteformat sein"
+
+   # acknowledgedChronologyId
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'acknowledgedChronologyId').count() = 1" mit Fehlermeldung "Der Parameter 'acknowledgedChronologyId' muss genau einmal vorhanden sein"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'acknowledgedChronologyId').value.ofType(id).exists() and parameter.where(name = 'acknowledgedChronologyId').value.ofType(id).toString().matches('^[A-Za-z0-9.-]{1,64}$')" mit Fehlermeldung "Der acknowledgedChronologyId hat nicht den erwarteten Datentyp id oder ein ungültiges Format"
+
 
     @IBM @Mandatory
     Beispiele: IBM_RU-REF

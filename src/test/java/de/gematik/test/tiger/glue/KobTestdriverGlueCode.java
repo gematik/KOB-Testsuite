@@ -176,6 +176,33 @@ public class KobTestdriverGlueCode {
             + " herunter.");
   }
 
+  @Wenn("KOB verknüpfe im Aktensystem {tigerResolvedString} einen eML-Eintrag mit einem eMP-Eintrag des Patienten {tigerResolvedString}")
+  public void kobLinkmedicationListandMedicationPlanEntries(String aktenSystem, String kvnr) {
+    executeTestdriverAction(
+            () -> {
+              throw new PendingException("Not yet implemented");
+            },
+            "Verknüpfen Sie für den Patienten mit der KVNR "
+                    + kvnr
+                    + " im Aktensystem "
+                    + aktenSystem
+                    + " einen Eintrag der Medikationsliste mit einem Medikationsplan-Eintrag.");
+  }
+
+
+    @Wenn("KOB entferne im Aktensystem {tigerResolvedString} einen eML-Eintrag von einem eMP-Eintrag des Patienten {tigerResolvedString}")
+    public void kobEntferneImAktensystemEinenEMLEintragVonEinemEMPEintragDesPatienten(String aktenSystem, String kvnr) {
+        executeTestdriverAction(
+                () -> {
+                    throw new PendingException("Not yet implemented");
+                },
+                "Entfernen Sie für den Patienten mit der KVNR "
+                        + kvnr
+                        + " im Aktensystem "
+                        + aktenSystem
+                        + " die Verknüpfung zwischen Medikationslisten- und Medikationsplaneintrag wieder.");
+    }
+
   private void executeTestdriverAction(Runnable testdriverAction, String message) {
     if (useTestdriver.getValueOrDefault()) {
       testdriverAction.run();
@@ -363,6 +390,25 @@ public class KobTestdriverGlueCode {
                     "</div>");
   }
 
+    @Wenn("KOB storniere einen neuen eMP-Eintrag im Aktensystem {tigerResolvedString} für das Aktenkonto des Patienten {tigerResolvedString}")
+    public void kobCancelEmpEntry(String aktenSystem, String kvnr) {
+        executeTestdriverAction(
+                () -> {
+                    throw new PendingException("Not yet implemented");
+                },
+                "<div style=\"text-align: left;\">" +
+                        "  <p><strong>Testszenario:</strong></p>" +
+                        "  <p>Das Primärsystem storniert einen fehlerhaften eMP-Eintrag.</p>" +
+                        "  <p>" +
+                        "    Stornieren Sie für den Patienten mit der KVNR " +
+                        "    <strong>" + kvnr + "</strong> im Aktensystem " +
+                        "    <strong>" + aktenSystem + "</strong> einen Medikationsplaneintrag, " +
+                        "    indem Sie dessen Status auf <code>entered-in-error</code> setzen." +
+                        "  </p>" +
+                        "</div>"
+        );
+    }
+
   @Wenn("KOB rufe den Medikationsplan als PDFA im Aktensystem {tigerResolvedString} für das Aktenkonto des Patienten {tigerResolvedString} ab")
   public void kobRetrieveMedicationPlanAsPDFA(String aktenSystem, String kvnr) {
     executeTestdriverAction(
@@ -376,4 +422,17 @@ public class KobTestdriverGlueCode {
                     + " als gerendertes PDF/A ab");
 
   }
+
+    @Wenn("KOB storniere einen eML-Eintrag mit der FHIR Operation im Aktensystem {tigerResolvedString} für das Aktenkonto des Patienten {tigerResolvedString}")
+    public void kobCancelEmlEntry(String aktenSystem, String kvnr) {
+        executeTestdriverAction(
+                () -> {
+                    throw new PendingException("Not yet implemented");
+                },
+                "Stornieren Sie für den Patienten "
+                        + kvnr
+                        + " im Aktensystem "
+                        + aktenSystem
+                        + " einen Medikationlisteneintrag (Operation $cancel-eml-entry).");
+    }
 }
