@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 6: eML-Eintrag hinzufügen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC3"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC5"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 6: eML-Eintrag hinzufügen (<AS>)
@@ -55,7 +55,7 @@ Funktion: KOB Testfall 6: eML-Eintrag hinzufügen
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.body" überein mit ".*"
 
     # Grundstruktur: Parameters mit MedicationStatement und Medication
-    Und FHIR evaluiert FHIRPath "($this is Parameters) and parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).exists() and parameter.where(name = 'medication').resource.ofType(Medication).exists()" mit Fehlermeldung "Der Request enthält nicht die erwarteten Ressourcen vom Typ Parameters, MedicationStatement und Medication"
+    Und FHIR evaluiert FHIRPath "($this is Parameters) and parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).count() = 1 and parameter.where(name = 'medication').resource.ofType(Medication).count() = 1" mit Fehlermeldung "Der Request enthält nicht genau einen Parameter 'medicationStatement' mit MedicationStatement und einen Parameter 'medication' mit Medication"
 
     # Profil: Parameters für add-eML-entry
     Und FHIR evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-add-eml-entry-input-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eML-Eintrag hinzufügen'"
@@ -91,12 +91,12 @@ Funktion: KOB Testfall 6: eML-Eintrag hinzufügen
 
     # 6. Wirkstärke: 5 mg strukturiert oder Freitext
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.strength.exists()" mit Fehlermeldung "Für den Wirkstoff ist keine Wirkstärke angegeben"
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.where((strength.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-ingredient-amount-extension').value.ofType(string).where(matches('(?i).*5\\s*mg.*')).exists()) or (strength.numerator.value = 5 and strength.numerator.unit.toString().matches('(?i)^mg$') and strength.denominator.value = 1 and strength.denominator.unit.toString() = 'Tbl.')).exists()" mit Fehlermeldung "Die Wirkstärke entspricht weder der erwarteten Freitextangabe '5 mg' noch dem erwarteten strukturierten Verhältnis '5 mg pro Tablette'"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.where(strength.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-ingredient-amount-extension' and value.ofType(string).where(matches('(?i).*5\\s*mg.*')).exists()).exists() or (strength.numerator.value = 5 and strength.numerator.unit.toString().matches('(?i)^mg$') and strength.denominator.value = 1)).exists()" mit Fehlermeldung "Die Wirkstärke entspricht weder der erwarteten Freitextangabe '5 mg' noch dem erwarteten strukturierten Verhältnis mit 5 mg und der Bezugsmenge 1"
 
     # 7. Darreichungsform: KBV FTA
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).form.exists()" mit Fehlermeldung "Die Darreichungsform der Medication fehlt"
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).form.coding.where(system.toString() = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM').exists()" mit Fehlermeldung "Die Darreichungsform enthält keine Codierung aus dem erwarteten KBV-Codesystem"
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).form.coding.where(system.toString() = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM' and code.toString() = 'FTA' and display.toString().matches('^(FTA|Filmtablette[n]?|Filmtabl\\.)$')).exists()" mit Fehlermeldung "Die Darreichungsform entspricht nicht dem erwarteten Code 'FTA' und der erwarteten Bezeichnung"
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).form.coding.where(system = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM' and code = 'FTA' and (display.empty() or display.matches('(?i)^(FTA|Filmtablette[n]?|Filmtabl[.])$'))).exists()" mit Fehlermeldung "Die Darreichungsform enthält nicht den erwarteten KBV-Code 'FTA' oder ein vorhandenes display ist ungültig"
 
     # 8. Medication-Referenz im MedicationStatement
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).medication.reference.exists()" mit Fehlermeldung "Die Medication-Referenz fehlt im MedicationStatement"

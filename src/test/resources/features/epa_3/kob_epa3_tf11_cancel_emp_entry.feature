@@ -1,23 +1,21 @@
 # language: de
 @Mandatory @KOB @EPA_3_1_3 @PVS @ZPVS @KIS @AVS
-Funktion: KOB Testfall 2: eMP-Eintrag aktualisieren
+Funktion: KOB Testfall 11: eMP-Eintrag stornieren
 
   Grundlage:
     Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC5"
     Gegeben sei KOB finde Aktensystem
 
-  Szenariogrundriss: Testfall 2: eMP-Eintrag aktualisieren (nach Anweisung) (<AS>)
-  Getestete Anforderungen: IG-MED04646V85, IG-MED15823A2P
-  Die Operation eMP-Eintrag aktualisieren dient der gezielten Aktualisierung eines bestehenden Medikationseintrags im elektronischen Medikationsplan (eMP).
-  Sie ermöglicht es, inhaltliche Änderungen an einer bereits dokumentierten Medikation vorzunehmen – beispielsweise um eine Notiz zu ergänzen,
-  eine Dosierung zu verändern oder den Status des Eintrags zu aktualisieren.
+  Szenariogrundriss: Testfall 11: eMP-Eintrag stornieren (<AS>)
+  Getestete Anforderungen: IG-MED04646V85 (Status-Änderung)
+  Die Operation eMP-Eintrag stornieren dient der gezielten Stornierung eines bestehenden Medikationseintrags im elektronischen Medikationsplan (eMP).
 
     # Bereite Testumgebung vor
     Gegeben sei TGR lösche aufgezeichnete Nachrichten
     Und TGR lösche die benutzerdefinierte Fehlermeldung
 
-    # Wir triggern das Aktualisieren eines existierenden eMP-Eintrags im vorgegebenen Format
-    Wenn KOB aktualisiere einen neuen eMP-Eintrag im Aktensystem "<AS>" für das Aktenkonto des Patienten "<KVNR>"
+    # Wir triggern das Stornieren eines existierenden eMP-Eintrags im vorgegebenen Format
+    Wenn KOB storniere einen neuen eMP-Eintrag im Aktensystem "<AS>" für das Aktenkonto des Patienten "<KVNR>"
 
     # Zunächst überprüfen wir, ob grundsätzlich Verkehr gefunden werden kann und er den Mindestanforderungen entspricht
     Dann TGR die Fehlermeldung wird gesetzt auf: "Es konnte kein Verkehr gefunden werden! Bitte überprüfen Sie, ob der Verkehr tatsächlich über Tiger geroutet wird."
@@ -60,7 +58,7 @@ Funktion: KOB Testfall 2: eMP-Eintrag aktualisieren
     # Grundstruktur: Parameters mit genau einer MedicationRequest in empEntry
     Und FHIR evaluiert FHIRPath "($this is Parameters) and parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).count() = 1 and parameter.where(name = 'medicationPlanIdentifier').value.ofType(Identifier).count() = 1" mit Fehlermeldung "Der Request enthält nicht genau einen Parameter 'empEntry' mit MedicationRequest und einen Parameter 'medicationPlanIdentifier' mit Identifier"
 
-   # Profil: Parameters
+     # Profil: Parameters
     Und FHIR evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-update-emp-entry-input-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eMP-Eintrag aktualisieren'"
 
     # Profil: MedicationRequest
@@ -82,19 +80,11 @@ Funktion: KOB Testfall 2: eMP-Eintrag aktualisieren
    # MedicationRequest.intent = 'plan'
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).intent.toString() = 'plan'" mit Fehlermeldung "Das Element 'intent' fehlt oder entspricht nicht dem erwarteten Wert 'plan'"
 
-    # 1. Status = 'on-hold'
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).status.toString() = 'on-hold'" mit Fehlermeldung "Der Status fehlt oder entspricht nicht dem erwarteten Wert 'on-hold'"
+    # 1. Status = 'entered-in-error'
+    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).status.toString() = 'entered-in-error'" mit Fehlermeldung "Der Status fehlt oder entspricht nicht dem erwarteten Wert 'entered-in-error'"
 
     # 2. Medication-Referenz
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).medication.reference.toString().matches('^Medication/[A-Za-z0-9.-]{1,64}$')" mit Fehlermeldung "Die Medication-Referenz fehlt oder entspricht nicht dem erwarteten Format 'Medication/<ID>'"
-
-    # 3. Gerenderte Dosieranweisung (markdown)
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.renderedDosageInstruction').exists()" mit Fehlermeldung "Die Extension für die gerenderte Dosieranweisung fehlt"
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.renderedDosageInstruction' and value.ofType(markdown).where(toString().trim().length() > 0).exists()).exists()" mit Fehlermeldung "Die gerenderte Dosieranweisung fehlt, hat den falschen Datentyp oder ist leer"
-
-    # 4. Dosieranweisung: Freitext ODER strukturiert mit täglich 08:00 Uhr, 1 Stück
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).dosageInstruction.exists()" mit Fehlermeldung "Die MedicationRequest enthält keine Dosieranweisung"
-    Und FHIR evaluiert FHIRPath "(parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).dosageInstruction.text.where(toString().trim().length() > 0).exists()) or (parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).dosageInstruction.where(timing.repeat.frequency = 1 and timing.repeat.period = 1 and timing.repeat.periodUnit.toString() = 'd' and timing.repeat.timeOfDay.count() = 1 and timing.repeat.timeOfDay.where(toString() = '08:00:00').count() = 1 and doseAndRate.dose.ofType(Quantity).where(value = 1 and unit.toString() = 'Stück' and system.toString() = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_BMP_DOSIEREINHEIT' and code.toString() = '1').exists()).exists())" mit Fehlermeldung "Weder eine textuelle Dosieranweisung noch die erwartete strukturierte Dosierung 'täglich um 08:00 Uhr — je 1 Stück' ist vorhanden"
 
     # 5. Patientenbezug
     Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).subject.identifier.where(system.toString() = 'http://fhir.de/sid/gkv/kvid-10' and value.exists()).exists()" mit Fehlermeldung "Der Patientenbezug enthält keinen KVNR-Identifier mit einem Wert"

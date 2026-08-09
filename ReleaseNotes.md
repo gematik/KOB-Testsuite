@@ -1,5 +1,13 @@
 # Release Notes KOB Testsuite
 
+## Release 2.0.0-RC5 (ePA 3.1.3)
+**Note:** Version 2.0.0-RC4 was skipped due to missing version tag updates in feature files and docker-compose.
+
+* Improved FHIRPath validation
+* Refined validation rules: removed the fixed Tbl. unit, made display optional, and aligned text checks with the test instructions
+* Updated tiger-on-fhir to version 1.2.17
+* Added test cases 8, 9, 10, 11
+
 ## Release 2.0.0-RC3 (ePA 3.1.3)
 * Validation for add-eML, add-eMP, and update-eMP now supports both XML and JSON formats.
 
