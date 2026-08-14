@@ -24,13 +24,13 @@ package de.gematik.test.tiger.glue;
  * #L%
  */
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.BinaryNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import de.gematik.rbellogger.facets.jackson.RbelCborFacet;
 import de.gematik.test.tiger.lib.rbel.RbelMessageRetriever;
 import io.cucumber.java.de.Gegebensei;
 import io.cucumber.java.en.When;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.BinaryNode;
+import tools.jackson.databind.node.StringNode;
 
 public class SupportGlueCode {
 
@@ -48,7 +48,7 @@ public class SupportGlueCode {
   public void the_current_request_at_node_has_a_cbor_byte_string(String rbelPath) {
     final JsonNode node = extractJacksonNodeFromCurrentRequest(rbelPath);
 
-    if (node instanceof TextNode) {
+    if (node instanceof StringNode) {
       throw new AssertionError("CBOR byte string at path: " + rbelPath + " is a TextNode but expected a BinaryNode");
     } else if (!(node instanceof BinaryNode)) {
       throw new AssertionError("CBOR byte string at path: " + rbelPath + " is not a BinaryNode");
@@ -59,9 +59,9 @@ public class SupportGlueCode {
   public void the_current_request_at_node_has_a_cbor_byte_string_with_length(String rbelPath, Integer length) {
     final JsonNode node = extractJacksonNodeFromCurrentRequest(rbelPath);
 
-    if (node instanceof TextNode) {
-      throw new AssertionError("CBOR byte string at path: " + rbelPath + " is a TextNode but expected a BinaryNode");
-    } else if (node instanceof BinaryNode binaryNode) {
+    if (node instanceof tools.jackson.databind.node.StringNode) {
+      throw new AssertionError("CBOR byte string at path: " + rbelPath + " is a StringNode but expected a BinaryNode");
+    } else if (node instanceof tools.jackson.databind.node.BinaryNode binaryNode) {
       final byte[] cbor = binaryNode.binaryValue();
       if (cbor.length != length) {
         throw new AssertionError(
@@ -77,6 +77,6 @@ public class SupportGlueCode {
       .orElseThrow(() -> new AssertionError("Element not found in tree at path: " + rbelPath))
       .getParentNode().getFacet(RbelCborFacet.class)
       .orElseThrow(() -> new AssertionError("Element at path: " + rbelPath + " does not have a CBOR facet"))
-      .getNode();
+            .getNode();
   }
 }

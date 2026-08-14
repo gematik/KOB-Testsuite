@@ -190,28 +190,7 @@ Sollten sich die Aktensysteme nicht direkt erreichen lassen, sondern nur über e
 
 == 3. Tests konfigurieren
 
-In der Datei `.env` (Root-Verzeichnis) legen Sie über die Variable `TESTSUITE_TESTS` fest, welches Primärsystem getestet wird und welche Tests ausgeführt werden.
-
-=== Primärsystem-Tag wählen
-
-Jeder Hersteller muss den Tag seines Primärsystems zusammen mit `@KOB` angeben:
-
-* `@PVS` – Praxis-Verwaltungssystem
-* `@KIS` – Krankenhaus-Informationssystem
-* `@ZPVS` – Zahnarzt-Praxisverwaltungssystem
-* `@AVS` – Apotheken-Verwaltungssystem
-* `@Pflege` – Pflege-System
-
-[NOTE]
-====
-Der Tag `@KOB` ist bei allen Testfällen standardmäßig gesetzt und kennzeichnet die verpflichtenden Tests. Er muss immer mit Ihrem Primärsystem-Tag kombiniert werden.
-====
-
-.Beispiel für ein PVS
-[source,properties]
-----
-TESTSUITE_TESTS=@KOB and @PVS
-----
+In der Datei `.env` (Root-Verzeichnis) ist über die Variable `TESTSUITE_TESTS` festgelegt, dass die KOB-Testsuite standardmäßig alle verpflichtenden Testfälle einbezieht, die mit dem Tag `@KOB` versehen sind.
 
 === Testumfang nach Zielgruppe
 
@@ -244,11 +223,12 @@ Für spezifische Funktionsbereiche können zusätzliche Tags kombiniert werden:
 * `@information-record-status` – Aktenkontolokalisierung
 * `@information-consent-decisions` – Abfrage der Zustimmung
 * `@entitlement` – Einstellen einer Befugnis
+* `@eml_download` – Download der eML
 
-.Beispiel: Nur Login-Tests für PVS
+.Beispiel: Zusätzliche Auswahlmöglichkeit des Login-Tests
 [source,properties]
 ----
-TESTSUITE_TESTS=@KOB and @PVS and @login
+TESTSUITE_TESTS=@KOB and @login
 ----
 
 == 4. Testsuite starten
@@ -444,7 +424,7 @@ Am Beispiel der Operation $add-emp-entry zeigt die folgende Tabelle, in welchen 
 
 |Hinweis für Mitbehandelnde
 |`note.text`
-|`Hinweis für den LE`
+|`Hinweis für LE`
 
 |Status des eMP-Eintrags
 |`status`
@@ -479,7 +459,7 @@ Am Beispiel der Operation $add-emp-entry zeigt die folgende Tabelle, in welchen 
 
 |Wirkstoff (ASK)
 |`ingredient.itemCodeableConcept.coding.where(system = 'http://fhir.de/CodeSystem/ask').code`
-|`22686`
+|`23413`
 
 |Wirkstoff
 |`ingredient.itemCodeableConcept.text`

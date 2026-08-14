@@ -1,9 +1,9 @@
 # language: de
-@Mandatory @KOB @EPA_3_1_3 @PVS @ZPVS @KIS @AVS @Pflege
+@Mandatory @KOB @EPA_3_1_3
 Funktion: KOB Testfall 5: eMP-Chronologie abrufen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC5"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC6"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 5: eMP-Chronologie abrufen (<AS>)

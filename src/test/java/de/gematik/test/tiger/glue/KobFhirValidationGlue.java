@@ -60,8 +60,8 @@ public class KobFhirValidationGlue {
         this.netTracer = new NetTracer();
     }
 
-    @Then("FHIR evaluates the FHIRPath {tigerResolvedString} with error message {tigerResolvedString}")
-    @Und("FHIR evaluiert FHIRPath {tigerResolvedString} mit Fehlermeldung {tigerResolvedString}")
+    @Then("FHIR request evaluates the FHIRPath {tigerResolvedString} with error message {tigerResolvedString}")
+    @Und("FHIR request evaluiert FHIRPath {tigerResolvedString} mit Fehlermeldung {tigerResolvedString}")
     public void tgrCurrentRequestWithDefaultsEvaluatesTheFhirPath(
             final String fhirPath,
             final String errorMessage) {
@@ -137,6 +137,90 @@ public class KobFhirValidationGlue {
 
         return netTracer
                 .getCurrentRequestsRawStringByRbelPath(rbelPath)
+                .filter(value -> !value.isBlank())
+                .orElseThrow(
+                        () -> new AssertionError(
+                                errorMessagePrefix + rbelPath));
+    }
+
+
+    @Then("FHIR response evaluates the FHIRPath {tigerResolvedString} with error message {tigerResolvedString}")
+    @Und("FHIR response evaluiert FHIRPath {tigerResolvedString} mit Fehlermeldung {tigerResolvedString}")
+    public void tgrCurrentResponseWithDefaultsEvaluatesTheFhirPath(
+            final String fhirPath,
+            final String errorMessage) {
+        tgrCurrentResponseWithContentTypeAtEvaluatesTheFhirPath(
+                DEFAULT_BODY_PATH,
+                DEFAULT_CONTENT_TYPE_PATH,
+                fhirPath,
+                errorMessage);
+    }
+
+    @Then(
+            "FHIR current response at {tigerResolvedString} with content type at {tigerResolvedString}"
+                    + " evaluates the FHIRPath {tigerResolvedString} with error message {tigerResolvedString}")
+    @Dann(
+            "FHIR die aktuelle Antwort im Knoten {tigerResolvedString} mit Content-Type im Knoten {tigerResolvedString}"
+                    + " den FHIRPath {tigerResolvedString} mit der Fehlermeldung {tigerResolvedString} erfüllt")
+    public void tgrCurrentResponseWithContentTypeAtEvaluatesTheFhirPath(
+            final String rbelPath,
+            final String contentTypePath,
+            final String fhirPath,
+            final String errorMessage) {
+
+        final String resolvedRbelPath =
+                TigerGlobalConfiguration.resolvePlaceholders(rbelPath);
+
+        final String resolvedContentTypePath =
+                TigerGlobalConfiguration.resolvePlaceholders(contentTypePath);
+
+        final String resolvedFhirPath =
+                TigerGlobalConfiguration.resolvePlaceholders(fhirPath);
+
+        final String resolvedErrorMessage =
+                TigerGlobalConfiguration.resolvePlaceholders(errorMessage);
+
+        log.info(
+                "Validiere FHIR-Resource bei '{}' mit Content-Type aus '{}'",
+                resolvedRbelPath,
+                resolvedContentTypePath);
+
+        final String contentType =
+                findRequiredResponseElement(
+                        resolvedContentTypePath,
+                        "Kein Content-Type in der aktuellen Response gefunden unter RBEL-Pfad: ");
+
+        final String fhirResourceString =
+                findRequiredResponseElement(
+                        resolvedRbelPath,
+                        "Keine FHIR-Resource in der aktuellen Response gefunden unter RBEL-Pfad: ");
+
+        final IBaseResource resource =
+                parseFhirResource(
+                        fhirResourceString,
+                        contentType,
+                        resolvedRbelPath,
+                        resolvedContentTypePath);
+
+        final List<Base> results =
+                evaluateFhirPath(resource, resolvedFhirPath);
+
+        assertBooleanResult(
+                results,
+                resolvedFhirPath,
+                resolvedErrorMessage);
+
+        log.info(
+                "FHIRPath erfolgreich validiert: {}",
+                resolvedFhirPath);
+    }
+
+
+    private String findRequiredResponseElement(
+            final String rbelPath,
+            final String errorMessagePrefix) {
+
+        return netTracer.getCurrentResponseRawStringByRbelPath(rbelPath)
                 .filter(value -> !value.isBlank())
                 .orElseThrow(
                         () -> new AssertionError(

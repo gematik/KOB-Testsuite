@@ -1,9 +1,9 @@
 # language: de
-@KOB @EPA_3_1_3 @PVS @ZPVS @KIS @AVS
+@Mandatory @KOB @EPA_3_1_3
 Funktion: KOB Testfall 9: eML-eMP-Verknüpfung entfernen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC5"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC6"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 9: eML-eMP-Verknüpfung entfernen (<AS>)
@@ -58,18 +58,18 @@ Funktion: KOB Testfall 9: eML-eMP-Verknüpfung entfernen
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.body" überein mit ".*"
 
    # Grundstruktur: Parameters mit genau zwei Parametern
-    Und FHIR evaluiert FHIRPath "($this is Parameters) and parameter.count() = 2" mit Fehlermeldung "Der Request ist keine Parameters-Ressource oder enthält nicht genau zwei Parameter"
+    Und FHIR request evaluiert FHIRPath "($this is Parameters) and parameter.count() = 2" mit Fehlermeldung "Der Request ist keine Parameters-Ressource oder enthält nicht genau zwei Parameter"
 
    # Profil: Unlink-eMP-Operation
-    Und FHIR evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-link-emp-entry-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eML-eMP-Verknüpfung entfernen'"
+    Und FHIR request evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-link-emp-entry-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eML-eMP-Verknüpfung entfernen'"
 
    # medicationPlanIdentifier
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationPlanIdentifier').count() = 1" mit Fehlermeldung "Der Parameter 'medicationPlanIdentifier' muss genau einmal vorhanden sein"
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationPlanIdentifier').value.ofType(Identifier).where(system.toString() = 'https://gematik.de/fhir/sid/emp-identifier' and value.toString().matches('^[A-Za-z0-9.-]{1,64}$')).exists()" mit Fehlermeldung "Der medicationPlanIdentifier muss ein Identifier mit System 'https://gematik.de/fhir/sid/emp-identifier' und gültigem Werteformat sein"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medicationPlanIdentifier').count() = 1" mit Fehlermeldung "Der Parameter 'medicationPlanIdentifier' muss genau einmal vorhanden sein"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medicationPlanIdentifier').value.ofType(Identifier).where(system.toString() = 'https://gematik.de/fhir/sid/emp-identifier' and value.toString().matches('^[A-Za-z0-9.-]{1,64}$')).exists()" mit Fehlermeldung "Der medicationPlanIdentifier muss ein Identifier mit System 'https://gematik.de/fhir/sid/emp-identifier' und gültigem Werteformat sein"
 
    # acknowledgedChronologyId
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'acknowledgedChronologyId').count() = 1" mit Fehlermeldung "Der Parameter 'acknowledgedChronologyId' muss genau einmal vorhanden sein"
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'acknowledgedChronologyId').value.ofType(id).exists() and parameter.where(name = 'acknowledgedChronologyId').value.ofType(id).toString().matches('^[A-Za-z0-9.-]{1,64}$')" mit Fehlermeldung "Der acknowledgedChronologyId hat nicht den erwarteten Datentyp id oder ein ungültiges Format"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'acknowledgedChronologyId').count() = 1" mit Fehlermeldung "Der Parameter 'acknowledgedChronologyId' muss genau einmal vorhanden sein"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'acknowledgedChronologyId').value.ofType(id).exists() and parameter.where(name = 'acknowledgedChronologyId').value.ofType(id).toString().matches('^[A-Za-z0-9.-]{1,64}$')" mit Fehlermeldung "Der acknowledgedChronologyId hat nicht den erwarteten Datentyp id oder ein ungültiges Format"
 
 
     @IBM @Mandatory

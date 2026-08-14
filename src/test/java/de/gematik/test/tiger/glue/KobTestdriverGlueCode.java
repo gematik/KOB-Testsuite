@@ -28,7 +28,7 @@ import static de.gematik.test.psTestdriver.dto.Status.SUCCESSFUL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import de.gematik.test.psTestdriver.KobEpa30Api;
 import de.gematik.test.psTestdriver.OptionalApi;
 import de.gematik.test.psTestdriver.dto.*;
@@ -56,6 +56,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
+import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 public class KobTestdriverGlueCode {
@@ -435,4 +436,20 @@ public class KobTestdriverGlueCode {
                         + aktenSystem
                         + " einen Medikationlisteneintrag (Operation $cancel-eml-entry).");
     }
+
+    @Wenn("KOB ein neues E-Rezept erstellt, übergibt er den eMP-Identifier aus dem EMP-Eintrag an das E-Rezept")
+    public void kobAddERezeptWithEmpIdentifier() {
+        String empId = TigerGlobalConfiguration.resolvePlaceholders("${kob.medicationPlanIdentifier}");
+        executeTestdriverAction(
+                () -> {
+                    throw new PendingException("Not yet implemented");
+                },
+                "<div style=\"text-align: left;\">"
+                        + "<p>Erstellen Sie auf Grundlage des eMP-Eintrags ein <strong>E-Rezept</strong>.</p>"
+                        + "<p>Übergeben Sie dabei im E-Rezept-Request den folgenden eMP-Identifier:</p>"
+                        + "<pre style=\"background:#f4f4f4;padding:8px;\">" + empId + "</pre>"
+                        + "<p><em>(Dieser Identifier muss als Extension <code>emp-identifier</code> im KBV-Bundle enthalten sein.)</em></p>"
+                        + "</div>");
+    }
+
 }

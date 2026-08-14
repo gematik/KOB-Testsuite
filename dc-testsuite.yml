@@ -2,7 +2,7 @@
 name: dc-testsuite-kob
 services:
   kob-testsuite:
-    image: gematik1/kob-testsuite:2.0.0-RC5
+    image: gematik1/kob-testsuite:2.0.0-RC6
     container_name: kob-testsuite
     environment:
       - CUCUMBER_FILTER_TAGS=${TESTSUITE_TESTS}

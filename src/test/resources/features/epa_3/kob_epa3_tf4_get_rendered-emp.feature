@@ -1,9 +1,9 @@
 # language: de
-@Mandatory @KOB @EPA_3_1_3 @PVS @ZPVS @KIS @AVS @Pflege
+@Mandatory @KOB @EPA_3_1_3
 Funktion: KOB Testfall 4: Medikationsplan gerendert anzeigen (PDF)
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC5"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC6"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 4: Medikationsplan gerendert anzeigen (PDF) (<AS>)
@@ -33,7 +33,8 @@ Funktion: KOB Testfall 4: Medikationsplan gerendert anzeigen (PDF)
 
 
     # Nun prüfen wir die Struktur der äußeren Anfrage
-    Dann TGR current request with attribute "$.method" matches "POST"
+    # Dann TGR current request with attribute "$.method" matches "POST"
+    Und TGR prüfe aktueller Request stimmt im Knoten "$.method" überein mit "POST"
     Und TGR current request with attribute "$.header.[~'content-type']" matches "application/octet-stream"
     Und TGR current request with attribute "$.header.[~'host']" matches "<FQDN>.*"
     Und TGR current request with attribute "$.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
