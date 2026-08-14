@@ -22,7 +22,7 @@
 
     <groupId>de.gematik</groupId>
     <artifactId>kob-testsuite</artifactId>
-    <version>2.0.0-RC5</version>
+    <version>2.0.0-RC6</version>
     <packaging>jar</packaging>
     <description>KOB Testsuite fuer PS Hersteller</description>
 
@@ -34,7 +34,7 @@
         <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <openapi-generator-maven-plugin.version>7.23.0</openapi-generator-maven-plugin.version>
-        <tiger.version>4.3.2</tiger.version>
+        <tiger.version>4.4.1</tiger.version>
         <tiger.fhir.version>1.2.17</tiger.fhir.version>
         <tiger-testsuite-validator.version>1.1.9</tiger-testsuite-validator.version>
         <jacoco.version>0.8.15</jacoco.version>
@@ -46,9 +46,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
+                <groupId>de.gematik.test</groupId>
+                <artifactId>tiger-starter-parent</artifactId>
+                <version>${tiger.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -64,31 +66,11 @@
             <artifactId>tiger-on-fhir</artifactId>
             <version>${tiger.fhir.version}</version>
         </dependency>
-        <!-- Dependencies for API code generation -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.22.0</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-            <version>1.3.2</version>
-        </dependency>
+        <!-- Only dependency needed for OpenAPI code generation -->
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>jackson-databind-nullable</artifactId>
-            <version>0.2.10</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <version>4.0.9</version>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>4.0.5</version>
+            <version>0.2.11</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -97,6 +79,7 @@
             <version>${lombok.version}</version>
         </dependency>
     </dependencies>
+
 
     <build>
         <finalName>${project.artifactId}</finalName>
@@ -244,7 +227,7 @@
                         <configuration>
                             <inputSpec>${project.basedir}/src/main/resources/psTestdriver.yaml</inputSpec>
                             <generatorName>java</generatorName>
-                            <library>resttemplate</library>
+                            <library>restclient</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
                             <apiPackage>de.gematik.test.psTestdriver</apiPackage>
@@ -253,6 +236,7 @@
                                 <dateLibrary>java8</dateLibrary>
                                 <useBeanValidation>false</useBeanValidation>
                                 <interfaceOnly>true</interfaceOnly>
+                                <useJakartaEe>true</useJakartaEe>
                             </configOptions>
                         </configuration>
                     </execution>

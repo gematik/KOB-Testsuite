@@ -1,9 +1,9 @@
 # language: de
-@Mandatory @KOB @EPA_3_1_3 @PVS @ZPVS @KIS @AVS
+@Mandatory @KOB @EPA_3_1_3
 Funktion: KOB Testfall 11: eMP-Eintrag stornieren
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC5"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC6"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 11: eMP-Eintrag stornieren (<AS>)
@@ -56,38 +56,38 @@ Funktion: KOB Testfall 11: eMP-Eintrag stornieren
     Und TGR prüfe aktuelle Antwort stimmt im Knoten "$.body.decrypted.body" überein mit ".*"
 
     # Grundstruktur: Parameters mit genau einer MedicationRequest in empEntry
-    Und FHIR evaluiert FHIRPath "($this is Parameters) and parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).count() = 1 and parameter.where(name = 'medicationPlanIdentifier').value.ofType(Identifier).count() = 1" mit Fehlermeldung "Der Request enthält nicht genau einen Parameter 'empEntry' mit MedicationRequest und einen Parameter 'medicationPlanIdentifier' mit Identifier"
+    Und FHIR request evaluiert FHIRPath "($this is Parameters) and parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).count() = 1 and parameter.where(name = 'medicationPlanIdentifier').value.ofType(Identifier).count() = 1" mit Fehlermeldung "Der Request enthält nicht genau einen Parameter 'empEntry' mit MedicationRequest und einen Parameter 'medicationPlanIdentifier' mit Identifier"
 
      # Profil: Parameters
-    Und FHIR evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-update-emp-entry-input-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eMP-Eintrag aktualisieren'"
+    Und FHIR request evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-update-emp-entry-input-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eMP-Eintrag aktualisieren'"
 
     # Profil: MedicationRequest
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/emp-medication-request')).exists()" mit Fehlermeldung "Die MedicationRequest deklariert nicht das erwartete EMPMedicationRequest-Profil"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/emp-medication-request')).exists()" mit Fehlermeldung "Die MedicationRequest deklariert nicht das erwartete EMPMedicationRequest-Profil"
 
     # acknowledgedChronologyId: optional, aber falls vorhanden korrekt
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'acknowledgedChronologyId').empty() or (parameter.where(name = 'acknowledgedChronologyId').count() = 1 and parameter.where(name = 'acknowledgedChronologyId').value.ofType(id).count() = 1 and parameter.where(name = 'acknowledgedChronologyId').value.ofType(id).toString().matches('^[A-Za-z0-9.-]{1,64}$'))" mit Fehlermeldung "Der optionale Parameter 'acknowledgedChronologyId' hat nicht den erwarteten Datentyp oder ein ungültiges Format"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'acknowledgedChronologyId').empty() or (parameter.where(name = 'acknowledgedChronologyId').count() = 1 and parameter.where(name = 'acknowledgedChronologyId').value.ofType(id).count() = 1 and parameter.where(name = 'acknowledgedChronologyId').value.ofType(id).toString().matches('^[A-Za-z0-9.-]{1,64}$'))" mit Fehlermeldung "Der optionale Parameter 'acknowledgedChronologyId' hat nicht den erwarteten Datentyp oder ein ungültiges Format"
 
     # medicationPlanIdentifier
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'medicationPlanIdentifier').value.ofType(Identifier).where(system = 'https://gematik.de/fhir/sid/emp-identifier' and value.toString().trim().length() > 0).count() = 1" mit Fehlermeldung "Der medicationPlanIdentifier muss genau einmal als Identifier mit dem erwarteten System und einem nichtleeren Wert vorhanden sein"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medicationPlanIdentifier').value.ofType(Identifier).where(system = 'https://gematik.de/fhir/sid/emp-identifier' and value.toString().trim().length() > 0).count() = 1" mit Fehlermeldung "Der medicationPlanIdentifier muss genau einmal als Identifier mit dem erwarteten System und einem nichtleeren Wert vorhanden sein"
 
     # Kontext-Extension: MedicationRequest = 'EMP'
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension').exists()" mit Fehlermeldung "Die EMP-Kontext-Extension fehlt in der MedicationRequest"
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension' and value.ofType(code) = 'EMP').exists()" mit Fehlermeldung "Die EMP-Kontext-Extension in MedicationRequest enthält nicht den erwarteten Code 'EMP'"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension').exists()" mit Fehlermeldung "Die EMP-Kontext-Extension fehlt in der MedicationRequest"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension' and value.ofType(code) = 'EMP').exists()" mit Fehlermeldung "Die EMP-Kontext-Extension in MedicationRequest enthält nicht den erwarteten Code 'EMP'"
 
     # eMP-Identifier
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).identifier.where(system.toString() = 'https://gematik.de/fhir/sid/emp-identifier' and value.toString().matches('^[A-Za-z0-9.-]{1,64}$')).exists()" mit Fehlermeldung "Die MedicationRequest enthält keinen gültigen EMP-Identifier"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).identifier.where(system.toString() = 'https://gematik.de/fhir/sid/emp-identifier' and value.toString().matches('^[A-Za-z0-9.-]{1,64}$')).exists()" mit Fehlermeldung "Die MedicationRequest enthält keinen gültigen EMP-Identifier"
 
    # MedicationRequest.intent = 'plan'
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).intent.toString() = 'plan'" mit Fehlermeldung "Das Element 'intent' fehlt oder entspricht nicht dem erwarteten Wert 'plan'"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).intent.toString() = 'plan'" mit Fehlermeldung "Das Element 'intent' fehlt oder entspricht nicht dem erwarteten Wert 'plan'"
 
     # 1. Status = 'entered-in-error'
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).status.toString() = 'entered-in-error'" mit Fehlermeldung "Der Status fehlt oder entspricht nicht dem erwarteten Wert 'entered-in-error'"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).status.toString() = 'entered-in-error'" mit Fehlermeldung "Der Status fehlt oder entspricht nicht dem erwarteten Wert 'entered-in-error'"
 
     # 2. Medication-Referenz
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).medication.reference.toString().matches('^Medication/[A-Za-z0-9.-]{1,64}$')" mit Fehlermeldung "Die Medication-Referenz fehlt oder entspricht nicht dem erwarteten Format 'Medication/<ID>'"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).medication.reference.toString().matches('^Medication/[A-Za-z0-9.-]{1,64}$')" mit Fehlermeldung "Die Medication-Referenz fehlt oder entspricht nicht dem erwarteten Format 'Medication/<ID>'"
 
     # 5. Patientenbezug
-    Und FHIR evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).subject.identifier.where(system.toString() = 'http://fhir.de/sid/gkv/kvid-10' and value.exists()).exists()" mit Fehlermeldung "Der Patientenbezug enthält keinen KVNR-Identifier mit einem Wert"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).subject.identifier.where(system.toString() = 'http://fhir.de/sid/gkv/kvid-10' and value.exists()).exists()" mit Fehlermeldung "Der Patientenbezug enthält keinen KVNR-Identifier mit einem Wert"
 
     @IBM @Mandatory
     Beispiele: IBM_RU-REF

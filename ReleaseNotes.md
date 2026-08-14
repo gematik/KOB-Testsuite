@@ -1,5 +1,10 @@
 # Release Notes KOB Testsuite
 
+## Release 2.0.0-RC6 (ePA 3.1.3)
+* Added test case 12
+* Updated tiger on 4.4.1
+* Updated the ASK code for "Benazepril hydrochloride" from 22686 to 23413
+
 ## Release 2.0.0-RC5 (ePA 3.1.3)
 **Note:** Version 2.0.0-RC4 was skipped due to missing version tag updates in feature files and docker-compose.
 
