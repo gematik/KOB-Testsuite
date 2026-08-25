@@ -262,7 +262,7 @@ public class KobTestdriverGlueCode {
         "<div style=\"text-align: left;\">\n" +
                 "  <p>Fügen Sie für den Patienten mit der KVNR <strong>" + kvnr + "</strong> einen neuen eMP-Eintrag im Aktensystem <strong>" + aktenSystem + "</strong> hinzu:</p>\n" +
                 "  <ol>\n" +
-                "    <li>1. Indikation (ICD-10-Code): I11</li>\n" +
+                "    <li>1. Indikation (ICD-10-Code): I11 (Hypertensive Herzkrankheit)</li>\n" +
                 "    <li>2. Grund (Freitext): Bluthochdruck</li>\n" +
                 "    <li>3. Dosierangabe (strukturiert oder Freitext): 1-0-1-0 Stück</li>\n" +
                 "    <li>4. Hinweis für Versicherten (Freitext): Benazepril kann anfangs Schwindel verursachen</li>\n" +

@@ -283,19 +283,23 @@ Die Testdurchführung erfolgt über eine webbasierte Benutzeroberfläche (Workfl
 ----
 * Öffnen Sie den angezeigten Link manuell im Browser (hier: http://localhost:9020)
 
+**Zeitüberschreitung in der Workflow UI**
+
+Ein gestarteter und nicht weiter bedienter Testlauf wird von der Workflow UI nach fünf Stunden automatisch beendet. Die Ausführung endet dabei mit einer ConditionTimeoutException.
+Bei einem solchen Timeout werden keine Testberichte und kein Prüfnachweis-ZIP generiert. Um verwertbare Prüfnachweise zu erhalten, muss der Workflow daher innerhalb des Zeitlimits vollständig durchgeführt und regulär abgeschlossen werden.
 
 === Ablauf der Testdurchführung
 
 1. **Testfall auswählen**: In der WorkflowUI auf der linken Seite ganz oben auf das Tiger-Icon klicken und in der Übersicht den gewünschten Testfall auswählen
 2. **Aktensystem wählen**: IBM oder RISE Aktensystem als Testumgebung festlegen
-3. **Test starten**: Die Testsuite zeigt ein Dialogfenster mit der Testaufgabe und den erforderlichen Testdaten an (z.B. "Fügen Sie einen eMP-Eintrag mit folgenden Daten hinzu..." oder "Laden Sie die eML für folgende KVNR herunter...")
+3. **Test starten**: Die Testsuite zeigt ein Dialogfenster mit der Testaufgabe und den erforderlichen Testdaten an (z.B. "Fügen Sie für den Patienten mit der KVNR _<kvnr>_ einen neuen eMP-Eintrag im Aktensystem IBM hinzu: ...")
 4. **Aktion im Primärsystem ausführen**: Führen Sie die angeforderte Operation in Ihrem Primärsystem aus – die konkrete Bedienung ist systemabhängig
 5. **Continue**: Erst *nachdem* die Aktion vollständig ausgeführt wurde, klicken Sie auf "Continue"
 6. **Automatische Validierung**: Die Testsuite wertet nun die aufgezeichneten Requests aus und validiert diese gegen die KOB-Anforderungen
 
 [IMPORTANT]
 ====
-Klicken Sie erst auf "Continue", wenn die angeforderte Aktion vollständig ausgeführt wurde. Die Testsuite prüft dann alle zwischenzeitlich aufgezeichneten Nachrichten.
+Klicken Sie erst auf "Continue", wenn die angeforderte Aktion vollständig ausgeführt wurde. Die Testsuite prüft dann alle für den Test relevanten zwischenzeitlich aufgezeichneten Nachrichten.
 ====
 
 image::/doc/img/continue_dialog_testsuite.png[Continue Dialog in Testsuite]

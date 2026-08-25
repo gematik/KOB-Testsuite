@@ -22,7 +22,7 @@
 
     <groupId>de.gematik</groupId>
     <artifactId>kob-testsuite</artifactId>
-    <version>2.0.0-RC6</version>
+    <version>2.0.0-RC7</version>
     <packaging>jar</packaging>
     <description>KOB Testsuite fuer PS Hersteller</description>
 
@@ -36,7 +36,7 @@
         <openapi-generator-maven-plugin.version>7.23.0</openapi-generator-maven-plugin.version>
         <tiger.version>4.4.1</tiger.version>
         <tiger.fhir.version>1.2.17</tiger.fhir.version>
-        <tiger-testsuite-validator.version>1.1.9</tiger-testsuite-validator.version>
+        <tiger-testsuite-validator.version>1.2.0</tiger-testsuite-validator.version>
         <jacoco.version>0.8.15</jacoco.version>
         <lombok.version>1.18.46</lombok.version>
         <logback.version>1.6.1</logback.version>
@@ -314,7 +314,7 @@
                     <dependency>
                         <groupId>de.gematik</groupId>
                         <artifactId>ospo-resources</artifactId>
-                        <version>1.3.0</version>
+                        <version>1.3.2</version>
                     </dependency>
                 </dependencies>
 

@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 1: eMP-Eintrag hinzufügen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC6"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC7"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 1: eMP-Eintrag hinzufügen (<AS>)
@@ -84,7 +84,11 @@ Funktion: KOB Testfall 1: eMP-Eintrag hinzufügen
     # 1. Indikation (ICD-10-GM): I11
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).reasonCode.exists()" mit Fehlermeldung "Die MedicationRequest enthält keine Indikation in 'reasonCode'"
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).reasonCode.coding.where(system = 'http://fhir.de/CodeSystem/bfarm/icd-10-gm').exists()" mit Fehlermeldung "Die MedicationRequest enthält keine ICD-10-GM-Codierung"
-    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).reasonCode.coding.where(system = 'http://fhir.de/CodeSystem/bfarm/icd-10-gm' and code = 'I11').exists()" mit Fehlermeldung "Die ICD-10-GM-Codierung enthält nicht den erwarteten Code 'I11'"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).reasonCode.coding.where(system = 'http://fhir.de/CodeSystem/bfarm/icd-10-gm' and code.startsWith('I11')).exists()" mit Fehlermeldung "Die ICD-10-GM-Codierung enthält nicht den erwarteten Code 'I11'"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).reasonCode.coding.where(system = 'http://fhir.de/CodeSystem/bfarm/icd-10-gm' and code.startsWith('I11') and version.exists()).exists()" mit Fehlermeldung "In der ICD-10-GM-Codierung für den Code 'I11' fehlt die Jahresversion"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).reasonCode.coding.where(system = 'http://fhir.de/CodeSystem/bfarm/icd-10-gm' and code.startsWith('I11') and version.toString().matches('^[0-9]{4}$')).exists()" mit Fehlermeldung "Die Version der ICD-10-GM-Codierung muss aus einer vierstelligen Jahreszahl bestehen"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).reasonCode.coding.where(system = 'http://fhir.de/CodeSystem/bfarm/icd-10-gm' and code.startsWith('I11') and display.exists()).exists()" mit Fehlermeldung "In der ICD-10-GM-Codierung für den Code 'I11' fehlt der Anzeigetext in 'display'"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).reasonCode.coding.where(system = 'http://fhir.de/CodeSystem/bfarm/icd-10-gm' and code.startsWith('I11') and display.toString().trim().length() > 0).exists()" mit Fehlermeldung "Der Anzeigetext 'display' der ICD-10-GM-Codierung für den Code 'I11' ist leer"
 
     # 2. Grund (Freitext): Bluthochdruck
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/reason-patient-instruction-extension').exists()" mit Fehlermeldung "Die Extension für den Begründungstext fehlt"
