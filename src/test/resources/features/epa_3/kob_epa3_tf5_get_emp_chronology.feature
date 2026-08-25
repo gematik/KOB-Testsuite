@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 5: eMP-Chronologie abrufen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC6"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC7"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 5: eMP-Chronologie abrufen (<AS>)
