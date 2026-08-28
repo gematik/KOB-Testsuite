@@ -5,4 +5,5 @@ logs/
 *.tgr
 
 jenkinsfiles
+update-version.sh
 

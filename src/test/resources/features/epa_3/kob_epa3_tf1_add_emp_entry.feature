@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 1: eMP-Eintrag hinzufügen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0-RC7"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.0"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 1: eMP-Eintrag hinzufügen (<AS>)

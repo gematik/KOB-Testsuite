@@ -1,5 +1,10 @@
 # Release Notes KOB Testsuite
 
+## Release 2.0.0 (ePA 3.1.3)
+
+Stable release based on 2.0.0-RC7. No changes since RC7.
+For details see release candidates RC1–RC7 below.
+
 ## Release 2.0.0-RC7 (ePA 3.1.3)
 * Added validation for all mandatory ICD-10-GM coding attributes in MedicationRequest.reasonCode: system, version, code, and display.
 * Updated the TF1 user instructions to include the correct display text for ICD-10-GM code I11: “Hypertensive heart disease”.
