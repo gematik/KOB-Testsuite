@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 8: eML-eMP-Verknüpfung hinzufügen (manuell)
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.0"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.1"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 8: eML-eMP-Verknüpfung hinzufügen (manuell)  (<AS>)
