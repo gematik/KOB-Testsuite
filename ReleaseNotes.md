@@ -1,5 +1,13 @@
 # Release Notes KOB Testsuite
 
+## Release 2.0.1 (ePA 3.1.3)
+
+* Upgrade to Tiger 4.4.3, fixes server certificate mismatch
+  * see [release notes](https://github.com/gematik/app-Tiger/blob/master/ReleaseNotes.md) for details
+* Updated Tiger Testsuite Validator to version 1.2.1
+* Refactored Test Case 12 to be optional for systems under test that are unable to create prescriptions themselves (e.g., AVS).
+* Refactored Test Case 6 to accept multiple "Handelsname" variants from different data sources, including "Benazepril AL 5 mg Filmtabletten 98 Stk.", "Benazepril AL 5 mg Filmtabletten" (BfArM AMIS), "BENAZEPRIL AL 5 MG FILMTABL 98 ST" (IFA), and "Benazepril AL 5mg Filmtab" (ABDA), while still ensuring that the "Handelsname" contains the correct active ingredient and strength.
+
 ## Release 2.0.0 (ePA 3.1.3)
 
 Stable release based on 2.0.0-RC7. No changes since RC7.
