@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 2: eMP-Eintrag aktualisieren
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.1"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.2"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 2: eMP-Eintrag aktualisieren (nach Anweisung) (<AS>)

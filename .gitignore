@@ -3,7 +3,11 @@
 **/target
 logs/
 *.tgr
+**/kob-testsuite-feature-bundle*.zip
+**/kob-testsuite-test-report*.zip
 
 jenkinsfiles
 update-version.sh
+**/kob-testsuite-feature-bundle*.zip
+**/kob-testsuite-test-report*.zip
 

@@ -45,10 +45,9 @@ RUN chown -R kobtest /app
 
 USER kobtest
 
-COPY downloadDeps.sh /app
-RUN ./downloadDeps.sh
-RUN rm -f /app/downloadDeps.sh
+# Preload Tiger dependencies into the image so container startup does not have to
+# download them again on every run.
+RUN mvn clean verify -DskipTests
 
 # Command to be executed.
 ENTRYPOINT ["bash", "-c", "rm -rf /app/report/* ; mvn clean verify || true ; mv -v /app/target/*report.zip /app/report/"]
-
