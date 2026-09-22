@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 10: eML-Eintrag stornieren
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.1"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.2"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 10: eML-Eintrag stornieren (<AS>)

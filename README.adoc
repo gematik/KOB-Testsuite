@@ -356,35 +356,119 @@ Die FHIR-Strukturen, die in den KOB-Testfällen verwendet werden, basieren auf d
 
 https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/artifacts.html[FHIR-Artefakte des ePA Medication Service 1.3.4,window=_blank]
 
-=== Input-Profile für schreibende Operationen
+[NOTE]
+====
+Die nachfolgenden Abschnitte und Tabellen dienen als Hilfestellung zur Implementierung und zum Mapping der Testdaten. Maßgeblich sind stets die FHIR-Profile des oben verlinkten Implementation Guide _ePA Medication Service_ Version 1.3.4.
+====
 
-Die Input-Profile legen die Struktur des Request-Bodys der jeweiligen FHIR-Operation fest.
+=== FHIR-Profile für schreibende Operationen
+
+Die FHIR-Profile legen die Struktur des Request-Bodys der jeweiligen FHIR-Operation fest.
 
 [cols="3,2,5", options="header"]
 |===
 |Anwendungsfall
 |FHIR-Operation
-|Input-Profil
+|FHIR-Profil
 
 |eML-Eintrag hinzufügen
 |`$add-eml-entry`
-|https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/StructureDefinition-epa-op-add-eml-entry-input-parameters.html[Input-Profil öffnen,window=_blank]
+|https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/StructureDefinition-epa-op-add-eml-entry-input-parameters.html[Profil öffnen,window=_blank]
 
 |eMP-Eintrag hinzufügen
 |`$add-emp-entry`
-|https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/StructureDefinition-epa-op-add-emp-entry-input-parameters.html[Input-Profil öffnen,window=_blank]
+|https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/StructureDefinition-epa-op-add-emp-entry-input-parameters.html[Profil öffnen,window=_blank]
 
 |eMP-Eintrag aktualisieren
 |`$update-emp-entry`
-|https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/StructureDefinition-epa-op-update-emp-entry-input-parameters.html[Input-Profil öffnen,window=_blank]
+|https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/StructureDefinition-epa-op-update-emp-entry-input-parameters.html[Profil öffnen,window=_blank]
+
+|eML-eMP-Verknüpfung hinzufügen
+|`$link-emp`
+|https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/StructureDefinition-epa-op-link-emp-entry-parameters.html[Profil öffnen,window=_blank]
+
+|eML-eMP-Verknüpfung entfernen
+|`$unlink-emp`
+|https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/StructureDefinition-epa-op-link-emp-entry-parameters.html[Profil öffnen,window=_blank]
+
+|eML-Eintrag stornieren
+|`$cancel-eml-entry`
+|https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/OperationDefinition-cancel-eml-entry-op.html[Profil öffnen,window=_blank]
+
+|eMP-Eintrag stornieren
+|`$update-emp-entry`
+|https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/StructureDefinition-epa-op-update-emp-entry-input-parameters.html[Profil öffnen,window=_blank]
+|===
+
+=== Erstellung eines `$add-eml-entry`-Requests
+
+Folgende Inhalte müssen im Request-Body der Operation `$add-eml-entry` gesetzt werden:
+
+* `medicationStatement`
+* `medication`
+* `organization`
+* `format`
+
+Am Beispiel der Operation $add-eml-entry zeigt die folgende Tabelle, in welchen FHIR-Elementen die vorgegebenen Testdaten abzubilden sind.
+
+==== MedicationStatement-Elemente
+
+[cols="3,6,4", options="header"]
+|===
+|Element |FHIRPath innerhalb der Ressource |Wert
+
+|Dosierung (strukturiert)
+|`dosage.timing.repeat` + `dosage.doseAndRate.doseQuantity`
+|`frequency: 4, period: 1, periodUnit: d, when: [MORN, NOON, EVE, NIGHT], Dosis: 1 Stück`
+
+|Dosierung (Freitext)
+|`dosage.text`
+|`1-1-1-1 Stück` oder fachlich gleichwertig
+
+|Gerenderte Dosierung
+|`extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationStatement.renderedDosageInstruction').valueMarkdown`
+|`1-1-1-1 Stück`
+|===
+
+==== Medication-Elemente
+
+[cols="3,6,4", options="header"]
+|===
+|Element |FHIRPath innerhalb der Ressource |Wert
+
+|Handelsname
+|`code.text`
+|`Benazepril AL 5 mg Filmtabletten`
+
+|Handelsname (PZN)
+|`code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn').code`
+|`04351682`
+
+|Wirkstoff (ASK)
+|`ingredient.itemCodeableConcept.coding.where(system = 'http://fhir.de/CodeSystem/ask').code`
+|`23413`
+
+|Wirkstoff
+|`ingredient.itemCodeableConcept.text`
+|`Benazepril hydrochlorid`
+
+|Wirkstärke (strukturiert)
+|`ingredient.strength.numerator` + `ingredient.strength.denominator`
+|`numerator: 5 mg, denominator: 1 Tbl.`
+
+|Wirkstärke (Freitext)
+|`ingredient.strength.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-ingredient-amount-extension').valueString`
+|`5 mg`
+
+|Darreichungsform
+|`form.coding.where(system = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM').code`
+|`FTA`
+
+|Packungsgröße
+|`amount.numerator.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-total-quantity-formulation-extension').valueString` + `amount.numerator.unit`
+|`valueString: 98, unit: Stück`
 |===
 === Erstellung eines `$add-emp-entry`-Requests
-
-[NOTE]
-====
-Die folgenden Tabellen dienen als Hilfestellung zur Implementierung. Maßgeblich sind die FHIR-Profile des Implementation Guide _ePA Medication Service_ Version 1.3.4:
-https://gemspec.gematik.de/ig/fhir/epa-medication/1.3.4/artifacts.html[FHIR-Artefakte,window=_blank]
-====
 
 Folgende Inhalte müssen im Request-Body der Operation `$add-emp-entry` gesetzt werden:
 
@@ -412,11 +496,11 @@ Am Beispiel der Operation $add-emp-entry zeigt die folgende Tabelle, in welchen 
 
 |Dosierung (strukturiert)
 |`dosageInstruction.timing.repeat` + `dosageInstruction.doseAndRate.doseQuantity`
-|`frequency: 2, period: 1d, when: MORN/EVE, Dosis: 1 Stück`
+|`frequency: 2, period: 1, periodUnit: d, when: [MORN, EVE], Dosis: 1 Stück`
 
 |Dosierung (Freitext)
 |`dosageInstruction.text`
-|`1-0-1-0 Stück` oder fachlich gleichwertig
+|`1-0-1-0 Stück` oder `1x morgens, 1x abends je 1 Stück`
 
 |Gerenderte Dosierung
 |`extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.renderedDosageInstruction').valueMarkdown`
@@ -424,7 +508,7 @@ Am Beispiel der Operation $add-emp-entry zeigt die folgende Tabelle, in welchen 
 
 |Hinweis für Versicherte
 |`extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/patient-note-extension').valueAnnotation.text`
-|`Benazepril kann anfangs Schwindel verursachen`
+|`Benazepril kann anfangs Schwindel verursachen` (oder `kann Schwindel verursachen`)
 
 |Hinweis für Mitbehandelnde
 |`note.text`
@@ -451,7 +535,7 @@ Am Beispiel der Operation $add-emp-entry zeigt die folgende Tabelle, in welchen 
 
 |Handelsname
 |`code.text`
-|`Benazepril AL 20 mg Filmtabletten 98 Stk.`
+|`Benazepril AL 20 mg Filmtabletten`
 
 |Handelsname (PZN)
 |`code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn').code`
@@ -459,7 +543,7 @@ Am Beispiel der Operation $add-emp-entry zeigt die folgende Tabelle, in welchen 
 
 |ATC-Code
 |`code.coding.where(system = 'http://fhir.de/CodeSystem/bfarm/atc').code`
-|`C09AA05`
+|`C09AA07`
 
 |Wirkstoff (ASK)
 |`ingredient.itemCodeableConcept.coding.where(system = 'http://fhir.de/CodeSystem/ask').code`
@@ -471,11 +555,11 @@ Am Beispiel der Operation $add-emp-entry zeigt die folgende Tabelle, in welchen 
 
 |Wirkstärke (strukturiert)
 |`ingredient.strength.numerator` + `ingredient.strength.denominator`
-|`20 mg pro 1 Tbl.`
+|`numerator: 20 mg, denominator: 1 Tbl.`
 
 |Wirkstärke (Freitext)
 |`ingredient.strength.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-ingredient-amount-extension').valueString`
-|`20 mg`
+|`20 mg` (oder `20 Mg`)
 
 |Darreichungsform
 |`form.coding.where(system = 'https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM').code`
@@ -483,7 +567,191 @@ Am Beispiel der Operation $add-emp-entry zeigt die folgende Tabelle, in welchen 
 
 |Packungsgröße
 |`amount.numerator.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-total-quantity-formulation-extension').valueString` + `amount.numerator.unit`
-|`98 Stück`
+|`valueString: 98, unit: Stück`
+|===
+
+=== Erstellung eines `$update-emp-entry`-Requests
+
+[NOTE]
+====
+Der zu aktualisierende eMP-Eintrag bzw. die dafür erforderlichen IDs müssen zuvor beispielsweise über `$add-emp-entry` angelegt oder über eine lesende Operation ermittelt worden sein.
+====
+
+Folgende Inhalte müssen im Request-Body der Operation `$update-emp-entry` gesetzt werden:
+
+* `medicationRequest`
+* `medicationPlanId`
+* `chronologyId`
+* `organization`
+* `format`
+
+Am Beispiel der Operation $update-emp-entry zeigt die folgende Tabelle, in welchen FHIR-Elementen die vorgegebenen Testdaten abzubilden sind.
+
+==== MedicationRequest-Elemente
+
+[cols="3,6,4", options="header"]
+|===
+|Element |FHIRPath innerhalb der Ressource |Wert
+
+|Dosierung (strukturiert)
+|`dosageInstruction.timing.repeat` + `dosageInstruction.doseAndRate.doseQuantity`
+|`frequency: 1, period: 1, periodUnit: d, timeOfDay: [08:00:00], Dosis: 1 Stück`
+
+|Dosierung (Freitext)
+|`dosageInstruction.text`
+|`täglich: 08:00 Uhr — je 1 Stück` oder fachlich gleichwertig
+
+|Gerenderte Dosierung
+|`extension.where(url = 'http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.renderedDosageInstruction').valueMarkdown`
+|`täglich: 08:00 Uhr — je 1 Stück`
+
+|Status des eMP-Eintrags
+|`status`
+|`on-hold`
+|===
+
+=== Erstellung eines `$link-emp`-Requests
+
+[NOTE]
+====
+Für das Hinzufügen einer eML-eMP-Verknüpfung müssen vorab über lesende Operationen (GET-Abfragen) die notwendigen IDs und Ressourcen ermittelt werden:
+
+* **eML abrufen (`$medication-list` bzw. `/medication/render/eml/fhir`):** Ermittlung der ID des unverlinkten `MedicationStatement` (`medicationStatementId`). Ein Eintrag gilt als unverlinkt, wenn in `basedOn` noch keine Referenz auf einen `MedicationRequest` mit der Extension `https://gematik.de/fhir/epa-medication/StructureDefinition/is-emp-extension` (`valueBoolean = true`) vorhanden ist.
+* **eMP abrufen (`$medication-plan` bzw. `/medication-plan`):** Ermittlung des EMP-Identifiers (`MedicationPlanIdentifier` aus `MedicationRequest.identifier` mit dem System `https://gematik.de/fhir/sid/emp-identifier`) sowie der ID der aktuellen Chronologie-Provenance (`chronologyProvenanceId` aus der `Provenance`-Ressource mit dem Profil `https://gematik.de/fhir/epa-medication/StructureDefinition/emp-chronology-provenance`).
+====
+
+Folgende Inhalte müssen im Request-Body der Operation `$link-emp` gesetzt werden:
+
+* `medicationPlanId`
+* `chronologyId`
+* `organization`
+* `format`
+
+Der Request wird an den jeweiligen eML-Eintrag unter Verwendung der zuvor ermittelten `medicationStatementId` gesendet (auf FHIR-Ebene als Operation `MedicationStatement/{medicationStatementId}/$link-emp`).
+
+Am Beispiel der Operation $link-emp zeigt die folgende Tabelle die Zuordnung der Parameter:
+
+[cols="3,6,4", options="header"]
+|===
+|Parameter / Element |Bedeutung / FHIRPath |Wert / Quelle
+
+|`medicationStatementId`
+|ID des zu verknüpfenden `MedicationStatement` (Pfad-Parameter)
+|`MedicationStatement.id` aus der eML
+
+|`medicationPlanId`
+|Identifier des Ziel-Eintrags im eMP
+|`MedicationRequest.identifier.where(system = 'https://gematik.de/fhir/sid/emp-identifier').value`
+
+|`chronologyId`
+|ID der aktuellen eMP-Chronologie
+|`Provenance.where(meta.profile.contains('emp-chronology-provenance')).id`
+|===
+
+=== Erstellung eines `$unlink-emp`-Requests
+
+[NOTE]
+====
+Für das Entfernen einer eML-eMP-Verknüpfung müssen vorab die erforderlichen IDs ermittelt werden:
+
+* **eML abrufen (`$medication-list` bzw. `/medication/render/eml/fhir`):** Ermittlung der ID des verknüpften `MedicationStatement` (`medicationStatementId`). Ein verknüpfter Eintrag enthält in `basedOn` eine Referenz auf einen `MedicationRequest` mit der Extension `https://gematik.de/fhir/epa-medication/StructureDefinition/is-emp-extension` (`valueBoolean = true`).
+* **eMP-Identifier (`MedicationPlanIdentifier`):** Der Identifier des zugehörigen `MedicationRequest` im eMP (`https://gematik.de/fhir/sid/emp-identifier`).
+* **Aktuelle Chronologie-ID (`chronologyId`):** Die ID der aktuellen Chronologie-Provenance (`chronologyProvenanceId` aus der vorangegangenen Operation bzw. aus dem Abruf des eMP).
+====
+
+Folgende Inhalte müssen im Request-Body der Operation `$unlink-emp` gesetzt werden:
+
+* `medicationPlanId`
+* `chronologyId`
+* `organization`
+* `format`
+
+Der Request wird an den jeweiligen eML-Eintrag unter Verwendung der zuvor ermittelten `medicationStatementId` gesendet (auf FHIR-Ebene als Operation `MedicationStatement/{medicationStatementId}/$unlink-emp`).
+
+Am Beispiel der Operation $unlink-emp zeigt die folgende Tabelle die Zuordnung der Parameter:
+
+[cols="3,6,4", options="header"]
+|===
+|Parameter / Element |Bedeutung / FHIRPath |Wert / Quelle
+
+|`medicationStatementId`
+|ID des verknüpften `MedicationStatement` (Pfad-Parameter)
+|`MedicationStatement.id` aus der eML
+
+|`medicationPlanId`
+|Identifier des zu entknüpfenden Eintrags im eMP
+|`MedicationRequest.identifier.where(system = 'https://gematik.de/fhir/sid/emp-identifier').value`
+
+|`chronologyId`
+|ID der aktuellen eMP-Chronologie
+|`Provenance.where(meta.profile.contains('emp-chronology-provenance')).id`
+|===
+
+=== Erstellung eines `$cancel-eml-entry`-Requests
+
+[NOTE]
+====
+Für das Stornieren eines eML-Eintrags muss vorab die ID des zu stornierenden Eintrags ermittelt werden:
+
+* **eML abrufen (`$medication-list` bzw. `/medication/render/eml/fhir`) oder zuvor über `$add-eml-entry` anlegen:** Ermittlung der ID des `MedicationStatement` (`medicationStatementId`).
+====
+
+Folgende Inhalte müssen im Request-Body der Operation `$cancel-eml` gesetzt werden:
+
+* `organization`
+* `format`
+
+Der Request wird an den jeweiligen eML-Eintrag unter Verwendung der zuvor ermittelten `medicationStatementId` gesendet (auf FHIR-Ebene als Operation `MedicationStatement/{medicationStatementId}/$cancel-eml-entry` bzw. `MedicationStatement/{medicationStatementId}/$cancel-eml`).
+
+Am Beispiel der Operation $cancel-eml zeigt die folgende Tabelle die Zuordnung der Parameter:
+
+[cols="3,6,4", options="header"]
+|===
+|Parameter / Element |Bedeutung / FHIRPath |Wert / Quelle
+
+|`medicationStatementId`
+|ID des zu stornierenden `MedicationStatement` (Pfad-Parameter)
+|`MedicationStatement.id` aus der eML
+|===
+
+=== Erstellung eines Requests zum Stornieren eines eMP-Eintrags
+
+[NOTE]
+====
+Das Stornieren eines eMP-Eintrags erfolgt über die Operation `$update-emp-entry` unter Angabe des Status `entered-in-error`. Vorab müssen über eine lesende Operation (z. B. `$medication-plan` bzw. `/medication-plan`) die notwendigen IDs und Ressourcen ermittelt werden:
+
+* **MedicationRequest-ID (`MedicationRequestID`):** Die ID des zu stornierenden `MedicationRequest`.
+* **Versions-ID (`MedicationRequestVersionId`):** Die aktuelle Version (`meta.versionId`) des `MedicationRequest`.
+* **eMP-Identifier (`MedicationPlanIdentifier`):** Der Identifier des Eintrags im eMP (`MedicationRequest.identifier` mit dem System `https://gematik.de/fhir/sid/emp-identifier`).
+* **Medication-ID (`MedicationID`):** Die ID der referenzierten `Medication` (`MedicationRequest.medicationReference`).
+* **Aktuelle Chronologie-ID (`chronologyId`):** Die ID der aktuellen Chronologie-Provenance (`chronologyProvenanceId` aus der `Provenance`-Ressource mit dem Profil `https://gematik.de/fhir/epa-medication/StructureDefinition/emp-chronology-provenance`).
+====
+
+Folgende Inhalte müssen im Request-Body der Operation zum Stornieren eines eMP-Eintrags (`$update-emp-entry`) gesetzt werden:
+
+* `medicationRequest` (mit `status: "entered-in-error"`)
+* `medicationPlanId`
+* `chronologyId`
+* `organization`
+* `format`
+
+Am Beispiel des Stornierens eines eMP-Eintrags zeigt die folgende Tabelle die Zuordnung der Parameter:
+
+[cols="3,6,4", options="header"]
+|===
+|Parameter / Element |Bedeutung / FHIRPath |Wert / Quelle
+
+|Status des eMP-Eintrags
+|`medicationRequest.status`
+|`entered-in-error`
+
+|`medicationPlanId`
+|Identifier des zu stornierenden Eintrags im eMP
+|`MedicationRequest.identifier.where(system = 'https://gematik.de/fhir/sid/emp-identifier').value`
+
+|`chronologyId`
+|ID der aktuellen eMP-Chronologie
+|`Provenance.where(meta.profile.contains('emp-chronology-provenance')).id`
 |===
 
 == 8. Troubleshooting / FAQs

@@ -1,23 +1,24 @@
 # language: de
 @Mandatory @KOB @EPA_3_1_3
-Funktion: KOB Testfall 9: eML-eMP-Verknüpfung entfernen
+Funktion: KOB Testfall 8: eML-eMP-Verknüpfung hinzufügen (manuell)
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.1"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.2"
     Gegeben sei KOB finde Aktensystem
 
-  Szenariogrundriss: Testfall 9: eML-eMP-Verknüpfung entfernen (<AS>)
-  Getestete Anforderungen: IG-MED55518RUD, IG-MED76653G6V
-  Die Operation eML-eMP-Verknüpfung entfernen ermöglicht es dem Primärsystem, einen eML-Eintrag von einem eMP-Eintrag zu trennen.
-  Dazu wird das angegebene MedicationStatement von dem eMP entlinkt, der durch den übergebenen MedicationPlanIdentifier identifiziert wird.
-  Wie bei allen Änderungen am eMP muss der Request die ID der neuesten ChronologyProvenance enthalten. Dadurch wird sichergestellt, dass die Änderung auf Grundlage der aktuellen Version des eMP erfolgt.
+  Szenariogrundriss: Testfall 8: eML-eMP-Verknüpfung hinzufügen (manuell)  (<AS>)
+  Getestete Anforderungen: IG-MED18027VAP, IG-MED68008AH6
+  Die Operation eML-eMP Verknüpfung hinzufügen ermöglicht dem Primärsystem einen eML-Eintrag mit einem eMP-Eintrag zu
+  verknüpfen. Die Einträge werden verknüpft, indem das angegebene MedicationStatment mit dem eMP hinter dem übergebenen
+  MedicationPlanIdentifier verlinkt werden. Wie bei allen Änderungen des eMP muss der Request die neuste ChronologyProvenanceID
+  mitliefern um zu beweisen, dass die aktuellste Version genutzt wird.
 
     # Bereite Testumgebung vor
     Gegeben sei TGR lösche aufgezeichnete Nachrichten
     Und TGR lösche die benutzerdefinierte Fehlermeldung
 
-    # Wir fragen an, dass die Verknüpfung zwischen eML und eMP mit den angegebenen IDs entfernt wird
-    Wenn KOB entferne im Aktensystem "<AS>" einen eML-Eintrag von einem eMP-Eintrag des Patienten "<KVNR>"
+    # Wir fragen an, dass die eML und eMP mit den angegebenen IDs verknüpft
+    Wenn KOB verknüpfe im Aktensystem "<AS>" einen eML-Eintrag mit einem eMP-Eintrag des Patienten "<KVNR>"
 
     # Zunächst überprüfen wir, ob grundsätzlich Verkehr gefunden werden kann und er den Mindestanforderungen entspricht
     Dann TGR die Fehlermeldung wird gesetzt auf: "Es konnte kein Verkehr gefunden werden! Bitte überprüfen Sie, ob der Verkehr tatsächlich über Tiger geroutet wird."
@@ -30,9 +31,8 @@ Funktion: KOB Testfall 9: eML-eMP-Verknüpfung entfernen
     Und TGR current request with attribute "$.body.header.pu" matches "0"
     Und TGR lösche die benutzerdefinierte Fehlermeldung
 
-    ### Wir überprüfen den Verkehr des Entfernen der eML-eMP Verknüpfung
-    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "^/epa/medication/api/v1/fhir/MedicationStatement/[^/]+/\$unlink-emp(\?.*)?$" übereinstimmt
-
+    ### Wir überprüfen den Verkehr des Verlinken der eML-eMP
+    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "^/epa/medication/api/v1/fhir/MedicationStatement/[^/]+/\$link-emp(\?.*)?$" übereinstimmt
 
     # Nun prüfen wir die Struktur der äußeren Anfrage
     Dann TGR current request with attribute "$.method" matches "POST"
@@ -60,8 +60,8 @@ Funktion: KOB Testfall 9: eML-eMP-Verknüpfung entfernen
    # Grundstruktur: Parameters mit genau zwei Parametern
     Und FHIR request evaluiert FHIRPath "($this is Parameters) and parameter.count() = 2" mit Fehlermeldung "Der Request ist keine Parameters-Ressource oder enthält nicht genau zwei Parameter"
 
-   # Profil: Unlink-eMP-Operation
-    Und FHIR request evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-link-emp-entry-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eML-eMP-Verknüpfung entfernen'"
+   # Profil: Link-eMP-Operation
+    Und FHIR request evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-link-emp-entry-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eML-Eintrag mit eMP-Eintrag verknüpfen'"
 
    # medicationPlanIdentifier
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medicationPlanIdentifier').count() = 1" mit Fehlermeldung "Der Parameter 'medicationPlanIdentifier' muss genau einmal vorhanden sein"

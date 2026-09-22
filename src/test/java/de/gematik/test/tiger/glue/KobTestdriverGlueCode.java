@@ -259,26 +259,32 @@ public class KobTestdriverGlueCode {
         () -> {
           throw new PendingException("Not yet implemented");
         },
-        "<div style=\"text-align: left;\">\n" +
-                "  <p>Fügen Sie für den Patienten mit der KVNR <strong>" + kvnr + "</strong> einen neuen eMP-Eintrag im Aktensystem <strong>" + aktenSystem + "</strong> hinzu:</p>\n" +
-                "  <ol>\n" +
-                "    <li>1. Indikation (ICD-10-Code): I11 (Hypertensive Herzkrankheit)</li>\n" +
-                "    <li>2. Grund (Freitext): Bluthochdruck</li>\n" +
-                "    <li>3. Dosierangabe (strukturiert oder Freitext): 1-0-1-0 Stück</li>\n" +
-                "    <li>4. Hinweis für Versicherten (Freitext): Benazepril kann anfangs Schwindel verursachen</li>\n" +
-                "    <li>5. Hinweis für Mitbehandelnde (Freitext): Hinweis für LE</li>\n" +
-                "    <li>6. Status (Medication Status Code): aktiv</li>\n" +
-                "    <li>7. Anwendungszeitraum (Startdatum, Enddatum): muss mindestens aus Tag, Monat und Jahr bestehen</li>\n" +
-                "    <li>8. Medikation-Angaben:\n" +
-                "      <ol type=\"a\">\n" +
-                "        <li>• Handelsname (Freitext, PZN falls vorhanden): Benazepril AL 20 mg Filmtabletten 98 Stk., (PZN 04351736)</li>\n" +
-                "        <li>• Wirkstoff (ASK/ATC): Benazepril hydrochlorid</li>\n" +
-                "        <li>• Wirkstärke (strukturiert oder Freitext): 20mg</li>\n" +
-                "        <li>• Darreichungsform (KBV Darreichungsform): Filmtablette</li>\n" +
-                "      </ol>\n" +
-                "    </li>\n" +
-                "  </ol>\n" +
-                "</div>");
+        "<div style=\"text-align: left;\">"
+            + "  <p>Fügen Sie für den Patienten mit der KVNR <strong>"
+            + kvnr
+            + "</strong> einen neuen eMP-Eintrag im Aktensystem <strong>"
+            + aktenSystem
+            + "</strong> hinzu:</p>"
+            + "  <ol>"
+            + "    <li>1. Indikation (ICD-10-Code, sofern verfügbar): I11 (Hypertensive Herzkrankheit)</br>"
+            + "           (e.g. \"I11.0\", \"I11.9\", \"I11.00\", \"I11.01\", etc.) inkl. vierstelliger Jahresversion und Anzeigetext an.</br>"
+            + "           Falls kein ICD-10-Code angegeben wird, ist dies im Abrufauftrag des TITUS-Bestätigungsportals zu begründen.</li>"
+            + "    <li>2. Grund (Freitext): Bluthochdruck</li>"
+            + "    <li>3. Dosierangabe (strukturiert oder Freitext): 1-0-1-0 Stück</li>"
+            + "    <li>4. Hinweis für Versicherten (Freitext): Benazepril kann anfangs Schwindel verursachen</li>"
+            + "    <li>5. Hinweis für Mitbehandelnde (Freitext): Hinweis für LE</li>"
+            + "    <li>6. Status (Medication Status Code): aktiv</li>"
+            + "    <li>7. Anwendungszeitraum (Startdatum, Enddatum): muss mindestens aus Tag, Monat und Jahr bestehen</li>"
+            + "    <li>8. Medikation-Angaben:"
+            + "      <ol type=\"a\">"
+            + "        <li>• Handelsname (Freitext, PZN falls vorhanden): Benazepril AL 20 mg Filmtabletten 98 Stk., (PZN 04351736)</li>"
+            + "        <li>• Wirkstoff (ASK/ATC): Benazepril hydrochlorid</li>"
+            + "        <li>• Wirkstärke (strukturiert oder Freitext): 20mg</li>"
+            + "        <li>• Darreichungsform (KBV Darreichungsform): Filmtablette</li>"
+            + "      </ol>"
+            + "    </li>"
+            + "  </ol>"
+            + "</div>");
   }
 
   @Wenn("KOB füge einen neuen eML-Eintrag im Aktensystem {tigerResolvedString} für das Aktenkonto des Patienten {tigerResolvedString} hinzu")
@@ -287,19 +293,19 @@ public class KobTestdriverGlueCode {
         () -> {
           throw new PendingException("Not yet implemented");
         },
-        "<div style=\"text-align: left;\">\n" +
-            "  <p>Fügen Sie für den Patienten mit der KVNR <strong>" + kvnr + "</strong> einen neuen eML-Eintrag im Aktensystem <strong>" + aktenSystem + "</strong> hinzu:</p>\n" +
-            "  <ol>\n" +
-            "    <li>1. Dosieranweisung (strukturiert oder Freitext): 1-1-1-1 Stück</li>\n" +
-            "    <li>2. Medikation-Angaben:\n" +
-            "      <ol type=\"a\">\n" +
-            "        <li>• Handelsname (Freitext, PZN falls vorhanden): Benazepril AL 5 mg Filmtabletten 98 Stk., (PZN 04351682)</li>\n" +
-            "        <li>• Wirkstoff (ASK/ATC): Benazepril hydrochlorid</li>\n" +
-            "        <li>• Wirkstärke (strukturiert oder Freitext): 5mg</li>\n" +
-            "        <li>• Darreichungsform (KBV Darreichungsform): Filmtablette</li>\n" +
-            "      </ol>\n" +
-            "    </li>\n" +
-            "  </ol>\n" +
+        "<div style=\"text-align: left;\">" +
+            "  <p>Fügen Sie für den Patienten mit der KVNR <strong>" + kvnr + "</strong> einen neuen eML-Eintrag im Aktensystem <strong>" + aktenSystem + "</strong> hinzu:</p>" +
+            "  <ol>" +
+            "    <li>1. Dosieranweisung (strukturiert oder Freitext): 1-1-1-1 Stück</li>" +
+            "    <li>2. Medikation-Angaben:" +
+            "      <ol type=\"a\">" +
+            "        <li>• Handelsname (Freitext, PZN falls vorhanden): Benazepril AL 5 mg Filmtabletten 98 Stk., (PZN 04351682)</li>" +
+            "        <li>• Wirkstoff (ASK/ATC): Benazepril hydrochlorid</li>" +
+            "        <li>• Wirkstärke (strukturiert oder Freitext): 5mg</li>" +
+            "        <li>• Darreichungsform (KBV Darreichungsform): Filmtablette</li>" +
+            "      </ol>" +
+            "    </li>" +
+            "  </ol>" +
             "</div>");
   }
 
@@ -382,12 +388,12 @@ public class KobTestdriverGlueCode {
             () -> {
               throw new PendingException("Not yet implemented");
             },
-            "<div style=\"text-align: left;\">\n" +
-                    "  <p>Aktualisieren Sie für den Patienten mit der KVNR <strong>" + kvnr + "</strong> den bestehenden EMP-Eintrag im Aktensystem <strong>" + aktenSystem + "</strong>:</p>\n" +
-                    "  <ol>\n" +
-                    "    <li>1. Dosierangabe (strukturiert oder Freitext):  täglich: 08:00 Uhr — je 1 Stück</li>\n" +
-                    "    <li>2. Status-Änderung eMP-Eintrag: on-hold (Pausieren)</li>\n" +
-                    "  </ol>\n" +
+            "<div style=\"text-align: left;\">" +
+                    "  <p>Aktualisieren Sie für den Patienten mit der KVNR <strong>" + kvnr + "</strong> den bestehenden EMP-Eintrag im Aktensystem <strong>" + aktenSystem + "</strong>:</p>" +
+                    "  <ol>" +
+                    "    <li>1. Dosierangabe (strukturiert oder Freitext):  täglich: 08:00 Uhr — je 1 Stück</li>" +
+                    "    <li>2. Status-Änderung eMP-Eintrag: on-hold (Pausieren)</li>" +
+                    "  </ol>" +
                     "</div>");
   }
 
@@ -420,8 +426,9 @@ public class KobTestdriverGlueCode {
                     + kvnr
                     + " im Aktensystem "
                     + aktenSystem
-                    + " als gerendertes PDF/A ab");
-
+                    + " als gerendertes PDF/A ab.</br>"
+                    + "Erstellen Sie nach dem Abruf einen Screenshot des dgMP.</br>"
+                    + "Die Screenshots sind im späterem Verlauf als Nachweis im Bestätigungsportal hochzuladen.");
   }
 
     @Wenn("KOB storniere einen eML-Eintrag mit der FHIR Operation im Aktensystem {tigerResolvedString} für das Aktenkonto des Patienten {tigerResolvedString}")

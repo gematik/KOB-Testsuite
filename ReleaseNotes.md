@@ -1,5 +1,12 @@
 # Release Notes KOB Testsuite
 
+## Release 2.0.2 (ePA 3.1.3)
+
+* Made the ICD-10-GM validation in `tf01` optional: skipped when absent, fully validated when present.
+* Extended the FHIR mapping guidance (README, ch. 7) to cover the remaining create, update and delete request operations.
+* Fixed the WorkflowUI test order by enforcing the alphabetical Maven Failsafe run order.
+* Renamed KOB feature files from `tf1`-`tf9` to `tf01`-`tf09` so generated driver classes follow the intended order consistently across platforms.
+
 ## Release 2.0.1 (ePA 3.1.3)
 
 * Upgrade to Tiger 4.4.3, fixes server certificate mismatch
