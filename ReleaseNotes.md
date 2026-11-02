@@ -1,5 +1,12 @@
 # Release Notes KOB Testsuite
 
+## Release 2.0.3 (ePA 3.1.3)
+
+* Fixed: Host header was being overwritten by the target IP when forwardToProxy is configured; added preserveHostHeader: true to all proxy routes to resolve this.
+* The check for optional meta profile data was removed in test cases TF01, TF02, TF06, TF08, TF09, and TF10, as this data is not mandatory.
+* Updated ASK validation: accept "Benazepril" name match, allow 20 mg or 18,42 mg strength, and require a mandatory (not code-specific) ASK coding.
+* Removed X-Request-ID header validation, as this header is optional for ePA clients.
+
 ## Release 2.0.2 (ePA 3.1.3)
 
 * Made the ICD-10-GM validation in `tf01` optional: skipped when absent, fully validated when present.

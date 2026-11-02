@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 2: eMP-Eintrag aktualisieren
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.2"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.3"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 2: eMP-Eintrag aktualisieren (nach Anweisung) (<AS>)
@@ -44,7 +44,6 @@ Funktion: KOB Testfall 2: eMP-Eintrag aktualisieren
     Und TGR current request with attribute "$.body.decrypted.method" matches "POST"
     Und TGR current request with attribute "$.body.decrypted.header.[~'accept']" matches "(application\/fhir\+json|application\/fhir\+xml)"
     Und TGR current request with attribute "$.body.decrypted.header.[~'X-Requesting-Organization']" matches ".*"
-    Und TGR current request with attribute "$.body.decrypted.header.[~'X-Request-ID']" matches "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     Und TGR current request with attribute "$.body.decrypted.header.[~'x-insurantid']" matches "<KVNR>"
     Und TGR current request with attribute "$.body.decrypted.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
 
@@ -59,12 +58,6 @@ Funktion: KOB Testfall 2: eMP-Eintrag aktualisieren
 
     # Grundstruktur: Parameters mit genau einer MedicationRequest in empEntry
     Und FHIR request evaluiert FHIRPath "($this is Parameters) and parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).count() = 1 and parameter.where(name = 'medicationPlanIdentifier').value.ofType(Identifier).count() = 1" mit Fehlermeldung "Der Request enthält nicht genau einen Parameter 'empEntry' mit MedicationRequest und einen Parameter 'medicationPlanIdentifier' mit Identifier"
-
-   # Profil: Parameters
-    Und FHIR request evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-update-emp-entry-input-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eMP-Eintrag aktualisieren'"
-
-    # Profil: MedicationRequest
-    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/emp-medication-request')).exists()" mit Fehlermeldung "Die MedicationRequest deklariert nicht das erwartete EMPMedicationRequest-Profil"
 
     # acknowledgedChronologyId: optional, aber falls vorhanden korrekt
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'acknowledgedChronologyId').empty() or (parameter.where(name = 'acknowledgedChronologyId').count() = 1 and parameter.where(name = 'acknowledgedChronologyId').value.ofType(id).count() = 1 and parameter.where(name = 'acknowledgedChronologyId').value.ofType(id).toString().matches('^[A-Za-z0-9.-]{1,64}$'))" mit Fehlermeldung "Der optionale Parameter 'acknowledgedChronologyId' hat nicht den erwarteten Datentyp oder ein ungültiges Format"

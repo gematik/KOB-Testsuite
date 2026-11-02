@@ -187,6 +187,10 @@ Sollten sich die Aktensysteme nicht direkt erreichen lassen, sondern nur über e
     port: <PROXY_PORT>
 ----
 
+[NOTE]
+====
+Each entry in `proxyRoutes` sets `preserveHostHeader: true` by default. This keeps the original `Host` header (FQDN of the Aktensystem) on outgoing requests and works correctly both with and without `forwardToProxy` configured.
+====
 
 == 3. Tests konfigurieren
 

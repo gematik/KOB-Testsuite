@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 5: eMP-Chronologie abrufen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.2"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.3"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 5: eMP-Chronologie abrufen (<AS>)
@@ -44,7 +44,6 @@ Funktion: KOB Testfall 5: eMP-Chronologie abrufen
     # Und nun die Struktur der inneren Anfrage (der VAU-verschlüsselte HTTP-Request)
     Und TGR current request with attribute "$.body.decrypted.method" matches "GET"
     Und TGR current request with attribute "$.body.decrypted.header.[~'accept']" matches "(application\/fhir\+json|application\/fhir\+xml)"
-    Und TGR current request with attribute "$.body.decrypted.header.[~'X-Request-ID']" matches "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     Und TGR current request with attribute "$.body.decrypted.header.[~'x-insurantid']" matches "<KVNR>"
     Und TGR current request with attribute "$.body.decrypted.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
 
