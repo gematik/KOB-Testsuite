@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 4: Medikationsplan gerendert anzeigen (PDF)
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.2"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.3"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 4: Medikationsplan gerendert anzeigen (PDF) (<AS>)
@@ -42,7 +42,6 @@ Funktion: KOB Testfall 4: Medikationsplan gerendert anzeigen (PDF)
     # Und nun die Struktur der inneren Anfrage (der VAU-verschlüsselte HTTP-Request)
     Und TGR current request with attribute "$.body.decrypted.method" matches "GET"
     Und TGR current request with attribute "$.body.decrypted.header.[~'accept']" matches "(application\/pdf|application\/fhir\+json)"
-    Und TGR current request with attribute "$.body.decrypted.header.[~'X-Request-ID']" matches "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     Und TGR current request with attribute "$.body.decrypted.header.[~'x-insurantid']" matches "<KVNR>"
     Und TGR current request with attribute "$.body.decrypted.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
 

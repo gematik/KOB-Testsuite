@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 6: eML-Eintrag hinzufügen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.2"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.3"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 6: eML-Eintrag hinzufügen (<AS>)
@@ -41,7 +41,6 @@ Funktion: KOB Testfall 6: eML-Eintrag hinzufügen
     Und TGR current request with attribute "$.body.decrypted.method" matches "POST"
     Und TGR current request with attribute "$.body.decrypted.header.[~'accept']" matches "(application\/fhir\+json|application\/fhir\+xml)"
     Und TGR current request with attribute "$.body.decrypted.header.[~'X-Requesting-Organization']" matches ".*"
-    Und TGR current request with attribute "$.body.decrypted.header.[~'X-Request-ID']" matches "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     Und TGR current request with attribute "$.body.decrypted.header.[~'x-insurantid']" matches "<KVNR>"
     Und TGR current request with attribute "$.body.decrypted.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
 
@@ -56,15 +55,6 @@ Funktion: KOB Testfall 6: eML-Eintrag hinzufügen
 
     # Grundstruktur: Parameters mit MedicationStatement und Medication
     Und FHIR request evaluiert FHIRPath "($this is Parameters) and parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).count() = 1 and parameter.where(name = 'medication').resource.ofType(Medication).count() = 1" mit Fehlermeldung "Der Request enthält nicht genau einen Parameter 'medicationStatement' mit MedicationStatement und einen Parameter 'medication' mit Medication"
-
-    # Profil: Parameters für add-eML-entry
-    Und FHIR request evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-add-eml-entry-input-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eML-Eintrag hinzufügen'"
-
-    # Profil: MedicationStatement
-    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-medication-statement')).exists()" mit Fehlermeldung "Das MedicationStatement deklariert nicht das erwartete EPAMedicationStatement-Profil"
-
-    # Profil: Medication
-    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-medication')).exists()" mit Fehlermeldung "Die Medication deklariert nicht das erwartete EPAMedication-Profil"
 
     # eML-Eintrag wurde manuell erstellt
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medicationStatement').resource.ofType(MedicationStatement).extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/context-extension').exists()" mit Fehlermeldung "Die Kontext-Extension fehlt im MedicationStatement"

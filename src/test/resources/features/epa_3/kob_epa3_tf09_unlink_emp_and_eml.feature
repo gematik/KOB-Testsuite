@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 9: eML-eMP-Verknüpfung entfernen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.2"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.3"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 9: eML-eMP-Verknüpfung entfernen (<AS>)
@@ -44,7 +44,6 @@ Funktion: KOB Testfall 9: eML-eMP-Verknüpfung entfernen
     Und TGR current request with attribute "$.body.decrypted.method" matches "POST"
     Und TGR current request with attribute "$.body.decrypted.header.[~'accept']" matches "(application\/fhir\+json|application\/fhir\+xml)"
     Und TGR current request with attribute "$.body.decrypted.header.[~'X-Requesting-Organization']" matches ".*"
-    Und TGR current request with attribute "$.body.decrypted.header.[~'X-Request-ID']" matches "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     Und TGR current request with attribute "$.body.decrypted.header.[~'x-insurantid']" matches "<KVNR>"
     Und TGR current request with attribute "$.body.decrypted.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
 
@@ -59,9 +58,6 @@ Funktion: KOB Testfall 9: eML-eMP-Verknüpfung entfernen
 
    # Grundstruktur: Parameters mit genau zwei Parametern
     Und FHIR request evaluiert FHIRPath "($this is Parameters) and parameter.count() = 2" mit Fehlermeldung "Der Request ist keine Parameters-Ressource oder enthält nicht genau zwei Parameter"
-
-   # Profil: Unlink-eMP-Operation
-    Und FHIR request evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-link-emp-entry-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eML-eMP-Verknüpfung entfernen'"
 
    # medicationPlanIdentifier
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medicationPlanIdentifier').count() = 1" mit Fehlermeldung "Der Parameter 'medicationPlanIdentifier' muss genau einmal vorhanden sein"

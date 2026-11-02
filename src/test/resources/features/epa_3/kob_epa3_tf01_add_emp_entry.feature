@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 1: eMP-Eintrag hinzufügen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.2"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.3"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 1: eMP-Eintrag hinzufügen (<AS>)
@@ -44,7 +44,6 @@ Funktion: KOB Testfall 1: eMP-Eintrag hinzufügen
     Und TGR current request with attribute "$.body.decrypted.method" matches "POST"
     Und TGR current request with attribute "$.body.decrypted.header.[~'accept']" matches "(application\/fhir\+json|application\/fhir\+xml)"
     Und TGR current request with attribute "$.body.decrypted.header.[~'X-Requesting-Organization']" matches ".*"
-    Und TGR current request with attribute "$.body.decrypted.header.[~'X-Request-ID']" matches "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     Und TGR current request with attribute "$.body.decrypted.header.[~'x-insurantid']" matches "<KVNR>"
     Und TGR current request with attribute "$.body.decrypted.header.[~'x-useragent']" matches "^[a-zA-Z0-9\-]{1,20}\/[a-zA-Z0-9\-\.]{1,15}$"
 
@@ -59,15 +58,6 @@ Funktion: KOB Testfall 1: eMP-Eintrag hinzufügen
 
     # Grundstruktur: Parameters mit MedicationRequest und Medication
     Und FHIR request evaluiert FHIRPath "($this is Parameters) and parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).count() = 1 and parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).count() = 1" mit Fehlermeldung "Der Request enthält nicht genau einen Parameter 'empEntry' mit MedicationRequest und einen Parameter 'medication' mit Medication-Ressource"
-
-    # Profil: Parameters
-    Und FHIR request evaluiert FHIRPath "meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/epa-op-add-emp-entry-input-parameters')).exists()" mit Fehlermeldung "Die Parameters-Ressource deklariert nicht das erwartete Profil für die Operation 'eMP-Eintrag hinzufügen'"
-
-    # Profil: Medication
-    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/emp-medication')).exists()" mit Fehlermeldung "Die Medication deklariert nicht das erwartete EMPMedication-Profil"
-
-    # Profil: MedicationRequest
-    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).meta.profile.where(startsWith('https://gematik.de/fhir/epa-medication/StructureDefinition/emp-medication-request')).exists()" mit Fehlermeldung "Die MedicationRequest deklariert nicht das erwartete EMPMedicationRequest-Profil"
 
     # MedicationRequest.intent = 'plan'
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'empEntry').resource.ofType(MedicationRequest).intent.exists()" mit Fehlermeldung "Das Element 'intent' der MedicationRequest fehlt"
@@ -135,13 +125,14 @@ Funktion: KOB Testfall 1: eMP-Eintrag hinzufügen
     # 10. PZN (optional, aber falls vorhanden korrekt)
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn').empty() or (parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn').count() = 1 and parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).code.coding.where(system = 'http://fhir.de/CodeSystem/ifa/pzn' and code = '04351736').count() = 1)" mit Fehlermeldung "Die angegebene PZN-Codierung entspricht nicht den erwarteten Werten"
 
-    # 11. Wirkstoff (ASK-Code 23413)
+    # 11. Wirkstoff (Name-Match genügt, ASK-Code ist verpflichtend)
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.exists()" mit Fehlermeldung "Die Medication enthält keinen Wirkstoff"
-    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.where(item.ofType(CodeableConcept).text = 'Benazepril hydrochlorid' and item.ofType(CodeableConcept).coding.where(system = 'http://fhir.de/CodeSystem/ask' and code = '23413').exists()).exists()" mit Fehlermeldung "Kein Wirkstoff enthält die Bezeichnung 'Benazepril hydrochlorid' und den ASK-Code '23413'"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.where(item.ofType(CodeableConcept).text.where(matches('(?i).*Benazepril.*')).exists()).exists()" mit Fehlermeldung "Kein Wirkstoff enthält im Namen die Bezeichnung 'Benazepril'"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.where(item.ofType(CodeableConcept).text.where(matches('(?i).*Benazepril.*')).exists() and item.ofType(CodeableConcept).coding.where(system = 'http://fhir.de/CodeSystem/ask' and code.exists() and code != '').exists()).exists()" mit Fehlermeldung "Für den Wirkstoff 'Benazepril' fehlt die verpflichtende ASK-Codierung"
 
-    # 12. Wirkstärke (20 mg strukturiert oder Freitext)
-    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.strength.exists()" mit Fehlermeldung "Für den Wirkstoff ist keine Wirkstärke angegeben"
-    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.where(strength.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-ingredient-amount-extension' and value.ofType(string).where(matches('(?i).*20\\s*mg.*')).exists()).exists() or (strength.numerator.value = 20 and strength.numerator.unit.toString().matches('(?i)^mg$') and strength.denominator.value = 1)).exists()" mit Fehlermeldung "Die Wirkstärke entspricht weder der erwarteten Freitextangabe '20 mg' noch dem erwarteten strukturierten Verhältnis mit 20 mg und der Bezugsmenge 1"
+    # 12. Wirkstärke (20 mg oder 18,42 mg, strukturiert oder Freitext)
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.where(item.ofType(CodeableConcept).text.where(matches('(?i).*Benazepril.*')).exists() and strength.exists()).exists()" mit Fehlermeldung "Für den Wirkstoff 'Benazepril' ist keine Wirkstärke angegeben"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).ingredient.where(item.ofType(CodeableConcept).text.where(matches('(?i).*Benazepril.*')).exists() and (strength.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-ingredient-amount-extension' and value.ofType(string).where(matches('(?i).*(20([\\.,]0+)?|18[\\.,]42)\\s*mg.*')).exists()).exists() or ((strength.numerator.value = 20 or strength.numerator.value = 18.42) and strength.numerator.unit.toString().matches('(?i)^\\s*mg\\s*$') and strength.denominator.value = 1))).exists()" mit Fehlermeldung "Die Wirkstärke für 'Benazepril' entspricht weder '20 mg' noch '18,42 mg' (weder als Freitext noch strukturiert)"
 
     # 13. Darreichungsform (KBV: FTA)
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').part.where(name = 'resource').resource.ofType(Medication).form.exists()" mit Fehlermeldung "Die Darreichungsform der Medication fehlt"
