@@ -300,7 +300,7 @@ public class KobTestdriverGlueCode {
             "    <li>2. Medikation-Angaben:" +
             "      <ol type=\"a\">" +
             "        <li>• Handelsname (Freitext, PZN falls vorhanden): Benazepril AL 5 mg Filmtabletten 98 Stk., (PZN 04351682)</li>" +
-            "        <li>• Wirkstoff (ASK/ATC): Benazepril hydrochlorid</li>" +
+            "        <li>• Wirkstoff (ASK/ATC): Benazepril</li>" +
             "        <li>• Wirkstärke (strukturiert oder Freitext): 5mg</li>" +
             "        <li>• Darreichungsform (KBV Darreichungsform): Filmtablette</li>" +
             "      </ol>" +

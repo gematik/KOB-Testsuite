@@ -1,5 +1,10 @@
 # Release Notes KOB Testsuite
 
+## Release 2.0.4 (ePA 3.1.3)
+
+* Updated the Wirkstoff/ASK code validation for the eML (TF6) test case to accept any matching active ingredient name with a mandatory (but not value-checked) ASK code.
+* Remove the display-name check from the PZN assertion in TF6 to match TF1, which only validates system and code.
+
 ## Release 2.0.3 (ePA 3.1.3)
 
 * Fixed: Host header was being overwritten by the target IP when forwardToProxy is configured; added preserveHostHeader: true to all proxy routes to resolve this.

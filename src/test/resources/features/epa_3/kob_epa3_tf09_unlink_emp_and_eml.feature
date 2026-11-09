@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 9: eML-eMP-Verknüpfung entfernen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.3"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.4"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 9: eML-eMP-Verknüpfung entfernen (<AS>)
