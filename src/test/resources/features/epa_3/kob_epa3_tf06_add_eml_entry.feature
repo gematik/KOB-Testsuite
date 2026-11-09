@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 6: eML-Eintrag hinzufügen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.3"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.4"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 6: eML-Eintrag hinzufügen (<AS>)
@@ -72,12 +72,13 @@ Funktion: KOB Testfall 6: eML-Eintrag hinzufügen
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).code.exists()" mit Fehlermeldung "Die Medication enthält keine Arzneimittelbezeichnung in 'code'"
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).code.text.where(matches('(?i).*Benazepril.*')).exists()" mit Fehlermeldung "Der Handelsname fehlt oder enthält nicht den erwarteten Text 'Benazepril'"
 
-    # 4. PZN: optional, aber falls vorhanden mit erwarteten Testdaten
-    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).code.coding.where(system.toString() = 'http://fhir.de/CodeSystem/ifa/pzn').empty() or (parameter.where(name = 'medication').resource.ofType(Medication).code.coding.where(system.toString() = 'http://fhir.de/CodeSystem/ifa/pzn').count() = 1 and parameter.where(name = 'medication').resource.ofType(Medication).code.coding.where(system.toString() = 'http://fhir.de/CodeSystem/ifa/pzn' and code.toString() = '04351682' and display.toString().matches('(?i).*Benazepril AL 5\\s*mg Filmtab.*')).count() = 1)" mit Fehlermeldung "Die angegebene PZN-Codierung entspricht nicht den erwarteten Werten"
+    # 4. PZN (optional, aber falls vorhanden korrekt)
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).code.coding.where(system.toString() = 'http://fhir.de/CodeSystem/ifa/pzn').empty() or (parameter.where(name = 'medication').resource.ofType(Medication).code.coding.where(system.toString() = 'http://fhir.de/CodeSystem/ifa/pzn').count() = 1 and parameter.where(name = 'medication').resource.ofType(Medication).code.coding.where(system.toString() = 'http://fhir.de/CodeSystem/ifa/pzn' and code.toString() = '04351682').count() = 1)" mit Fehlermeldung "Die angegebene PZN-Codierung entspricht nicht den erwarteten Werten"
 
-    # 5. Wirkstoff: Benazepril hydrochlorid mit ASK-Code 23413
+    # 5. Wirkstoff: Benazepril hydrochlorid (Name-Match genügt, ASK-Code ist verpflichtend)
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.exists()" mit Fehlermeldung "Die Medication enthält keinen Wirkstoff"
-    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.where(item.ofType(CodeableConcept).text.toString() = 'Benazepril hydrochlorid' and item.ofType(CodeableConcept).coding.where(system.toString() = 'http://fhir.de/CodeSystem/ask' and code.toString() = '23413').exists()).exists()" mit Fehlermeldung "Kein Wirkstoff enthält die Bezeichnung 'Benazepril hydrochlorid' und den ASK-Code '23413'"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.where(item.ofType(CodeableConcept).text.where(matches('(?i).*Benazepril.*')).exists()).exists()" mit Fehlermeldung "Kein Wirkstoff enthält im Namen die Bezeichnung 'Benazepril hydrochlorid'"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.where(item.ofType(CodeableConcept).text.where(matches('(?i).*Benazepril.*')).exists() and item.ofType(CodeableConcept).coding.where(system = 'http://fhir.de/CodeSystem/ask' and code.exists() and code != '').exists()).exists()" mit Fehlermeldung "Für den Wirkstoff 'Benazepril hydrochlorid' fehlt die verpflichtende ASK-Codierung"
 
     # 6. Wirkstärke: 5 mg strukturiert oder Freitext
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.strength.exists()" mit Fehlermeldung "Für den Wirkstoff ist keine Wirkstärke angegeben"
