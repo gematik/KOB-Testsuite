@@ -3,7 +3,7 @@
 Funktion: KOB Testfall 6: eML-Eintrag hinzufügen
 
   Grundlage:
-    Gegeben sei KOB Testsuite "Kob" Version "2.0.4"
+    Gegeben sei KOB Testsuite "Kob" Version "2.0.5"
     Gegeben sei KOB finde Aktensystem
 
   Szenariogrundriss: Testfall 6: eML-Eintrag hinzufügen (<AS>)
@@ -77,12 +77,12 @@ Funktion: KOB Testfall 6: eML-Eintrag hinzufügen
 
     # 5. Wirkstoff: Benazepril hydrochlorid (Name-Match genügt, ASK-Code ist verpflichtend)
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.exists()" mit Fehlermeldung "Die Medication enthält keinen Wirkstoff"
-    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.where(item.ofType(CodeableConcept).text.where(matches('(?i).*Benazepril.*')).exists()).exists()" mit Fehlermeldung "Kein Wirkstoff enthält im Namen die Bezeichnung 'Benazepril hydrochlorid'"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.where(item.ofType(CodeableConcept).text.where(matches('(?i).*Benazepril.*')).exists()).exists()" mit Fehlermeldung "Kein Wirkstoff enthält im Namen die Bezeichnung 'Benazepril'"
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.where(item.ofType(CodeableConcept).text.where(matches('(?i).*Benazepril.*')).exists() and item.ofType(CodeableConcept).coding.where(system = 'http://fhir.de/CodeSystem/ask' and code.exists() and code != '').exists()).exists()" mit Fehlermeldung "Für den Wirkstoff 'Benazepril hydrochlorid' fehlt die verpflichtende ASK-Codierung"
 
-    # 6. Wirkstärke: 5 mg strukturiert oder Freitext
+    # 6. Wirkstärke: 5 mg oder 4.6 mg, strukturiert oder Freitext.
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.strength.exists()" mit Fehlermeldung "Für den Wirkstoff ist keine Wirkstärke angegeben"
-    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.where(strength.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-ingredient-amount-extension' and value.ofType(string).where(matches('(?i).*5\\s*mg.*')).exists()).exists() or (strength.numerator.value = 5 and strength.numerator.unit.toString().matches('(?i)^mg$') and strength.denominator.value = 1)).exists()" mit Fehlermeldung "Die Wirkstärke entspricht weder der erwarteten Freitextangabe '5 mg' noch dem erwarteten strukturierten Verhältnis mit 5 mg und der Bezugsmenge 1"
+    Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).ingredient.where(strength.extension.where(url = 'https://gematik.de/fhir/epa-medication/StructureDefinition/medication-ingredient-amount-extension' and value.ofType(string).where(matches('(?i).*(5([\\.,]0+)?|4[\\.,]6)\\s*mg.*')).exists()).exists() or ((strength.numerator.value = 5 or strength.numerator.value = 4.6) and strength.numerator.unit.toString().matches('(?i)^\\s*mg\\s*$') and strength.denominator.value = 1)).exists()" mit Fehlermeldung "Die Wirkstärke entspricht weder '5 mg' noch '4,6 mg' (weder als Freitext noch strukturiert)"
 
     # 7. Darreichungsform: KBV FTA
     Und FHIR request evaluiert FHIRPath "parameter.where(name = 'medication').resource.ofType(Medication).form.exists()" mit Fehlermeldung "Die Darreichungsform der Medication fehlt"

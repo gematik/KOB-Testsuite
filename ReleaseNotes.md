@@ -1,5 +1,9 @@
 # Release Notes KOB Testsuite
 
+## Release 2.0.5 (ePA 3.1.3)
+
+* TF6: The strength validation now accepts 4.6 mg Benazepril (ABDATA) as well as 5 mg Benazepril hydrochlorid (BfArM), consistent with TF1.
+
 ## Release 2.0.4 (ePA 3.1.3)
 
 * Updated the Wirkstoff/ASK code validation for the eML (TF6) test case to accept any matching active ingredient name with a mandatory (but not value-checked) ASK code.
