@@ -30,7 +30,7 @@ Funktion: KOB Testfall 12: Automatische eML-eMP-Verknüpfung durch E-Rezept
     Wenn KOB rufe die Medikationsliste mit der FHIR Operation im Aktensystem "<AS>" für das Aktenkonto des Patienten "<KVNR>" ab
 
      ### Wir überprüfen noch den Verkehr des Abrufs der Medikationsliste
-    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "^\/epa\/medication\/api\/v1\/fhir\/\$medication-list$" übereinstimmt
+    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "^\/epa\/medication\/api\/v1\/fhir\/\$medication-list(\?.*)?$" übereinstimmt
     Und TGR current request with attribute "$.header.[~'host']" matches "<FQDN>.*"
 
     # Äußere Antwort prüfen

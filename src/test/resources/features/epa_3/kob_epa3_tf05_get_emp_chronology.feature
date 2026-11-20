@@ -33,7 +33,7 @@ Funktion: KOB Testfall 5: eMP-Chronologie abrufen
     Und TGR lösche die benutzerdefinierte Fehlermeldung
 
     # Wir überprüfen noch den Verkehr der Abfrage der eMP Chronologie
-    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "^\/epa\/medication\/api\/v1\/fhir\/\$medication-plan-log$" übereinstimmt
+    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "^\/epa\/medication\/api\/v1\/fhir\/\$medication-plan-log(\?.*)?$" übereinstimmt
 
      # Nun prüfen wir die Struktur der äußeren Anfrage
     Dann TGR current request with attribute "$.method" matches "POST"

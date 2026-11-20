@@ -29,7 +29,7 @@ Funktion: KOB Testfall 7: Medikationsliste anzeigen
     Und TGR lösche die benutzerdefinierte Fehlermeldung
 
     ### Wir überprüfen noch den Verkehr des Abrufs der Medikationsliste. Dazu müssen wir zunächst die Anfrage zum Abruf finden
-    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "^\/epa\/medication\/api\/v1\/fhir\/\$medication-list$" übereinstimmt
+    Und TGR finde die letzte Anfrage mit Pfad ".*" und Knoten "$.body.decrypted.path.basicPath" der mit "^\/epa\/medication\/api\/v1\/fhir\/\$medication-list(\?.*)?$" übereinstimmt
 
     # Nun prüfen wir die Struktur der äußeren Anfrage
     Dann TGR current request with attribute "$.method" matches "POST"
